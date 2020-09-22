@@ -4,9 +4,9 @@
 
 import os
 import random
-from Report.ImageUtil import ImageUtil
-from TXKJ_DP.DPTools.parseXml import ParseXml, parse_xml
-from Report.FileOperationUtil import FileOperationUtil
+from ..utils.ImageUtil import ImageUtil
+from .parseXml import ParseXml, parse_xml
+from ..utils.FileOperationUtil import FileOperationUtil
 
 
 

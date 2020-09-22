@@ -5,7 +5,7 @@
 # 处理 iphone 拍照后得到的 livp 格式的图片，解压为 heic + mov 并进一步解析为 jpg
 
 import os
-from Report.ZipUtil import ZipUtil
+from ..utils.ZipUtil import ZipUtil
 import whatimage
 import pyheif
 import traceback

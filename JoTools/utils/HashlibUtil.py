@@ -16,7 +16,7 @@
 import hashlib
 import os
 import shutil
-from Report.FileOperationUtil import FileOperationUtil
+from ..utils.FileOperationUtil import FileOperationUtil
 
 """
 # # 如果数据量很大，可以分块多次调用update()，最后计算的结果是一样的：

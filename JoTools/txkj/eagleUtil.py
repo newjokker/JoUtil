@@ -4,7 +4,7 @@
 
 
 import os
-from ReadData.JsonUtil import JsonUtil
+from ..utils.JsonUtil import JsonUtil
 
 
 class EagleMetaData(object):

@@ -11,7 +11,6 @@ import exifread
 import re
 import json
 import requests
-from Report.FileOperationUtil import FileOperationUtil
 
 
 # TODO 将 img_process 文件夹中的内容全部整合到这里面

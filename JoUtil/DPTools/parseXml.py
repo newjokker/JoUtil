@@ -1,7 +1,7 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-from Jo_util.Report.XmlUtil import XmlUtil
+from JoUtil.Report import XmlUtil
 
 
 class ParseXml(object):
@@ -122,7 +122,6 @@ class ParseXml(object):
                         XmlUtil.add_sub_node(root, bndbox_node, each_bndbox, each_object["bndbox"][each_bndbox])
         # 保存 xml 到文件
         XmlUtil.save_xml(root, save_path)
-
 
 def parse_xml(xml_path):
     """简易的函数使用版本"""

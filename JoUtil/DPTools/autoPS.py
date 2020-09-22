@@ -4,9 +4,9 @@
 
 import os
 import random
-from Jo_util.Report import ImageUtil
-from Jo_util.DPTools import ParseXml, parse_xml
-from Jo_util.Report.FileOperationUtil import FileOperationUtil
+from JoUtil.Report import ImageUtil
+from JoUtil.DPTools.parseXml import ParseXml, parse_xml
+from JoUtil.Report.FileOperationUtil import FileOperationUtil
 
 
 

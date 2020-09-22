@@ -6,15 +6,17 @@ import cv2
 import numpy as np
 import random
 import os
-from Jo_util.Report.FileOperationUtil import FileOperationUtil
-from Jo_util.DPTools.parseXml import parse_xml, save_to_xml
+from JoUtil.Report.FileOperationUtil import FileOperationUtil
+from JoUtil.DPTools.parseXml import parse_xml, save_to_xml
 import copy
 import collections
 
 
-# todo 可用于中间结果，这样可以直接裁剪并保存，如何指定每一个裁剪保存的名字是一个关键
-# todo 具有可扩展性，可以继承并丰富其中的内容
-# todo xml_info 应该进行重写，不应该将结果放在字典中，而应该放在类中，这样编程比较方便，不容易出错
+"""
+* 可用于中间结果，这样可以直接裁剪并保存，如何指定每一个裁剪保存的名字是一个关键
+* 具有可扩展性，可以继承并丰富其中的内容
+* xml_info 应该进行重写，不应该将结果放在字典中，而应该放在类中，这样编程比较方便，不容易出错
+"""
 
 
 class DeteObj(object):

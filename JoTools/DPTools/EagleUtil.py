@@ -2,7 +2,7 @@
 # -*- author: jokker -*-
 
 
-from JoUtil.ReadData.JsonUtil import JsonUtil
+from JoTools.Report.JsonUtil import JsonUtil
 
 
 class EagleMetaData(object):

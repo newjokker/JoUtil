@@ -7,7 +7,7 @@
 
 from PIL import Image
 import os
-from JoUtil.Report.FileOperationUtil import FileOperationUtil
+from JoTools.Report.FileOperationUtil import FileOperationUtil
 
 
 class TrickUtil(object):

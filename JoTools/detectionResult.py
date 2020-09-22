@@ -6,8 +6,8 @@ import cv2
 import numpy as np
 import random
 import os
-from JoUtil.Report.FileOperationUtil import FileOperationUtil
-from JoUtil.DPTools.parseXml import parse_xml, save_to_xml
+from Report.FileOperationUtil import FileOperationUtil
+from DPTools.parseXml import parse_xml, save_to_xml
 import copy
 import collections
 
@@ -425,3 +425,4 @@ if __name__ == "__main__":
 
     for each in check_res.items():
         print(each)
+

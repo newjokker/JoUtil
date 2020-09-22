@@ -5,8 +5,8 @@ import os
 import time
 import numpy as np
 import prettytable
-from JoUtil.DPTools.parseXml import parse_xml, ParseXml
-from JoUtil.Report.FileOperationUtil import FileOperationUtil
+from .DPTools.parseXml import parse_xml, ParseXml
+from .Report.FileOperationUtil import FileOperationUtil
 import matplotlib.pyplot as plt
 from progress.bar import Bar
 

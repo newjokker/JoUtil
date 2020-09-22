@@ -4,14 +4,20 @@
 
 
 import os
+import copy
 import random
 import math
 import shutil
 import numpy as np
-from JoTools.Report.JsonUtil import JsonUtil
-from JoTools.Report import ImageUtil, CsvUtil
-from JoTools.DPTools.parseXml import ParseXml, parse_xml
-from JoTools.Report.FileOperationUtil import FileOperationUtil
+import prettytable
+from ReadData.JsonUtil import JsonUtil
+from ReadData.CsvUtil import CsvUtil
+from Report.ImageUtil import ImageUtil
+from TXKJ_DP.DPTools.parseXml import ParseXml, parse_xml
+from Report.FileOperationUtil import FileOperationUtil
+from PIL import Image
+
+
 
 """
 * 专门用于处理 efficient 用于训练的数据，也就是将数据转为  efficientdet 可以训练的样式

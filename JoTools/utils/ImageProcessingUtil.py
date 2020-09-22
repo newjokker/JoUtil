@@ -3,7 +3,7 @@
 
 import numpy as np
 import cv2
-from skimage import data
+from skimage import io, data
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndi
 
@@ -11,6 +11,7 @@ import exifread
 import re
 import json
 import requests
+from Report.FileOperationUtil import FileOperationUtil
 
 
 # TODO 将 img_process 文件夹中的内容全部整合到这里面
@@ -205,6 +206,8 @@ class ImageProcessingUtil(object):
         """自适应直方图均衡化"""
         import cv2
         import numpy as np
+        from PIL import Image
+        import scipy
         import matplotlib.image as img
 
         # 参考 ： https://www.cnblogs.com/my-love-is-python/p/10405811.html

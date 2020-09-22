@@ -5,11 +5,11 @@ import os
 import time
 import numpy as np
 import prettytable
-from .DPTools.parseXml import parse_xml, ParseXml
-from .Report.FileOperationUtil import FileOperationUtil
+from .txkj.parseXml import ParseXml, parse_xml
+from .utils.FileOperationUtil import FileOperationUtil
 import matplotlib.pyplot as plt
 from progress.bar import Bar
-
+import progressbar
 
 class OperateResXml(object):
     """用于统计和处理结果 xml 中的信息"""
@@ -116,8 +116,6 @@ class OperateResXml(object):
             xml_info['object'] = new_objects
             save_path = os.path.join(save_xml_dir, os.path.split(each_xml_path)[1])
             a.save_to_xml(save_path, assign_xml_info=xml_info)
-
-    # todo 裁剪小图到文件夹，实现裁剪一个小图即可
 
 
 def test():

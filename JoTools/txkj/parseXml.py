@@ -1,7 +1,7 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-from JoTools.Report.XmlUtil import XmlUtil
+from ..utils.XmlUtil import XmlUtil
 
 
 class ParseXml(object):

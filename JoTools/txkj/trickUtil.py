@@ -6,8 +6,14 @@
 # todo 对检测模型进行修改，一次性多检测几个图片
 
 from PIL import Image
+import cv2
+import numpy as np
+import random
 import os
-from JoTools.Report.FileOperationUtil import FileOperationUtil
+from Report.FileOperationUtil import FileOperationUtil
+from TXKJ_DP.DPTools.parseXml import ParseXml, parse_xml
+import uuid
+import shutil
 
 
 class TrickUtil(object):

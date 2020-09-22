@@ -13,10 +13,10 @@ import imagehash
 import cv2
 import numpy as np
 from PIL import Image
-from Jo_util.Report import HashLibUtil
-from Jo_util.Report.FileOperationUtil import FileOperationUtil
-from Jo_util.ReadData import PickleUtil
-from Jo_util.Report import DecoratorUtil
+from Report.HashlibUtil import HashLibUtil
+from Report.FileOperationUtil import FileOperationUtil
+from ReadData.PickleUtil import PickleUtil
+from Report.DecoratorUtil import DecoratorUtil
 
 
 class HashImageUtil(object):

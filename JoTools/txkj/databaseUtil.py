@@ -8,10 +8,11 @@ import math
 import shutil
 import numpy as np
 import prettytable
-from JoTools.Report.JsonUtil import JsonUtil
-from JoTools.Report import ImageUtil, CsvUtil
-from JoTools.DPTools.parseXml import parse_xml, ParseXml
-from JoTools.Report.FileOperationUtil import FileOperationUtil
+from ReadData.JsonUtil import JsonUtil
+from ReadData.CsvUtil import CsvUtil
+from Report.ImageUtil import ImageUtil
+from TXKJ_DP.DPTools.parseXml import ParseXml, parse_xml
+from Report.FileOperationUtil import FileOperationUtil
 from PIL import Image
 
 # 这里面核心函数就是对 Efficientdet 数据的支持，其他的都可以删掉，无所谓

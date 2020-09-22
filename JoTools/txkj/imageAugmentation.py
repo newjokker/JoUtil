@@ -5,7 +5,7 @@ import os
 from PIL import Image,ImageEnhance
 import cv2
 import numpy as np
-from JoTools.Report.FileOperationUtil import FileOperationUtil
+from Report.FileOperationUtil import FileOperationUtil
 
 
 # todo 图像的扩增代码

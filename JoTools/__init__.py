@@ -4,7 +4,9 @@
 
 
 import sys
+import os
 
-sys.path.append('../JoTools')
-sys.path.append('./DPTools')
-sys.path.append('./Report')
+# 没有下面三行代码，就会报错
+this_dir = os.path.dirname(__file__)
+lib_path = os.path.join(this_dir, '..')
+sys.path.insert(0, lib_path)

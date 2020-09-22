@@ -1,13 +1,22 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
+import os
+import sys
+
+
+# 没有下面三行代码，就会报错
+this_dir = os.path.dirname(__file__)
+lib_path = os.path.join(this_dir, '.')
+sys.path.insert(0, lib_path)
+
+
 from PIL import Image
 import cv2
 import numpy as np
 import random
-import os
-from Report.FileOperationUtil import FileOperationUtil
-from DPTools.parseXml import parse_xml, save_to_xml
+from .utils.FileOperationUtil import FileOperationUtil
+from JoTools.txkj.parseXml import parse_xml, save_to_xml
 import copy
 import collections
 

@@ -7,7 +7,7 @@ from setuptools import setup
 setup(
 
     name='JoUtil',                              # 打包起来的包的文件名
-    version='0.0.1',                            # 版本
+    version='0.0.2',                            # 版本
     description='a tools for TXKJ algo',        # 描述
     author='jokker',                            # 作者
     author_email='18761609908@163.com',         # 邮箱
@@ -23,3 +23,5 @@ setup(
 # 注意
 # 需要将用到的包全部写到 packages 参数后
 # 需要在 setup.py 同级目录创建一个 test.py 文件用于测试
+
+

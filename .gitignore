@@ -21,3 +21,5 @@ src\*.py[cod]
 ./dist/
 ./JoUtil.egg-info/
 
+# make .ignore work immediately : https://blog.csdn.net/x541211190/article/details/106052777
+

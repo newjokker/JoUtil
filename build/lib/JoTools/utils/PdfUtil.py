@@ -5,8 +5,7 @@
 
 # import PDFMiner
 import pdfkit
-from Report.FileOperationUtil import FileOperationUtil
-from Report.StrUtil import StrUtil
+from ..utils.FileOperationUtil import FileOperationUtil
 
 
 # 读取 pdf 中的内容:http://www.ityouknow.com/python/2020/01/02/python-pdf-107.html

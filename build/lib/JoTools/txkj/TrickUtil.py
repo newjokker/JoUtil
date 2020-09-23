@@ -10,8 +10,8 @@ import cv2
 import numpy as np
 import random
 import os
-from Report.FileOperationUtil import FileOperationUtil
-from TXKJ_DP.DPTools.parseXml import ParseXml, parse_xml
+from ..utils.FileOperationUtil import FileOperationUtil
+from .parseXml import ParseXml, parse_xml
 import uuid
 import shutil
 

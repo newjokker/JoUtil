@@ -6,9 +6,11 @@ import sys
 
 
 # 没有下面三行代码，就会报错
-this_dir = os.path.dirname(__file__)
-lib_path = os.path.join(this_dir, '.')
-sys.path.insert(0, lib_path)
+# this_dir = os.path.dirname(__file__)
+# lib_path = os.path.join(this_dir, '.')
+# sys.path.insert(0, lib_path)
+
+# 错误的原因是：在一个 py 文件中，运行代码和调用这个 py 文件 import 的内容不一样
 
 
 from PIL import Image
@@ -16,7 +18,7 @@ import cv2
 import numpy as np
 import random
 from .utils.FileOperationUtil import FileOperationUtil
-from JoTools.txkj.parseXml import parse_xml, save_to_xml
+from .txkj.parseXml import parse_xml, save_to_xml
 import copy
 import collections
 
@@ -410,7 +412,7 @@ class OperateDeteRes(object):
 if __name__ == "__main__":
 
     # xml_info = parse_xml()
-
+    #
     # a = DeteRes(r"C:\Users\14271\Desktop\del\test.xml")
     # a.img_path = r"C:\Users\14271\Desktop\del\test.jpg"
     #

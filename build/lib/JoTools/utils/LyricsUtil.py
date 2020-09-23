@@ -3,7 +3,7 @@
 
 """歌词解析，格式很简单，可以写一个脚本进行解析"""
 
-from Report.StrUtil import StrUtil
+from ..utils.StrUtil import StrUtil
 
 
 class LyricsUtil(object):

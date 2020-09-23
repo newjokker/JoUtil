@@ -7,7 +7,7 @@
 """
 
 import os
-from Report.XmlUtil import XmlUtil
+from .XmlUtil import XmlUtil
 
 
 class HTHTOutputXml(object):

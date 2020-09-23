@@ -18,7 +18,7 @@ import logging
 import uuid
 import os
 import shutil
-from ReadData.ArcpyOsgeoUtil import ArcpyOsgeoUtil
+from .ArcpyOsgeoUtil import ArcpyOsgeoUtil
 from collections import Counter
 # from Algo.BFS.GetPlaque import GetPlaque
 # from skimage import measure

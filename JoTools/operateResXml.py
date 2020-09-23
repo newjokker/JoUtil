@@ -19,9 +19,13 @@ class OperateResXml(object):
     def show_class_count(xml_folder):
         """查看 voc xml 的标签"""
         xml_info, name_dict = [], {}
-
         # 遍历 xml 统计 xml 信息
-        for each_xml_path in FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml')):
+        xml_list = FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml'))
+        # 进度条
+        pb = progressbar.ProgressBar(len(xml_list))
+        pb.start()
+        for xml_index, each_xml_path in enumerate(xml_list):
+            pb.update(xml_index)
             each_xml_info = parse_xml(each_xml_path)
             xml_info.append(each_xml_info)
             for each in each_xml_info['object']:
@@ -29,7 +33,8 @@ class OperateResXml(object):
                     name_dict[each['name']] = 1
                 else:
                     name_dict[each['name']] += 1
-
+        # 结束进度条
+        pb.finish()
         # 将找到的信息用表格输出
         tb = prettytable.PrettyTable()
         tb.field_names = ['class', 'count']
@@ -127,35 +132,6 @@ def test():
 
 
 if __name__ == "__main__":
-
-    # a = progressbar.ProgressBar(100)
-    #
-    # a.start()
-    #
-    # for i in range(10):
-    #     a.update(5)
-    #
-    # # for i in progressbar.ProgressBar(100):
-    #     time.sleep(0.2)
-
-    # import sys, time  # 调用sys模块，time模块
-    #
-    # print("test")
-    #
-    # sys.stdout.write("# ")
-    # for i in range(20):  # 循环20次
-    #     # sys.stdout.write('\033[41;1m.\033[0m')  # 背景色为红色的点
-    #     sys.stdout.write('#')
-    #     # todo 进度条后面显示已经完成的比例
-    #     # print(sys.stdout.seek(i))
-    #     sys.stdout.seek(i+1)
-    #     sys.stdout.flush()  # 边输出边刷新
-    #     time.sleep(0.1)
-    #
-    #
-    # # test()
-    #
-    # exit()
 
     xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\003_检测结果\result_eff_0.15_71"
 

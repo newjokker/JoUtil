@@ -10,11 +10,11 @@ import math
 import shutil
 import numpy as np
 import prettytable
-from ReadData.JsonUtil import JsonUtil
-from ReadData.CsvUtil import CsvUtil
-from Report.ImageUtil import ImageUtil
-from TXKJ_DP.DPTools.parseXml import ParseXml, parse_xml
-from Report.FileOperationUtil import FileOperationUtil
+from ..utils.JsonUtil import JsonUtil
+from ..utils.CsvUtil import CsvUtil
+from ..utils.ImageUtil import ImageUtil
+from .parseXml import ParseXml, parse_xml
+from ..utils.FileOperationUtil import FileOperationUtil
 from PIL import Image
 
 

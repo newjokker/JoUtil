@@ -6,8 +6,8 @@
 * 可以将每一天的火点存在一个 shp 文件中，这样比较清晰，或者是每一期的存放在一个 shp 中
 """
 
-from ReadData.ArcpyOsgeoUtil import ArcpyOsgeoUtil
-from Report.AssistUtil import AssistUtil
+from ..utils.ArcpyOsgeoUtil import ArcpyOsgeoUtil
+from ..utils.AssistUtil import AssistUtil
 import os
 
 

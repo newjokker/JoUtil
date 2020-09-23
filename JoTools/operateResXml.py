@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from progress.bar import Bar
 import progressbar
 
+
 class OperateResXml(object):
     """用于统计和处理结果 xml 中的信息"""
 

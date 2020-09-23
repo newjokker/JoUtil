@@ -3,8 +3,6 @@
 
 import cv2
 from cv2 import VideoWriter, VideoWriter_fourcc, imread, resize
-import shutil
-import datetime
 import os
 import threading
 import platform

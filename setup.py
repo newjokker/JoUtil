@@ -5,12 +5,12 @@ from setuptools import setup, find_packages
 
 setup(
 
-    name='JoUtil',                              # 打包起来的包的文件名
-    version='0.0.3.2',                            # 版本
-    description='a tools for TXKJ algo',        # 描述
-    author='jokker',                            # 作者
-    author_email='18761609908@163.com',         # 邮箱
-    requires=[],                                # 定义依赖哪些模块
+    name='JoUtil',                                                                          # 打包起来的包的文件名
+    version='0.1.3',                                                                        # 版本
+    description='a tools for TXKJ algo',                                                    # 描述
+    author='jokker',                                                                        # 作者
+    author_email='18761609908@163.com',                                                     # 邮箱
+    requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash'],          # 定义依赖哪些模块
     packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/for_csdn/word_pic'],   # 打包的python文件夹
     # packages=find_packages('JoTools'),          # 包含所有 JoTools 中的包
     package_data={

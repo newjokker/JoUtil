@@ -4,9 +4,10 @@
 from JoTools.txkj.parseXml import parse_xml
 from JoTools.operateResXml import OperateResXml
 from JoTools.detectionResult import OperateDeteRes
+from JoTools.for_csdn.word_pic.word_pic import WordImage
+from PIL import Image
 
-
-OperateResXml.show_class_count(r"C:\data\fzc_优化相关资料\dataset_fzc\012_增加step_2标图范围，标图数量\fzc_single_add_35KV\train")
+# OperateResXml.show_class_count(r"C:\data\fzc_优化相关资料\dataset_fzc\012_增加step_2标图范围，标图数量\fzc_single_add_35KV\train")
 # OperateResXml.show_class_count(r"/home/ldq/EfficientDetDetctionTest/Yet-Another-EfficientDet-Pytorch/datasets/fzc_single/train")
 
 
@@ -26,3 +27,15 @@ OperateResXml.show_class_count(r"C:\data\fzc_优化相关资料\dataset_fzc\012_
 #     print(each)
 #
 
+
+ratio = 2  # 图像缩小的比例
+img_path = r"C:\Users\14271\Desktop\test.png"
+save_path = r'C:\Users\14271\Desktop\beer2.jpg'
+# -------------------------------------------------------------------------------------
+
+img = Image.open(img_path)
+width, height = img.size
+new_width, new_height = int(width / ratio), int(height / ratio)
+
+a = WordImage(img_path, new_size=(new_width, new_height), save_path=save_path)
+a.do_process()

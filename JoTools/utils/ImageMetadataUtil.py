@@ -11,7 +11,7 @@ from pyexiv2 import Image
 
 
 class ImageMetadataUtil(object):
-    """图像原数据"""
+    """图像原数据操作"""
 
     @staticmethod
     def add_key_to_img(img_path, key_words):

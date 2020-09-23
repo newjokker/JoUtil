@@ -5,7 +5,7 @@
 
 # import PDFMiner
 import pdfkit
-from ..utils.FileOperationUtil import FileOperationUtil
+from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
 # 读取 pdf 中的内容:http://www.ityouknow.com/python/2020/01/02/python-pdf-107.html

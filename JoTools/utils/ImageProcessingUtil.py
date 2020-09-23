@@ -13,10 +13,6 @@ import json
 import requests
 
 
-# TODO 将 img_process 文件夹中的内容全部整合到这里面
-
-# TODO 以下函数未经过测试，需要使用进行重写和测试
-
 # opencv 安装 conda install -c menpo opencv3  即可
 #整理常用的库函数, 参考 ：https://blog.csdn.net/weixin_42029090/article/details/80618208
 

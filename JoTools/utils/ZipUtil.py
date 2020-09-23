@@ -10,6 +10,7 @@
 
 import zipfile
 import os
+from ..utils.FileOperationUtil import FileOperationUtil
 
 
 class ZipUtil(object):
@@ -60,7 +61,6 @@ class ZipUtil(object):
 
 if __name__ == "__main__":
 
-    from Report.FileOperationUtil import FileOperationUtil
 
     folder_path = r"C:\Users\14271\Desktop\livp"
 

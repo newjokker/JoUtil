@@ -3,7 +3,7 @@
 
 
 import copy
-from .XmlUtil import XmlUtil
+from JoTools.utils.XmlUtil import XmlUtil
 
 
 class AreaInfo(object):

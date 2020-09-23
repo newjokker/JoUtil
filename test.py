@@ -7,6 +7,7 @@ from JoTools.detectionResult import OperateDeteRes
 
 
 OperateResXml.show_class_count(r"C:\data\fzc_优化相关资料\dataset_fzc\012_增加step_2标图范围，标图数量\fzc_single_add_35KV\train")
+# OperateResXml.show_class_count(r"/home/ldq/EfficientDetDetctionTest/Yet-Another-EfficientDet-Pytorch/datasets/fzc_single/train")
 
 
 # a = OperateDeteRes()

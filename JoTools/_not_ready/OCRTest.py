@@ -4,10 +4,7 @@
 import cv2
 import pytesseract
 from pytesseract import Output
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
-import numpy as np
+
 
 # todo 整理好每个字识别的位置，框住就行
 

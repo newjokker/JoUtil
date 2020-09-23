@@ -3,6 +3,7 @@
 
 
 class Properties:
+    """读取属性文件的类"""
 
     def __init__(self, file_name):
         self.file_name = file_name

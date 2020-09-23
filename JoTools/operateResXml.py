@@ -23,8 +23,8 @@ class OperateResXml(object):
         # 遍历 xml 统计 xml 信息
         xml_list = FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml'))
         # 进度条
-        pb = progressbar.ProgressBar(len(xml_list))
-        pb.start()
+        pb = progressbar.ProgressBar(len(xml_list)).start()
+        #
         for xml_index, each_xml_path in enumerate(xml_list):
             pb.update(xml_index)
             each_xml_info = parse_xml(each_xml_path)
@@ -105,7 +105,7 @@ class OperateResXml(object):
             a.save_to_xml(save_path, assign_xml_info=xml_info)
 
     @staticmethod
-    def remove_no_need_class(xml_dir, save_xml_dir, need_obj_name_list, assign_confidence=0.0):
+    def remove_no_need_class(xml_dir, save_xml_dir, need_obj_name_list):
         """去掉不需要的类别"""
 
         if not os.path.exists(save_xml_dir):
@@ -124,14 +124,6 @@ class OperateResXml(object):
             a.save_to_xml(save_path, assign_xml_info=xml_info)
 
 
-def test():
-    bar = Bar('Processing', max=100, fill='#', suffix='%(percent)d%%')
-    for i in range(100):
-        time.sleep(0.1)
-        bar.next()
-    bar.finish()
-
-
 if __name__ == "__main__":
 
     xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\003_检测结果\result_eff_0.15_71"
@@ -139,8 +131,6 @@ if __name__ == "__main__":
     OperateResXml.remove_no_need_class(xml_dir, xml_dir, need_obj_name_list=["K", "Lm", "Xnormal"])
 
     OperateResXml.show_class_count(xml_dir)
-
-    # OperateResXml.show_area_spread(xml_dir, "Lm")
 
 
 

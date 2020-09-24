@@ -4,14 +4,13 @@
 
 import os
 import imagehash
-import cv2
-import numpy as np
 from PIL import Image
-from JoTools.utils.HashlibUtil import HashLibUtil
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.utils.PickleUtil import PickleUtil
-from JoTools.utils.DecoratorUtil import DecoratorUtil
+from ..utils.HashlibUtil import HashLibUtil
+from ..utils.FileOperationUtil import FileOperationUtil
+from ..utils.PickleUtil import PickleUtil
+from ..utils.DecoratorUtil import DecoratorUtil
 import progressbar
+
 
 class HashImageUtil(object):
 
@@ -31,7 +30,7 @@ class HashImageUtil(object):
             if not os.path.isdir(each_img_dir):
                 continue
             # 遍历指定文件夹下面的所有文件
-            print("* 检测文件夹 : {0}".format(each_img_dir))
+            print("* 更新文件夹 : {0}".format(each_img_dir))
             file_img_list = FileOperationUtil.re_all_file(each_img_dir, lambda x:str(x).endswith((".jpg", ".png", ".JPG", ".PNG")))
             pb = progressbar.ProgressBar(len(file_img_list)).start()
             for img_index, each_img_path in enumerate(file_img_list):
@@ -40,7 +39,7 @@ class HashImageUtil(object):
                 # 每 500 张图片保存一下数据库
                 if index % 500 == 0:
                     index += 1
-                    print("* 更新数据库文件")
+                    # print("* 更新数据库文件")
                     self.save_dict_to_pkl()
                 try:
                     each_file_md5 = HashLibUtil.get_file_md5(each_img_path)
@@ -54,7 +53,7 @@ class HashImageUtil(object):
                         self.md5_hash_dict[each_file_md5] = each_img_hash
                 except Exception as e:
                     print(e)
-                pb.finish()
+            pb.finish()
         # 更新本地文件
         self.save_dict_to_pkl()
 
@@ -96,94 +95,16 @@ class HashImageUtil(object):
         find_res = sorted(find_res, key=lambda x:x[0], reverse=False)
         # 打印前 n 个最相似的结果
         print("当前结果，扫描对比 {0} 张图片".format(len(find_res)))
+        res = []
         for each in find_res[:img_count]:
-            print(each[0], self.md5_file_name_dict[each[1]])
-        return find_res[:img_count]
+            # print(each[0], self.md5_file_name_dict[each[1]])
+            res.append((each[0], self.md5_file_name_dict[each[1]]))
+        return res
 
     def do_process(self):
         """主流程"""
         self.do_init()
         # self.update_db()
-
-
-class MatchSmallImage(object):
-    """大图和小图之间的匹配"""
-
-    @staticmethod
-    def get_sift_des(img_path):
-        """输入图像，拿到特征矩阵"""
-        sift = cv2.xfeatures2d_SIFT.create()
-        # img = cv2.imread(img_path)
-        img = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
-        kp, des = sift.detectAndCompute(img, None)
-        return des
-
-    @staticmethod
-    def get_match_index_between_des(des_big, des_small, threshold=0.1):
-        """计算两个图像 des 之间的相似度"""
-        bf = cv2.BFMatcher(cv2.NORM_L2)
-        matches = bf.knnMatch(des_big, des_small, k=2)        # k = 2  返回两个最佳匹配
-
-        goodMatch = []
-        for m, n in matches:
-            if m.distance < threshold * n.distance:     # 第一个最匹配的要比第二个最匹配的匹配程度好好的多，就算是好的匹配点
-                goodMatch.append(m)
-
-        return float(len(goodMatch))/float(len(des_small))
-
-    @staticmethod
-    def do_init_for_small_img(small_img_dir, save_dir, file_coun=50):
-        """将小图进行处理"""
-        res = []
-        pkl_index = 0
-        for img_index, each_img_path in enumerate(FileOperationUtil.re_all_file(small_img_dir, lambda x:str(x).endswith('.jpg'))):
-            # 只是提取前 100 个特征即可
-            each_des = MatchSmallImage.get_sift_des(each_img_path)[:400]
-            res.append((os.path.split(each_img_path)[1], each_des))
-            print(img_index, each_img_path)
-            if (img_index+1) % file_coun == 0:
-                save_path = os.path.join(save_dir, "{0}.pkl".format(pkl_index))
-                pkl_index += 1
-                PickleUtil.save_data_to_pickle_file(res, save_path)
-                print("save file --> {0}".format(save_path))
-                res = []
-
-        # 保存剩余的数据
-        if len(res) != 0:
-            save_path = os.path.join(save_dir, "{0}.pkl".format(pkl_index))
-            PickleUtil.save_data_to_pickle_file(res, save_path)
-            print("save file --> {0}".format(save_path))
-
-    @staticmethod
-    @DecoratorUtil.time_this
-    def find_match_with_pkl_file(img_des, pkl_file):
-        """从存储在本地文件中的小图中寻找匹配的图"""
-        res_name_list = []
-        des_1 = MatchSmallImage.get_sift_des(img_des)
-
-        # 随机拿其中的百分之一的特征
-        np.random.shuffle(des_1)
-        des_1 = des_1[:int(des_1.shape[0]/10)]
-
-        print("OK")
-
-        des_list = PickleUtil.load_data_from_pickle_file(pkl_file)
-        print(len(des_list))
-
-        for each in des_list:
-            img_name, each_des = each
-            res = MatchSmallImage.get_match_index_between_des(des_1, each_des)
-            # print(each_des.shape)
-            if res > 10**-10:
-                res_name_list.append(img_name)
-
-        return res_name_list
-
-    # todo 得到小图和大图之间的匹配关系，小图在大图中的位置
-
-    # todo 得到小图和大图之间的匹配关系
-
-
 
 
 if __name__ == "__main__":
@@ -201,4 +122,7 @@ if __name__ == "__main__":
     a.do_init()
     a.update_db()
     # 需要数据库中指定相似的图片
-    a.find_most_similar_img(r"C:\Users\14271\Desktop\save_res_2\test.jpg", img_count=1)
+    res = a.find_most_similar_img(r"C:\Users\14271\Desktop\save_res_2\test.jpg", img_count=1)
+
+    for each in res:
+        print(each)

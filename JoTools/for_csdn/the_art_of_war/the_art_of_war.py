@@ -4,14 +4,14 @@
 
 import random
 import time
-
-
+import os
 
 class TheArtOfWar(object):
     """孙子兵法"""
 
     def __init__(self):
-        self._txt_path = r'.\data\the art of war.txt'        # 文件地址
+        # 文件地址
+        self._txt_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), r'./data/the_art_of_war.txt')
         self.fixed_interval_time = 1                            # 固定的间隔时间
         self.line_list = []                                     # 读取到的每一行组成的列表
         self._show_style = 0                                    # 显示的样式

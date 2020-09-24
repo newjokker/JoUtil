@@ -1,23 +1,17 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-# todo 找到图片数据库中最相似的图片
-# todo 制作图片数据库，{ md5 : 文件的 hash 值 }
-# todo 分为两个字典，{(img_hash : md5) }, { md5 : img_path }, 中间为什么要加上一个 md5 值呢，为什么不直接用文件名来代替，因为文件可能会新增，可能会改名，这时候只需要改变第二个表就行，新增可以使用 md5 进行判断
-# todo 第一个不应该是字典，应该是 set，设计上只能新增和清空，不能指定删减
-# todo 第二个字典会经常的改变，每一次初始化的时候都要去检查几个数据库文件夹中是不是有新增的文件，是不是忽略新增的文件，不忽略的话，改动这个表，并将新的图片的数据放计算并跟新到指定的数据库中去
-
 
 import os
 import imagehash
 import cv2
 import numpy as np
 from PIL import Image
-from ..utils.HashlibUtil import HashLibUtil
-from ..utils.FileOperationUtil import FileOperationUtil
-from ..utils.PickleUtil import PickleUtil
-from ..utils.DecoratorUtil import DecoratorUtil
-
+from JoTools.utils.HashlibUtil import HashLibUtil
+from JoTools.utils.FileOperationUtil import FileOperationUtil
+from JoTools.utils.PickleUtil import PickleUtil
+from JoTools.utils.DecoratorUtil import DecoratorUtil
+import progressbar
 
 class HashImageUtil(object):
 
@@ -37,26 +31,30 @@ class HashImageUtil(object):
             if not os.path.isdir(each_img_dir):
                 continue
             # 遍历指定文件夹下面的所有文件
-            for each_img_path in FileOperationUtil.re_all_file(each_img_dir, lambda x:str(x).endswith((".jpg", ".png", ".JPG", ".PNG"))):
+            print("* 检测文件夹 : {0}".format(each_img_dir))
+            file_img_list = FileOperationUtil.re_all_file(each_img_dir, lambda x:str(x).endswith((".jpg", ".png", ".JPG", ".PNG")))
+            pb = progressbar.ProgressBar(len(file_img_list)).start()
+            for img_index, each_img_path in enumerate(file_img_list):
                 # 计算图片的 md5 值
-
+                pb.update(img_index+1)
                 # 每 500 张图片保存一下数据库
                 if index % 500 == 0:
+                    index += 1
+                    print("* 更新数据库文件")
                     self.save_dict_to_pkl()
-
                 try:
                     each_file_md5 = HashLibUtil.get_file_md5(each_img_path)
                     # 是个新文件，没有计算过 img_hash
                     if not each_file_md5 in self.md5_hash_dict:
                         index += 1
-                        print(index, each_img_path)
-
+                        # print(index, each_img_path)
                         self.md5_file_name_dict[each_file_md5] = each_img_path
                         # 计算图像的 hash 值
                         each_img_hash = imagehash.average_hash(Image.open(each_img_path), hash_size=self.hash_size)
                         self.md5_hash_dict[each_file_md5] = each_img_hash
                 except Exception as e:
                     print(e)
+                pb.finish()
         # 更新本地文件
         self.save_dict_to_pkl()
 
@@ -191,22 +189,16 @@ class MatchSmallImage(object):
 if __name__ == "__main__":
 
 
-    # todo 更快的计算差值的方法，把所有图片的 hash 值组成一个矩阵
-    # todo 对字典进行更新，查看哪些记录的图片路径是否存在，不存在的话在两个字典中删除图片的相关信息
-
     a = HashImageUtil()
     # 指定缓存文件存放文件夹
-    a.db_save_dir = r"C:\Users\14271\Desktop\fzc_测试图片\db_temp"
+    a.save_num = 1000
+    a.db_save_dir = r"C:\Users\14271\Desktop\del\db_temp"
     # 指定数据库文件夹
-    a.db_dir_list = [r"C:\Users\14271\Desktop\fzc_测试图片\test_001",
-                     r"C:\Users\14271\Desktop\fzc_测试图片\test_002",
-                     r"C:\Users\14271\Desktop\fzc_测试图片\test_003",
-                     r"C:\Users\14271\Desktop\fzc_测试图片\test_004",
-                     r"C:\Users\14271\Desktop\fzc_测试图片\test_005"]
+    a.db_dir_list = [
+        r"C:\data\fzc_优化相关资料\dataset_fzc\001_图片大小转为1280\train_img",
+        r"C:\data\fzc_优化相关资料\dataset_fzc\001_图片大小转为1280\res_img_dir",]
     # 初始化
     a.do_init()
-    # a.update_db()
+    a.update_db()
     # 需要数据库中指定相似的图片
-    # a.find_most_similar_img(r"C:\Users\14271\Desktop\fzc_测试图片\test_005\dd0c5b54-f349-11ea-9d13-485f991ea484.jpg", img_count=1)
-    # a.find_most_similar_img(r"C:\Users\14271\Desktop\fzc_测试图片\test_002\47e8918a-f349-11ea-903d-485f991ea484.jpg", img_count=1)
-    a.find_most_similar_img(r"C:\Users\14271\Desktop\test.png", img_count=1)
+    a.find_most_similar_img(r"C:\Users\14271\Desktop\save_res_2\test.jpg", img_count=1)

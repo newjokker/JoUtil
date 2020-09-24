@@ -11,7 +11,9 @@ setup(
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
     requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash'],          # 定义依赖哪些模块
-    packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/for_csdn/word_pic'],   # 打包的python文件夹
+    # 打包的python文件夹
+    packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn',
+              'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img'],
     # packages=find_packages('JoTools'),          # 包含所有 JoTools 中的包
     package_data={
         'JoTools/for_csdn/word_pic': ['data/*.pkl'],

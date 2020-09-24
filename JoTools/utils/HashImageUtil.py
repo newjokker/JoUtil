@@ -112,8 +112,9 @@ if __name__ == "__main__":
 
     a = HashImageUtil()
     # 指定缓存文件存放文件夹
-    a.save_num = 1000
     a.db_save_dir = r"C:\Users\14271\Desktop\del\db_temp"
+    # 扫描到多少张新图片保存一次数据库
+    a.save_num = 1000
     # 指定数据库文件夹
     a.db_dir_list = [
         r"C:\data\fzc_优化相关资料\dataset_fzc\001_图片大小转为1280\train_img",

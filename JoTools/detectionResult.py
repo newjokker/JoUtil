@@ -68,6 +68,10 @@ class DeteRes(object):
         # 因为文件名在 xml 中经常写错，所以还是要有一个地方输入正确的文件名的
         if assign_img_path is not None:
             self.img_path = assign_img_path
+            img = Image.open(self.img_path)
+            self.width, self.height = img.size
+            self.folder = os.path.split(self.img_path)[0]
+
 
     def _parse_xml_info(self):
         """解析 xml 中存储的检测结果"""
@@ -186,7 +190,9 @@ class DeteRes(object):
             if augment_parameter is not None:
                 bndbox = self._region_augment(bndbox, [self.width, self.height], augment_parameter=[0.5, 0.5, 0.2, 0.2])
             # 保存截图
-            each_save_path = os.path.join(save_dir, '{0}_{1}_{2}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag]))
+            loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
+            # fixme 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
+            each_save_path = os.path.join(save_dir, '{0}-+-{1}_{2}_{3}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str))
             each_crop = img.crop(bndbox)
             # 对截图的图片自定义操作, 可以指定缩放大小之类的
             if method is not None:
@@ -399,8 +405,6 @@ class OperateDeteRes(object):
 
         return check_res
 
-    # ------------------------------------------------------------------------------------------------------------------
-
     @staticmethod
     def filter_by_area_ratio(xml_dir, area_ratio_threshold=0.0006, save_dir=None):
         """根据面积比例阈值进行筛选"""
@@ -422,6 +426,101 @@ class OperateDeteRes(object):
             else:
                 new_save_xml = os.path.join(save_dir, os.path.split(each_xml_path)[1])
                 a.save_to_xml(new_save_xml)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    @staticmethod
+    def _get_loc_list(img_name):
+        """提取截图中的图片位置"""
+        loc_str = ""
+        start = False
+        #
+        for each_i in img_name[::-1]:
+            #
+            if start is True:
+                loc_str += each_i
+
+            if each_i == ']':
+                start = True
+            elif each_i == '[':
+                break
+
+        loc_list = loc_str[::-1].strip('[]').split("_")
+        loc_list = list(map(lambda x: int(x), loc_list))
+        return loc_list
+
+    @staticmethod
+    def _get_region_img_name(img_name):
+        """找到原始的文件名"""
+        a = str(img_name).find("-+-")
+        return img_name[:a]
+
+    @staticmethod
+    def _get_crop_img_tag(img_name):
+        """获取裁切小图的标签"""
+        a = str(img_name).find("-+-")
+        b = img_name[a + 3:]
+        tag = b.split('_')[0]
+        return tag
+
+    @staticmethod
+    def get_xml_from_crop_img(xml_dir, region_img_dir, save_xml_dir=None):
+        """从小图构建 xml，用于快速指定标签和核对问题，可以将 labelimg 设置为使用固定标签进行标注（等待修改）"""
+
+        # todo 原先的标签和现在的标签不一致，就打印出内容
+
+        if save_xml_dir is None:
+            save_xml_dir = region_img_dir
+
+        dete_res_dict = {}
+        # 小截图信息获取
+        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith('.jpg')):
+            img_dir, img_name = os.path.split(each_xml_path)
+            # 位置
+            loc = OperateDeteRes._get_loc_list(img_name)
+            # 原先的标签
+            region_tag = OperateDeteRes._get_crop_img_tag(img_name)
+            # 现在的标签
+            each_tag = img_dir[len(xml_dir) + 1:]
+            # 原先的文件名
+            region_img_name = OperateDeteRes._get_region_img_name(img_name)
+            # 拿到最新的 tag 信息
+            a = DeteObj(x1=loc[0], y1=loc[1], x2=loc[2], y2=loc[3], tag=each_tag)
+            #
+            if region_img_name in dete_res_dict:
+                dete_res_dict[region_img_name].append(a)
+            else:
+                dete_res_dict[region_img_name] = [a]
+
+        # 将小图信息合并为大图
+        for each_img_name in dete_res_dict:
+            region_img_path = os.path.join(region_img_dir, "{0}.jpg".format(each_img_name))
+
+            # 去除找不到文件
+            if not os.path.exists(region_img_path):
+                continue
+
+            # 保存文件
+            a = DeteRes(assign_img_path=region_img_path)
+            a.reset_alarms(dete_res_dict[each_img_name])
+            xml_path = os.path.join(save_xml_dir, "{0}.xml".format(each_img_name))
+            a.save_to_xml(xml_path)
+
+    @staticmethod
+    def crop_imgs(img_dir, xml_dir, save_dir):
+        """将文件夹下面的所有 xml 进行裁剪"""
+        index = 0
+        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith(".xml")):
+            each_img_path = os.path.join(img_dir, os.path.split(each_xml_path)[1][:-3] + 'jpg')
+            print(index, each_xml_path)
+            a = DeteRes(each_xml_path)
+            a.img_path = each_img_path
+            a.crop_and_save(save_dir)
+            index += 1
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+
 
 if __name__ == "__main__":
 

@@ -224,8 +224,8 @@ class CocoDatabaseUtil(object):
         if xml_folder is None:
             xml_folder = img_folder
         # 创建保存文件夹
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+        if not os.path.exists(save_folder):
+            os.makedirs(save_folder)
 
         # 创建 train 和 val 文件夹
         train_dir = os.path.join(save_folder, "train")
@@ -697,59 +697,59 @@ class DatabaseKG():
 
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    img_dir = r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_new"
-    xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_new"
-    save_dir = r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_reshape"
-
-    # category_dict = {"middle_pole":1, "single":2, "no_single":3}
-    # category_dict = {"fzc":1, "zd":2, "xj":3, "other":4, "ljj":5}
-    # category_dict = {"fzc":1, "zfzc":2, "hzfzc":3, "holder":4, "single":5}
-    category_dict = {"K":1, "KG":2, "Lm":3, "dense2":4, "other_L4kkx":5,"other_fist":6,"other_fzc":7,"other1":8,"other2":9,
-                     "other3":10, "other4":11, "other5":12, "other6":13, "other7":14, "other8":15, "other9":16, "dense1":17, "dense3":18}
-
-
-    # DatabaseUtil.change_img_to_coco_format(img_dir, save_dir, 1536, xml_dir, category_dict=category_dict, file_head="")
-
-    # merge_dict = {"fzc_broken": 'fzc', "fzc": "fzc", "Fnormal": "fzc", "xj": "xj", "ljj": "ljj", "other": "other", "zd": "zd"}
-    # merge_dict = {"middle_single": "middle_pole", "no_single": "no_single", "middle_pole":"middle_pole", "single":"single"}
-    # DatabaseUtil.merge_voc_class(xml_dir, merge_dict=merge_dict,
-    #                              save_folder=r"C:\Users\14271\Desktop\dataset_fzc\013_再次增加标图数量，而且全部采用扩展后的图\001_新增的小防振锤")
-
-    CocoDatabaseUtil.show_voc_class_info(r"C:\Users\14271\Desktop\优化开口销第二步\003_检测结果\result_faster")
-
-    # --------------------------------------------------------------------------------------------------------
-    # xmlDir = r"C:\Users\14271\Desktop\优化开口销第二步\000_原始数据_Part_CY-JTM_OrignalPic-Xml20200515"
-    # saveDir = r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_new"
+    # img_dir = r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_new"
+    # xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_new"
+    # save_dir = r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_reshape"
     #
-    # for index, each_xml_path in enumerate(FileOperationUtil.re_all_file(xmlDir, lambda x:str(x).endswith((".xml")))[:1922]):
-    #     print(index, each_xml_path)
-    #     DatabaseKG.get_subset_from_pic(each_xml_path, saveDir)
-    # --------------------------------------------------------------------------------------------------------
-
-    # DatabaseUtil.show_area_spread(r"C:\Users\14271\Desktop\del\step_1_0.1")
-
-    # DatabaseUtil.voc2coco(r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_new",
-    #                       r"C:\Users\14271\Desktop\instances_val.json",
-    #                       category_dict=category_dict)
-
-    # DatabaseUtil.coco2voc(r"C:\Users\14271\Desktop\del.json", save_folder=r"C:\Users\14271\Desktop\del123")
-
-    # DatabaseUtil.analyze_detection_res_in_every_section(r"C:\Users\14271\Desktop\防振锤优化\006_使用多分类\004_数据反标，增加训练量，efficientdet-d7_282_94090\merge_0.7",
-    #                                                     r"C:\Users\14271\Desktop\防振锤优化\006_使用多分类\004_数据反标，增加训练量，efficientdet-d7_282_94090\result",
-    #                                                     r"C:\Users\14271\Desktop\防振锤优化\007_根据置信度分级设置规则\res_normal",section_list = [0, 0.4, 0.6, 0.8, 1])
-
-    # DatabaseUtil.remove_no_need_object(r"C:\Users\14271\Desktop\防振锤优化\000_标准测试集\xml_zd",
-    #                                    r"C:\Users\14271\Desktop\防振锤优化\000_标准测试集\xml_remove_zd", {"Fnormal", "fzc_broken"}, assign_confidence=0.5)
-
-    # DatabaseUtil.find_broken_fzc(r"C:\Users\14271\Desktop\step_2", r"C:\Users\14271\Desktop\compare")
-
-    # DatabaseUtil.find_imgs_which_have_xml(r"C:\Users\14271\Desktop\防振锤优化\000_标准测试集\35kV", r"C:\Users\14271\Desktop\防振锤优化\000_标准测试集\no_fzc")
-
-    # DatabaseUtil.crop_small_img(r"C:\Users\14271\Desktop\dataset_fzc\012_增加step_2标图范围，标图数量\fzc_single_add_35KV\train",
-    #                             r"C:\Users\14271\Desktop\检查 no_single 是不是标对了", assign_name_list=["no_single"],
-    #                             xml_dir=r"C:\Users\14271\Desktop\dataset_fzc\012_增加step_2标图范围，标图数量\fzc_single_add_35KV\train")
-
-    # DatabaseUtil.re_set_diffcult_info(r"C:\Users\14271\Desktop\dataset_fzc\013_再次增加标图数量，而且全部采用扩展后的图\002_最开始数据中的小防振锤",
-    #                                   r"C:\Users\14271\Desktop\dataset_fzc\013_再次增加标图数量，而且全部采用扩展后的图\002_最开始数据中的小防振锤")
+    # # category_dict = {"middle_pole":1, "single":2, "no_single":3}
+    # # category_dict = {"fzc":1, "zd":2, "xj":3, "other":4, "ljj":5}
+    # # category_dict = {"fzc":1, "zfzc":2, "hzfzc":3, "holder":4, "single":5}
+    # category_dict = {"K":1, "KG":2, "Lm":3, "dense2":4, "other_L4kkx":5,"other_fist":6,"other_fzc":7,"other1":8,"other2":9,
+    #                  "other3":10, "other4":11, "other5":12, "other6":13, "other7":14, "other8":15, "other9":16, "dense1":17, "dense3":18}
+    #
+    #
+    # # DatabaseUtil.change_img_to_coco_format(img_dir, save_dir, 1536, xml_dir, category_dict=category_dict, file_head="")
+    #
+    # # merge_dict = {"fzc_broken": 'fzc', "fzc": "fzc", "Fnormal": "fzc", "xj": "xj", "ljj": "ljj", "other": "other", "zd": "zd"}
+    # # merge_dict = {"middle_single": "middle_pole", "no_single": "no_single", "middle_pole":"middle_pole", "single":"single"}
+    # # DatabaseUtil.merge_voc_class(xml_dir, merge_dict=merge_dict,
+    # #                              save_folder=r"C:\Users\14271\Desktop\dataset_fzc\013_再次增加标图数量，而且全部采用扩展后的图\001_新增的小防振锤")
+    #
+    # CocoDatabaseUtil.show_voc_class_info(r"C:\Users\14271\Desktop\优化开口销第二步\003_检测结果\result_faster")
+    #
+    # # --------------------------------------------------------------------------------------------------------
+    # # xmlDir = r"C:\Users\14271\Desktop\优化开口销第二步\000_原始数据_Part_CY-JTM_OrignalPic-Xml20200515"
+    # # saveDir = r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_new"
+    # #
+    # # for index, each_xml_path in enumerate(FileOperationUtil.re_all_file(xmlDir, lambda x:str(x).endswith((".xml")))[:1922]):
+    # #     print(index, each_xml_path)
+    # #     DatabaseKG.get_subset_from_pic(each_xml_path, saveDir)
+    # # --------------------------------------------------------------------------------------------------------
+    #
+    # # DatabaseUtil.show_area_spread(r"C:\Users\14271\Desktop\del\step_1_0.1")
+    #
+    # # DatabaseUtil.voc2coco(r"C:\Users\14271\Desktop\优化开口销第二步\001_训练数据\save_small_img_new",
+    # #                       r"C:\Users\14271\Desktop\instances_val.json",
+    # #                       category_dict=category_dict)
+    #
+    # # DatabaseUtil.coco2voc(r"C:\Users\14271\Desktop\del.json", save_folder=r"C:\Users\14271\Desktop\del123")
+    #
+    # # DatabaseUtil.analyze_detection_res_in_every_section(r"C:\Users\14271\Desktop\防振锤优化\006_使用多分类\004_数据反标，增加训练量，efficientdet-d7_282_94090\merge_0.7",
+    # #                                                     r"C:\Users\14271\Desktop\防振锤优化\006_使用多分类\004_数据反标，增加训练量，efficientdet-d7_282_94090\result",
+    # #                                                     r"C:\Users\14271\Desktop\防振锤优化\007_根据置信度分级设置规则\res_normal",section_list = [0, 0.4, 0.6, 0.8, 1])
+    #
+    # # DatabaseUtil.remove_no_need_object(r"C:\Users\14271\Desktop\防振锤优化\000_标准测试集\xml_zd",
+    # #                                    r"C:\Users\14271\Desktop\防振锤优化\000_标准测试集\xml_remove_zd", {"Fnormal", "fzc_broken"}, assign_confidence=0.5)
+    #
+    # # DatabaseUtil.find_broken_fzc(r"C:\Users\14271\Desktop\step_2", r"C:\Users\14271\Desktop\compare")
+    #
+    # # DatabaseUtil.find_imgs_which_have_xml(r"C:\Users\14271\Desktop\防振锤优化\000_标准测试集\35kV", r"C:\Users\14271\Desktop\防振锤优化\000_标准测试集\no_fzc")
+    #
+    # # DatabaseUtil.crop_small_img(r"C:\Users\14271\Desktop\dataset_fzc\012_增加step_2标图范围，标图数量\fzc_single_add_35KV\train",
+    # #                             r"C:\Users\14271\Desktop\检查 no_single 是不是标对了", assign_name_list=["no_single"],
+    # #                             xml_dir=r"C:\Users\14271\Desktop\dataset_fzc\012_增加step_2标图范围，标图数量\fzc_single_add_35KV\train")
+    #
+    # # DatabaseUtil.re_set_diffcult_info(r"C:\Users\14271\Desktop\dataset_fzc\013_再次增加标图数量，而且全部采用扩展后的图\002_最开始数据中的小防振锤",
+    # #                                   r"C:\Users\14271\Desktop\dataset_fzc\013_再次增加标图数量，而且全部采用扩展后的图\002_最开始数据中的小防振锤")

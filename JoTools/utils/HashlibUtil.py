@@ -74,6 +74,7 @@ class HashLibUtil(object):
             else:
                 if save_dir is None:
                     # 不另存为文件夹，就直接在当前文件夹中将重复的图片删除
+                    print("remove : {0}".format(each_img_path))
                     os.remove(each_img_path)
 
 

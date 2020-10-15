@@ -83,6 +83,21 @@ class FileOperationUtil(object):
                  'm_time': datetime.datetime.utcfromtimestamp(os.path.getmtime(file_path))}
         return desrb
 
+    @staticmethod
+    def move_file_to_folder(file_path_list, assign_folder, is_clicp=False):
+        """将列表中的文件路径全部拷贝或者剪切到指定文件夹下面，is_clip 是否剪切，否就是复制"""
+        for each_file_path in file_path_list:
+            # 过滤掉错误的文件路径
+            if not os.path.isfile(each_file_path):
+                print("file not exist : {0}".format(each_file_path))
+                continue
+            #
+            new_file_path = os.path.join(assign_folder, os.path.split(each_file_path)[1])
+            if is_clicp:
+                shutil.move(each_file_path, new_file_path)
+            else:
+                shutil.copyfile(each_file_path, new_file_path)
+
     # ------------------------------------ need repair -----------------------------------------------------------------
 
     @staticmethod
@@ -108,8 +123,29 @@ class FileOperationUtil(object):
 
 if __name__ == '__main__':
 
-    for i in FileOperationUtil.re_all_file(r'C:\Users\Administrator\Desktop\NC'):
-        print(i.decode('GBK'))
-        print(FileOperationUtil.get_file_describe_dict(i))
+    file_type_dict = {"_fzc_": [],
+                      "_qx_": [],
+                      "_other_": [],
+                      "_zd_": []}
+
+    file_folder = r'C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\002_截为小图，查问题'
+
+    for i in FileOperationUtil.re_all_file(file_folder):
+        for each_name in file_type_dict:
+            if each_name in i:
+                file_type_dict[each_name].append(i)
+                continue
+
+    for each_name in file_type_dict:
+        folder_path = os.path.join(file_folder, each_name.strip('_'))
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        #
+        FileOperationUtil.move_file_to_folder(file_type_dict[each_name], folder_path, is_clicp=True)
+
+
+    print("OK")
+
+
 
 

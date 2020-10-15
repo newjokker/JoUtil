@@ -44,13 +44,17 @@ class DeteObj(object):
         """得到标准化的 list 主要用于打印"""
         return [str(self.tag), int(self.x1), int(self.y1), int(self.x2), int(self.y2), format(float(self.conf), '.4f')]
 
+    def get_area(self):
+        """返回面积，面积大小按照像素个数进行统计"""
+        return int(self.x2 - self.x1) * int(self.y2 - self.y1)
+
 
 class DeteRes(object):
     """检测结果"""
 
     def __init__(self, xml_path=None, assign_img_path=None):
-        self.height = ""            # 检测图像的高
-        self.width = ""             # 检测图像的宽
+        self.height = -1            # 检测图像的高
+        self.width = -1             # 检测图像的宽
         self.folder = ""            # 图像存在的文件夹
         self.file_name = ""         # 检测图像文件名
         self._alarms = []            # 这里面存储的是 DeteObj 对象
@@ -69,8 +73,8 @@ class DeteRes(object):
         """解析 xml 中存储的检测结果"""
         xml_info = parse_xml(self.xml_path)
         #
-        self.height = xml_info['size']['height']
-        self.width = xml_info['size']['width']
+        self.height = float(xml_info['size']['height'])
+        self.width = float(xml_info['size']['width'])
         self.file_name = xml_info['filename']
         self.img_path = xml_info['path']
         self.folder = xml_info['folder']
@@ -395,7 +399,29 @@ class OperateDeteRes(object):
 
         return check_res
 
+    # ------------------------------------------------------------------------------------------------------------------
 
+    @staticmethod
+    def filter_by_area_ratio(xml_dir, area_ratio_threshold=0.0006, save_dir=None):
+        """根据面积比例阈值进行筛选"""
+        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
+            a = DeteRes(each_xml_path)
+            img_area = float(a.width * a.height)
+            new_alarms = []
+            #
+            for each in a.alarms:
+                each_area = float(each.get_area())
+                each_ratio = each_area / img_area
+                if each_ratio > area_ratio_threshold:
+                    new_alarms.append(each)
+            # 新生成 xml 或者 替换原先的 xml
+            a.reset_alarms(new_alarms)
+            if save_dir is None:
+                os.remove(each_xml_path)
+                a.save_to_xml(each_xml_path)
+            else:
+                new_save_xml = os.path.join(save_dir, os.path.split(each_xml_path)[1])
+                a.save_to_xml(new_save_xml)
 
 if __name__ == "__main__":
 
@@ -410,18 +436,24 @@ if __name__ == "__main__":
     # a.crop_and_save(r"C:\Users\14271\Desktop\del\crop")
     # a.save_to_xml(r"C:\Users\14271\Desktop\del\test_new.xml")
 
+    xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\003_根据面积进行筛选\xml_面积筛选"
+    save_dir = r""
 
-    a = OperateDeteRes()
 
-    check_res = a.cal_model_acc(r"C:\Users\14271\Desktop\优化开口销第二步\000_标准测试集\内蒙-南平【标准】Lm3cls测试集\NM_standerd_xml",
-                    r"C:\Users\14271\Desktop\优化开口销第二步\003_检测结果\result_faster",
-                    r"C:\Users\14271\Desktop\优化开口销第二步\000_标准测试集\内蒙-南平【标准】Lm3cls测试集\NM_standerd_pic",
-                    r"C:\Users\14271\Desktop\save_res_2")
+    for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith(".xml")):
+        print(each_xml_path)
 
-    print(check_res)
+        # each_img_path = each_xml_path[:-4] + ".jpg"
+        #
+        # if not os.path.exists(each_img_path):
+        #     print("loss : {0}".format(each_img_path))
+        #     continue
 
-    # fixme 最后的检验结果是有问题的
+        a = DeteRes(each_xml_path)
+        a.crop_and_save(save_dir)
 
-    for each in check_res.items():
-        print(each)
+        print(a.alarms)
+
+        exit()
+
 

@@ -21,7 +21,7 @@ import collections
 class DeteObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
 
-    def __init__(self, x1=None, y1=None, x2=None, y2=None, tag=None, conf=None):
+    def __init__(self, x1=None, y1=None, x2=None, y2=None, tag=None, conf=-1):
         self.conf = conf
         self.tag = tag
         self.x1 = x1
@@ -71,7 +71,6 @@ class DeteRes(object):
             img = Image.open(self.img_path)
             self.width, self.height = img.size
             self.folder = os.path.split(self.img_path)[0]
-
 
     def _parse_xml_info(self):
         """解析 xml 中存储的检测结果"""
@@ -196,9 +195,10 @@ class DeteRes(object):
                 each_save_dir = os.path.join(save_dir, each_obj.tag)
                 if not os.path.exists(each_save_dir):
                     os.makedirs(each_save_dir)
-                each_save_path = os.path.join(each_save_dir, '{0}-+-{1}_{2}_{3}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str))
             else:
-                each_save_path = os.path.join(save_dir, '{0}-+-{1}_{2}_{3}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str))
+                each_save_dir = save_dir
+
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}_{2}_{3}_{4}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str, each_obj.conf))
             each_crop = img.crop(bndbox)
             # 对截图的图片自定义操作, 可以指定缩放大小之类的
             if method is not None:
@@ -469,7 +469,7 @@ class OperateDeteRes(object):
         return tag
 
     @staticmethod
-    def get_xml_from_crop_img(xml_dir, region_img_dir, save_xml_dir=None):
+    def get_xml_from_crop_img(img_dir, region_img_dir, save_xml_dir=None):
         """从小图构建 xml，用于快速指定标签和核对问题，可以将 labelimg 设置为使用固定标签进行标注（等待修改）"""
 
         # todo 原先的标签和现在的标签不一致，就打印出内容
@@ -479,14 +479,14 @@ class OperateDeteRes(object):
 
         dete_res_dict = {}
         # 小截图信息获取
-        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith('.jpg')):
-            img_dir, img_name = os.path.split(each_xml_path)
+        for each_xml_path in FileOperationUtil.re_all_file(img_dir, lambda x: str(x).endswith('.jpg')):
+            each_img_dir, img_name = os.path.split(each_xml_path)
             # 位置
             loc = OperateDeteRes._get_loc_list(img_name)
             # 原先的标签
             region_tag = OperateDeteRes._get_crop_img_tag(img_name)
             # 现在的标签
-            each_tag = img_dir[len(xml_dir) + 1:]
+            each_tag = each_img_dir[len(img_dir) + 1:]
             # 原先的文件名
             region_img_name = OperateDeteRes._get_region_img_name(img_name)
             # 拿到最新的 tag 信息

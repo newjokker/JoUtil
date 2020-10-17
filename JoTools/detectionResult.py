@@ -168,7 +168,7 @@ class DeteRes(object):
         cv2.imencode('.jpg', img)[1].tofile(save_path)
         return color_dict
 
-    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None):
+    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数"""
         img = Image.open(self.img_path)
         img_name = os.path.split(self.img_path)[1][:-4]
@@ -192,7 +192,13 @@ class DeteRes(object):
             # 保存截图
             loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
             # fixme 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
-            each_save_path = os.path.join(save_dir, '{0}-+-{1}_{2}_{3}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str))
+            if split_by_tag is True:
+                each_save_dir = os.path.join(save_dir, each_obj.tag)
+                if not os.path.exists(each_save_dir):
+                    os.makedirs(each_save_dir)
+                each_save_path = os.path.join(each_save_dir, '{0}-+-{1}_{2}_{3}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str))
+            else:
+                each_save_path = os.path.join(save_dir, '{0}-+-{1}_{2}_{3}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str))
             each_crop = img.crop(bndbox)
             # 对截图的图片自定义操作, 可以指定缩放大小之类的
             if method is not None:
@@ -506,15 +512,20 @@ class OperateDeteRes(object):
             a.save_to_xml(xml_path)
 
     @staticmethod
-    def crop_imgs(img_dir, xml_dir, save_dir):
+    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False):
         """将文件夹下面的所有 xml 进行裁剪"""
         index = 0
-        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith(".xml")):
+        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
             each_img_path = os.path.join(img_dir, os.path.split(each_xml_path)[1][:-3] + 'jpg')
+
+            if not os.path.exists(each_img_path):
+                continue
+
             print(index, each_xml_path)
             a = DeteRes(each_xml_path)
             a.img_path = each_img_path
-            a.crop_and_save(save_dir)
+
+            a.crop_and_save(save_dir, split_by_tag=split_by_tag)
             index += 1
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -537,22 +548,5 @@ if __name__ == "__main__":
 
     xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\003_根据面积进行筛选\xml_面积筛选"
     save_dir = r""
-
-
-    for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith(".xml")):
-        print(each_xml_path)
-
-        # each_img_path = each_xml_path[:-4] + ".jpg"
-        #
-        # if not os.path.exists(each_img_path):
-        #     print("loss : {0}".format(each_img_path))
-        #     continue
-
-        a = DeteRes(each_xml_path)
-        a.crop_and_save(save_dir)
-
-        print(a.alarms)
-
-        exit()
 
 

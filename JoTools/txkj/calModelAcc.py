@@ -271,17 +271,20 @@ if __name__ == "__main__":
     
     # todo 多检，漏检，误检用不用的颜色进行标注，不用直接在
 
+    # todo 貌似有问题，需要好好检查一下
+
     a = CalModelAcc()
-    # a.label_list = ["Fnormal", "fzc_broken"]
-    a.label_list = ["K", "Lm", "Xnormal"]
+    a.label_list = ["Fnormal", "fzc_broken"]
+    # a.label_list = ["K", "Lm", "Xnormal"]
     # a.label_list = ["fzc"]
     a.iou_thershold = 0.4
 
-    a.gt_xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\000_标准测试集\内蒙-南平【标准】Lm3cls测试集\NM_standerd_xml"
+    a.gt_xml_dir = r"C:\data\fzc_优化相关资料\防振锤优化\000_标准测试集\xml_remove_zd"
     #
-    a.pr_xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\003_检测结果\result_eff_0.30_99"
-    a.img_path = r"C:\Users\14271\Desktop\优化开口销第二步\003_检测结果\result_eff_0.30_99"
+    # a.pr_xml_dir = r"C:\Users\14271\Desktop\result\res"
+    a.pr_xml_dir = r"C:\Users\14271\Desktop\result_v0.2.0-A"
+    a.img_path = r"C:\data\fzc_优化相关资料\防振锤优化\000_标准测试集\img"
     #
-    a.save_res_path = r"C:\Users\14271\Desktop\优化开口销第二步\004_与标准测试集对比\eff_0.6_71"
+    a.save_res_path = r"C:\Users\14271\Desktop\对比版本结果\v0.2.0-A"
 
     a.do_process()

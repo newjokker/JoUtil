@@ -123,6 +123,10 @@ class OperateResXml(object):
             save_path = os.path.join(save_xml_dir, os.path.split(each_xml_path)[1])
             a.save_to_xml(save_path, assign_xml_info=xml_info)
 
+    # todo 将一些操作移到这边来
+
+
+
 
 if __name__ == "__main__":
 

@@ -3,7 +3,7 @@
 
 from JoTools.txkj.parseXml import parse_xml
 from JoTools.operateResXml import OperateResXml
-from JoTools.detectionResult import OperateDeteRes
+from JoTools.detectionResult import OperateDeteRes, DeteRes
 from JoTools.for_csdn.word_pic.word_pic import WordImage
 from PIL import Image
 
@@ -28,14 +28,28 @@ from PIL import Image
 #
 
 
-ratio = 2  # 图像缩小的比例
-img_path = r"C:\Users\14271\Desktop\test.png"
-save_path = r'C:\Users\14271\Desktop\beer2.jpg'
-# -------------------------------------------------------------------------------------
+# ratio = 2  # 图像缩小的比例
+# img_path = r"C:\Users\14271\Desktop\test.png"
+# save_path = r'C:\Users\14271\Desktop\beer2.jpg'
+# # -------------------------------------------------------------------------------------
+#
+# img = Image.open(img_path)
+# width, height = img.size
+# new_width, new_height = int(width / ratio), int(height / ratio)
+#
+# a = WordImage(img_path, new_size=(new_width, new_height), save_path=save_path)
+# a.do_process()
 
-img = Image.open(img_path)
-width, height = img.size
-new_width, new_height = int(width / ratio), int(height / ratio)
 
-a = WordImage(img_path, new_size=(new_width, new_height), save_path=save_path)
-a.do_process()
+img_dir = r"C:\Users\14271\Desktop\result\res"
+xml_dir = r"C:\Users\14271\Desktop\result\res"
+save_dir = r"C:\Users\14271\Desktop\result\crop"
+
+# a = DeteRes(xml_path=r"C:\Users\14271\Desktop\yuantu.xml")
+
+# res = a.do_fzc_format()
+
+
+
+OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir=save_dir, split_by_tag=True)
+

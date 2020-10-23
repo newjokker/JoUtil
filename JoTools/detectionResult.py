@@ -262,6 +262,18 @@ class DeteRes(object):
                 res.append(each_res)
         self._alarms = res
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def do_fzc_format(self):
+        """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""
+        res_list = []
+        index = 0
+        # 遍历得到多有的
+        for each_res in self._alarms:
+            res_list.append([each_res.tag, index, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
+            index += 1
+        return res_list
+
 
 class OperateDeteRes(object):
     """基于检测结果的操作"""
@@ -548,5 +560,6 @@ if __name__ == "__main__":
 
     xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\003_根据面积进行筛选\xml_面积筛选"
     save_dir = r""
+
 
 

@@ -41,9 +41,9 @@ from PIL import Image
 # a.do_process()
 
 
-img_dir = r"C:\Users\14271\Desktop\result\res"
-xml_dir = r"C:\Users\14271\Desktop\result\res"
-save_dir = r"C:\Users\14271\Desktop\result\crop"
+img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\007_对新增加的数据整体进行纠偏\自己拍的照片\img"
+xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\007_对新增加的数据整体进行纠偏\自己拍的照片\img"
+save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\007_对新增加的数据整体进行纠偏\自己拍的照片\crop"
 
 # a = DeteRes(xml_path=r"C:\Users\14271\Desktop\yuantu.xml")
 

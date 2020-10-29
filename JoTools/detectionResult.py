@@ -540,9 +540,53 @@ class OperateDeteRes(object):
             a.crop_and_save(save_dir, split_by_tag=split_by_tag)
             index += 1
 
+    @staticmethod
+    def get_class_count(xml_folder):
+        """查看 voc xml 的标签"""
+        xml_info, name_dict = [], {}
+        # 遍历 xml 统计 xml 信息
+        xml_list = FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml'))
+        #
+        for xml_index, each_xml_path in enumerate(xml_list):
+            each_xml_info = parse_xml(each_xml_path)
+            xml_info.append(each_xml_info)
+            for each in each_xml_info['object']:
+                if each['name'] not in name_dict:
+                    name_dict[each['name']] = 1
+                else:
+                    name_dict[each['name']] += 1
+        return name_dict
+
+    @staticmethod
+    def draw_tags(img_dir, xml_dir, save_dir, conf_threshold=None, color_dict=None):
+        """将对应的 xml 和 img 进行画图"""
+        index = 0
+
+        if color_dict is None:
+            color_dict = {}
+            tag_count_dict = OperateDeteRes.get_class_count(xml_dir)
+            print(tag_count_dict.keys())
+            for each_tag in tag_count_dict:
+                color_dict[each_tag] = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
+
+        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
+            each_img_name = os.path.split(each_xml_path)[1][:-3] + 'jpg'
+            each_img_path = os.path.join(img_dir, each_img_name)
+            each_save_img_path = os.path.join(save_dir, each_img_name)
+            if not os.path.exists(each_img_path):
+                continue
+
+            print(index, each_xml_path)
+            a = DeteRes(each_xml_path)
+            a.img_path = each_img_path
+
+            # fixme 对重复标签进行处理
+            a.do_nms(threshold=0.1, ignore_tag=True)
+            # 画出结果
+            a.draw_dete_res(each_save_img_path, color_dict=color_dict)
+            index += 1
+
     # ------------------------------------------------------------------------------------------------------------------
-
-
 
 
 if __name__ == "__main__":

@@ -105,20 +105,31 @@ class OperateResXml(object):
             a.save_to_xml(save_path, assign_xml_info=xml_info)
 
     @staticmethod
-    def remove_no_need_class(xml_dir, save_xml_dir, need_obj_name_list):
+    def remove_no_need_class(xml_dir, save_xml_dir, need_obj_name_list=None, remobe_obj_name_list=[]):
         """去掉不需要的类别"""
 
         if not os.path.exists(save_xml_dir):
             os.makedirs(save_xml_dir)
 
         a = ParseXml()
-        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith('.xml')):
+        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith('.xml')):
             xml_info = parse_xml(each_xml_path)
             new_objects = []
             for each_obj in xml_info['object']:
-                if each_obj['name'] in need_obj_name_list:
-                    # if float(each_obj['difficult']) > assign_confidence:
-                    new_objects.append(each_obj)
+
+                if need_obj_name_list is None:
+                    if each_obj['name'] not in remobe_obj_name_list:
+                        new_objects.append(each_obj)
+                else:
+                    if each_obj['name'] in need_obj_name_list:
+                        # if float(each_obj['difficult']) > assign_confidence:
+                        new_objects.append(each_obj)
+
+            # 没有 obj 不保存
+            # if len(new_objects) == 0:
+            #     print("* no object not save : {0}".format(save_path))
+            #     continue
+
             xml_info['object'] = new_objects
             save_path = os.path.join(save_xml_dir, os.path.split(each_xml_path)[1])
             a.save_to_xml(save_path, assign_xml_info=xml_info)

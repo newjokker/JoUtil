@@ -58,6 +58,7 @@ class RecordFind():
         if not os.path.exists(self.save_path):
             return
 
+        self.index = 0
         with open(self.save_path, "r") as txt_file:
             for each_line in txt_file:
                 self.index += 1
@@ -83,6 +84,13 @@ class RecordFind():
         else:
             print("no index : {0}".format(assign_index))
 
+    def refresh(self):
+        """刷新，序号重排，保存文件"""
+        # 保存
+        self.save()
+        # 读取
+        self.load()
+
 def parse_command(command_str):
     """解析命令"""
 
@@ -107,6 +115,8 @@ def parse_command(command_str):
         a.del_by_index(command_str)
     elif command_str.startswith("save"):
         a.save()
+    elif command_str.startswith("refresh"):
+        a.refresh()
     else:
         print("command str need start with add or find or del")
 
@@ -117,6 +127,8 @@ def show_find_res(find_res):
     for each in sorted(find_res, key=lambda x:x[0]):
         tb.add_row(each)
     print(tb)
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 @app.route('/record_find', methods=['POST'])
 def demo():

@@ -23,7 +23,7 @@ import threading
 import configparser
 app = Flask(__name__)
 
-
+# todo 每一个记录要有记录的时间，可以按照时间进行筛选
 
 
 class RecordFind():
@@ -58,7 +58,10 @@ class RecordFind():
         if not os.path.exists(self.save_path):
             return
 
+        # 清空元素
         self.index = 0
+        self.records = {}
+        # 加载
         with open(self.save_path, "r") as txt_file:
             for each_line in txt_file:
                 self.index += 1

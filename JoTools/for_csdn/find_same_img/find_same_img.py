@@ -7,10 +7,10 @@ import imagehash
 import cv2
 import numpy as np
 from PIL import Image
-from JoTools.utils.HashlibUtil import HashLibUtil
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.utils.PickleUtil import PickleUtil
-from JoTools.utils.DecoratorUtil import DecoratorUtil
+from ...utils.HashlibUtil import HashLibUtil
+from ...utils.FileOperationUtil import FileOperationUtil
+from ...utils.PickleUtil import PickleUtil
+from ...utils.DecoratorUtil import DecoratorUtil
 import progressbar
 
 class HashImageUtil(object):

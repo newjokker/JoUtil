@@ -8,11 +8,11 @@ from ...utils.BisectUtil import BisectUtil
 from PIL import Image
 import progressbar
 # from JoTools.utils.ArcpyGdalUtil import ArcpyGdalUtil
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.utils.PickleUtil import PickleUtil
-from JoTools.utils.RandomUtil import RandomUtil
-from JoTools.utils.ImageUtil import ImageUtil
-from JoTools.utils.DecoratorUtil import DecoratorUtil
+from ...utils.FileOperationUtil import FileOperationUtil
+from ...utils.PickleUtil import PickleUtil
+from ...utils.RandomUtil import RandomUtil
+from ...utils.ImageUtil import ImageUtil
+from ...utils.DecoratorUtil import DecoratorUtil
 
 # todo 统计的时候需要加载英文字母 或者 标点符号，这样能扩充汉字图库
 # todo 找到最邻近的值可以使用 HighPerformance 中的函数来做，最好能找到最邻近的几个值

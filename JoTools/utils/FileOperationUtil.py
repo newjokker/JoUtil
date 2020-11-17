@@ -93,6 +93,11 @@ class FileOperationUtil(object):
                 continue
             #
             new_file_path = os.path.join(assign_folder, os.path.split(each_file_path)[1])
+            #
+            new_file_dir = os.path.dirname(new_file_path)
+            if not os.path.exists(new_file_dir):
+                os.makedirs(new_file_dir)
+            #
             if is_clicp:
                 shutil.move(each_file_path, new_file_path)
             else:

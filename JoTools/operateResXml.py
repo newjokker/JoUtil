@@ -17,7 +17,7 @@ class OperateResXml(object):
 
     # ------------------------------------------ 展示 ------------------------------------------------------------------
     @staticmethod
-    def show_class_count(xml_folder):
+    def show_class_count(xml_folder, conf_func=lambda x:float(x)>-2):
         """查看 voc xml 的标签"""
         xml_info, name_dict = [], {}
         # 遍历 xml 统计 xml 信息
@@ -31,9 +31,12 @@ class OperateResXml(object):
             xml_info.append(each_xml_info)
             for each in each_xml_info['object']:
                 if each['name'] not in name_dict:
-                    name_dict[each['name']] = 1
+                    # 对置信度进行过滤
+                    if conf_func(each['prob']):
+                        name_dict[each['name']] = 1
                 else:
-                    name_dict[each['name']] += 1
+                    if conf_func(each['prob']):
+                        name_dict[each['name']] += 1
         # 结束进度条
         pb.finish()
         # 将找到的信息用表格输出

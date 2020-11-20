@@ -10,12 +10,12 @@ import time
 from .detectionResult import DeteRes
 from .utils.FileOperationUtil import FileOperationUtil
 
+# from JoTools.detectionResult import DeteRes
+# from JoTools.utils.FileOperationUtil import FileOperationUtil
+
 def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
-    parser.add_argument('--gpuID', dest='gpuID', type=str, default='0')
-    parser.add_argument('--gpuRatio', dest='gpuRatio', type=float, default=0.6)
-    parser.add_argument('--gpuMemory', dest='gpuMemory', type=str, default='')
     parser.add_argument('--port', dest='port', type=int, default=7654)
     parser.add_argument('--host', dest='host', type=str, default='127.0.0.1')
     args = parser.parse_args()
@@ -29,15 +29,10 @@ if __name__ == "__main__":
     args = parse_args()
     portNum = args.port
 
-
     # ------------------------------------------------------------------------------------------
-
     model_name = "kkxTC"
-
     save_dir = r"./result"
-
     img_dir = input("输入要测试的文件夹地址: ")
-
     # ------------------------------------------------------------------------------------------
 
     print("-" * 100)
@@ -54,8 +49,10 @@ if __name__ == "__main__":
         if res.status_code == 200:
             res = json.loads(res.text)
             #
-            for each in res["alarms"]:
-                print(" * {0}".format(each))
+            print('-'*50)
+            print(each_img_path)
+            for alarm_index, each in enumerate(res["alarms"]):
+                print(" * {0}, {1}".format(alarm_index, each))
 
             a = DeteRes(assign_img_path=each_img_path)
             a.height = int(res['height'])
@@ -76,8 +73,9 @@ if __name__ == "__main__":
 
             #
             a.save_to_xml(os.path.join(save_dir, os.path.split(each_img_name)[1][:-3] + 'xml'))
-            a.draw_dete_res(os.path.join(save_dir, os.path.split(each_img_name)[1]))
-
+            # 有结果才进行保存
+            if len(a.alarms) > 0:
+                a.draw_dete_res(os.path.join(save_dir, os.path.split(each_img_name)[1]))
         else:
             print("error")
 

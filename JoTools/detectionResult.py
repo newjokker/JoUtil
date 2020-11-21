@@ -262,7 +262,70 @@ class DeteRes(object):
                 res.append(each_res)
         self._alarms = res
 
-    # ------------------------------------------------------------------------------------------------------------------
+    # --------------------------------------------------- filter -------------------------------------------------------
+
+    def filter_by_conf(self, conf_th):
+        """根据置信度进行筛选"""
+        new_alarms = []
+        for each_dete_res in self.alarms:
+            if each_dete_res.conf >= conf_th:
+                new_alarms.append(each_dete_res)
+        self._alarms = new_alarms
+
+    def filter_by_area(self, area_th):
+        """根据面积大小（像素个数）进行筛选"""
+        new_alarms = []
+        for each_dete_res in self.alarms:
+            if each_dete_res.get_area() >= area_th:
+                new_alarms.append(each_dete_res)
+        self._alarms = new_alarms
+
+    def filter_by_tages(self, need_tag=None, remove_tag=None):
+        """根据 tag 类型进行筛选"""
+        new_alarms = []
+
+        if (need_tag is not None and remove_tag is not None) or (need_tag is None and remove_tag is None):
+            raise ValueError(" need tag and remove tag cant be None or not None in the same time")
+
+        if isinstance(need_tag, str) or isinstance(remove_tag, str):
+            raise ValueError("need list tuple or set not str")
+
+        if need_tag is not None:
+            need_tag = set(need_tag)
+            for each_dete_res in self.alarms:
+                if each_dete_res.tag in need_tag:
+                    new_alarms.append(each_dete_res)
+        else:
+            remove_tag = set(remove_tag)
+            for each_dete_res in self.alarms:
+                if each_dete_res.tag not in remove_tag:
+                    new_alarms.append(each_dete_res)
+
+        self._alarms = new_alarms
+
+    # ---------------------------------------------------- label -------------------------------------------------------
+
+    def update_tags(self, update_dict):
+        """更新标签"""
+        # fixme 不在不更新字典中的就不进行更新
+        for each_dete_res in self._alarms:
+            if each_dete_res.tag in update_dict:
+                each_dete_res.tag = update_dict[each_dete_res.tag]
+
+    # ---------------------------------------------------- count -------------------------------------------------------
+
+    def count_tags(self):
+        """统计标签数"""
+        tags_count = {}
+        for each_dete_res in self._alarms:
+            each_tag = each_dete_res.tag
+            if each_tag in tags_count:
+                tags_count[each_tag] += 1
+            else:
+                tags_count[each_tag] = 1
+        return tags_count
+
+    # ---------------------------------------------------- format ------------------------------------------------------
 
     def do_fzc_format(self):
         """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""
@@ -274,6 +337,8 @@ class DeteRes(object):
             index += 1
         return res_list
 
+
+# todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
 
 class OperateDeteRes(object):
     """基于检测结果的操作"""
@@ -588,22 +653,6 @@ class OperateDeteRes(object):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-
-if __name__ == "__main__":
-
-    # xml_info = parse_xml()
-    #
-    # a = DeteRes(r"C:\Users\14271\Desktop\del\test.xml")
-    # a.img_path = r"C:\Users\14271\Desktop\del\test.jpg"
-    #
-    # # a.do_nms(threshold=0.1, ignore_tag=True)
-    #
-    # a.draw_dete_res(r"C:\Users\14271\Desktop\del\test_2.jpg")
-    # a.crop_and_save(r"C:\Users\14271\Desktop\del\crop")
-    # a.save_to_xml(r"C:\Users\14271\Desktop\del\test_new.xml")
-
-    xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\003_根据面积进行筛选\xml_面积筛选"
-    save_dir = r""
 
 
 

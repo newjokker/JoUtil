@@ -123,6 +123,7 @@ class ParseXml(object):
         # 保存 xml 到文件
         XmlUtil.save_xml(root, save_path)
 
+
 def parse_xml(xml_path):
     """简易的函数使用版本"""
     a = ParseXml()

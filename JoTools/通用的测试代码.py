@@ -55,8 +55,6 @@ if __name__ == "__main__":
                 print(" * {0}, {1}".format(alarm_index, each))
 
             a = DeteRes(assign_img_path=each_img_path)
-            a.height = int(res['height'])
-            a.width = int(res['width'])
             #
             # fixme 返回的要是个字典
             if isinstance(res, dict):

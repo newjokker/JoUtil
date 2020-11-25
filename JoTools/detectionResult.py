@@ -2,15 +2,13 @@
 # -*- author: jokker -*-
 
 import os
-from PIL import Image
-import cv2
-import numpy as np
+import copy
 import random
+import collections
+from PIL import Image
+import numpy as np
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkj.parseXml import parse_xml, save_to_xml
-import copy
-import collections
-
 
 """
 * 可用于中间结果
@@ -73,6 +71,7 @@ class DeteRes(object):
             self.folder = os.path.split(self.img_path)[0]
 
     def _parse_xml_info(self):
+        # todo 重写这个函数，直接从 xml 中进行解析，确保运行效率
         """解析 xml 中存储的检测结果"""
         xml_info = parse_xml(self.xml_path)
         #
@@ -101,11 +100,12 @@ class DeteRes(object):
         x_min, y_min, x_max, y_max = region_rect
         region_width = int(x_max - x_min)
         region_height = int(y_max - y_min)
+        #
         new_x_min = x_min - int(region_width * augment_parameter[0])
         new_x_max = x_max + int(region_width * augment_parameter[1])
         new_y_min = y_min - int(region_height * augment_parameter[2])
         new_y_max = y_max + int(region_height * augment_parameter[3])
-
+        #
         new_x_min = max(0, new_x_min)
         new_y_min = max(0, new_y_min)
         new_x_max = min(widht, new_x_max)
@@ -126,23 +126,25 @@ class DeteRes(object):
                           (dete_obj_2.x2 - dete_obj_2.x1 + 1) * (dete_obj_2.y2 - dete_obj_2.y1 + 1) - overlap_area)
             return overlap_area * 1. / union_area
 
-    # ------------------------------------------ 常用功能  -------------------------------------------------------------
+    # ------------------------------------------ common ----------------------------------------------------------------
 
     def add_obj(self, x1, y1, x2, y2, tag, conf):
         """快速增加一个检测框要素"""
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf)
         self._alarms.append(one_dete_obj)
 
+    def add_obj_2(self, one_dete_obj):
+        """增加一个检测框"""
+        self.alarms.append(one_dete_obj)
+
     def draw_dete_res(self, save_path, line_thickness=2, color_dict=None):
         """在图像上画出检测的结果"""
-        # 初始化颜色字典
+        #
         if color_dict is None:
             color_dict = {}
-        # 支持传入矩阵和图片路径
-
+        #
         img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
-
-        # 每种标签使用不同的颜色
+        #
         for each_res in self._alarms:
             #
             if each_res.tag in color_dict:
@@ -154,9 +156,9 @@ class DeteRes(object):
             tl = line_thickness or int(round(0.001 * max(img.shape[0:2])))
             c1, c2 =(each_res.x1, each_res.y1), (each_res.x2, each_res.y2)
             # --------------------------------------------------------------------------
-            # 画矩形
+            # draw rectangle
             cv2.rectangle(img, (each_res.x1, each_res.y1), (each_res.x2, each_res.y2), color=each_color, thickness=tl)
-            # 打标签
+            #
             tf = max(tl - 2, 1)  # font thickness
             s_size = cv2.getTextSize(str('{:.0%}'.format(each_res.conf)), 0, fontScale=float(tl) / 3, thickness=tf)[0]
             t_size = cv2.getTextSize(each_res.tag, 0, fontScale=float(tl) / 3, thickness=tf)[0]
@@ -168,7 +170,9 @@ class DeteRes(object):
         return color_dict
 
     def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
-        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数"""
+        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
+        * augment_parameter = [0.5, 0.5, 0.2, 0.2]
+        """
         img = Image.open(self.img_path)
         img_name = os.path.split(self.img_path)[1][:-4]
         tag_count_dict = {}
@@ -185,12 +189,12 @@ class DeteRes(object):
                 tag_count_dict[each_obj.tag] = 0
             else:
                 tag_count_dict[each_obj.tag] += 1
-            # 是否需要对图片进行扩展
+            # 图片扩展
             if augment_parameter is not None:
-                bndbox = self._region_augment(bndbox, [self.width, self.height], augment_parameter=[0.5, 0.5, 0.2, 0.2])
+                bndbox = self._region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
             # 保存截图
             loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
-            # fixme 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
+            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
             if split_by_tag is True:
                 each_save_dir = os.path.join(save_dir, each_obj.tag)
                 if not os.path.exists(each_save_dir):
@@ -208,35 +212,27 @@ class DeteRes(object):
 
     def save_to_xml(self, save_path):
         """保存为 xml 文件"""
-        xml_info = {}
-        xml_info['size'] = {'height':str(self.height), 'width':str(self.width), 'depth':'3'}
-        xml_info['filename'] = self.file_name
-        xml_info['path'] = self.img_path
-        xml_info['object'] = []
-        xml_info['folder'] = self.folder
+        xml_info = {'size': {'height': str(self.height), 'width': str(self.width), 'depth': '3'},
+                    'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
+                    'segmented': "", 'source': ""}
         # 两个无关但是必要的参数，是否需要将其在保存时候，设置默认值
-        xml_info['segmented'] = ""
-        xml_info['source'] = ""
         # 处理
         for each_dete_obj in self._alarms:
-            each_obj = {}
-            each_obj['name'] = each_dete_obj.tag
-            each_obj['prob'] = str(each_dete_obj.conf)
-            each_obj['bndbox'] = {'xmin':str(each_dete_obj.x1), 'xmax':str(each_dete_obj.x2),
-                                  'ymin':str(each_dete_obj.y1), 'ymax':str(each_dete_obj.y2)}
+            each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf),
+                        'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
+                                   'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
             xml_info['object'].append(each_obj)
         # 保存为 xml
         save_to_xml(xml_info, xml_path=save_path)
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     @property
     def alarms(self):
         """获取属性自动进行排序"""
         return sorted(self._alarms, key=lambda x:x.conf)
 
-    def reset_alarms(self, assign_alarms):
-        """重置 alarms"""
-        self._alarms = assign_alarms
-    # ------------------------------------------------------------------------------------------------------------------
+    # --------------------------------------------------- filter -------------------------------------------------------
 
     def do_nms(self, threshold=0.1, ignore_tag=False):
         """对结果做 nms 处理，"""
@@ -261,8 +257,6 @@ class DeteRes(object):
             if is_add is True:
                 res.append(each_res)
         self._alarms = res
-
-    # --------------------------------------------------- filter -------------------------------------------------------
 
     def filter_by_conf(self, conf_th):
         """根据置信度进行筛选"""
@@ -300,17 +294,20 @@ class DeteRes(object):
             for each_dete_res in self.alarms:
                 if each_dete_res.tag not in remove_tag:
                     new_alarms.append(each_dete_res)
-
         self._alarms = new_alarms
 
-    # ---------------------------------------------------- label -------------------------------------------------------
+    # ---------------------------------------------------- update -------------------------------------------------------
 
     def update_tags(self, update_dict):
         """更新标签"""
-        # fixme 不在不更新字典中的就不进行更新
+        # tag 不在不更新字典中的就不进行更新
         for each_dete_res in self._alarms:
             if each_dete_res.tag in update_dict:
                 each_dete_res.tag = update_dict[each_dete_res.tag]
+
+    def reset_alarms(self, assign_alarms):
+        """重置 alarms"""
+        self._alarms = assign_alarms
 
     # ---------------------------------------------------- count -------------------------------------------------------
 
@@ -645,11 +642,35 @@ class OperateDeteRes(object):
             a = DeteRes(each_xml_path)
             a.img_path = each_img_path
 
-            # fixme 对重复标签进行处理
+            # 对重复标签进行处理
             a.do_nms(threshold=0.1, ignore_tag=True)
+            # 置信度阈值过滤
+            if conf_threshold is not None:
+                a.filter_by_conf(conf_threshold)
             # 画出结果
             a.draw_dete_res(each_save_img_path, color_dict=color_dict)
             index += 1
+
+    # ---------------------------------------------------- spared-------------------------------------------------------
+
+    @staticmethod
+    def get_area_speard(xml_dir, assign_pt=None):
+        """获得面积的分布"""
+        area_list = []
+        # 遍历 xml 统计 xml 信息
+        xml_list = FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith('.xml'))
+        #
+        for xml_index, each_xml_path in enumerate(xml_list):
+            each_dete_res = DeteRes(each_xml_path)
+            for each_dete_obj in each_dete_res.alarms:
+                area_list.append(each_dete_obj.get_area())
+        #
+        if assign_pt:
+            return np.percentile(area_list, assign_pt)
+        else:
+            for i in range(10, 95, 10):
+                each_area = int(np.percentile(area_list, i))
+                print("{0}% : {1}".format(i, each_area))
 
     # ------------------------------------------------------------------------------------------------------------------
 

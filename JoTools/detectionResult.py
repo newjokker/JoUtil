@@ -65,10 +65,7 @@ class DeteRes(object):
 
         # 因为文件名在 xml 中经常写错，所以还是要有一个地方输入正确的文件名的
         if assign_img_path is not None:
-            self.img_path = assign_img_path
-            img = Image.open(self.img_path)
-            self.width, self.height = img.size
-            self.folder = os.path.split(self.img_path)[0]
+            self._get_img_info(assign_img_path)
 
     def _parse_xml_info(self):
         # todo 重写这个函数，直接从 xml 中进行解析，确保运行效率
@@ -88,6 +85,13 @@ class DeteRes(object):
             if 'prob' not in each_obj:
                 each_obj['prob'] = -1
             self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']))
+
+    def _get_img_info(self, assign_img_path):
+        """数据中添加图片地址"""
+        self.img_path = assign_img_path
+        img = Image.open(self.img_path)
+        self.width, self.height = img.size
+        self.folder = os.path.split(self.img_path)[0]
 
     @staticmethod
     def _region_augment(region_rect, img_size, augment_parameter=None):
@@ -296,6 +300,17 @@ class DeteRes(object):
                     new_alarms.append(each_dete_res)
         self._alarms = new_alarms
 
+    def filter_by_area_ratio(self, ar=0.0006):
+        """根据面积比例进行删选"""
+        # 对于无法获取长宽的数据进行报错
+        if (not os.path.exists(self.img_path)) and ((not self.width) or  (not self.height)):
+            raise ValueError("img not exists")
+        elif not os.path.exists(self.img_path):
+            self._get_img_info(self.img_path)
+        # get area
+        th_area = float(sel.width * self.height) * ar
+        self.filter_by_area(area_th=th_area)
+
     # ---------------------------------------------------- update -------------------------------------------------------
 
     def update_tags(self, update_dict):
@@ -485,21 +500,14 @@ class OperateDeteRes(object):
 
         return check_res
 
+    # ------------------------------------------- filter ---------------------------------------------------------------
+
     @staticmethod
     def filter_by_area_ratio(xml_dir, area_ratio_threshold=0.0006, save_dir=None):
         """根据面积比例阈值进行筛选"""
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
             a = DeteRes(each_xml_path)
-            img_area = float(a.width * a.height)
-            new_alarms = []
-            #
-            for each in a.alarms:
-                each_area = float(each.get_area())
-                each_ratio = each_area / img_area
-                if each_ratio > area_ratio_threshold:
-                    new_alarms.append(each)
-            # 新生成 xml 或者 替换原先的 xml
-            a.reset_alarms(new_alarms)
+            a.filter_by_area_ratio(area_ratio_threshold)
             if save_dir is None:
                 os.remove(each_xml_path)
                 a.save_to_xml(each_xml_path)

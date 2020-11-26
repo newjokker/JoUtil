@@ -10,7 +10,9 @@ setup(
     description='a tools for TXKJ algo',                                                    # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
-    requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash'],          # 定义依赖哪些模块
+    requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash', 'prettytable', 'progress',
+              'progressbar', 'requests', 'imageio', 'pyexiv2', 'cv2', 'scikit-image', 'exifread', 'whatimage', 'pyheif',
+              'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'scikit-learn'],          # 定义依赖哪些模块
     # 打包的python文件夹
     packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn',
               'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war'

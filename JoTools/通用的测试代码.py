@@ -18,8 +18,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--port', dest='port', type=int, default=7654)
     parser.add_argument('--host', dest='host', type=str, default='127.0.0.1')
-    args = parser.parse_args()
-    return args
+    assign_args = parser.parse_args()
+    return assign_args
 
 
 

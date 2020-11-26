@@ -50,7 +50,7 @@ class OperateResXml(object):
     @staticmethod
     def show_area_spread(xml_dir, assign_class=None):
         """看面积的分布，做一个面积统计直方图，按照中位数之类的，百分之十的大小，百分之二十的大小"""
-
+        # fixme 已经在其他地方实现
         area_list = []
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith('.xml')):
             print(each_xml_path)
@@ -66,13 +66,6 @@ class OperateResXml(object):
                 area_list.append(width * height)
 
         area_array = np.array(area_list)
-
-        # for i in range(10, 100, 10):
-        #     res = np.percentile(area_array, i, interpolation='midpoint')
-        #     print(res)
-
-        # todo 读取的时候增加进度条
-
         # plt.hist(area_array, bins=30, range=[np.min(area_array), np.max(area_array)], density=True)
         print([np.min(area_array), np.max(area_array)])
         plt.hist(area_array, bins=30, range=[np.min(area_array), np.max(area_array)])
@@ -140,15 +133,6 @@ class OperateResXml(object):
     # todo 将一些操作移到这边来
 
 
-
-
-if __name__ == "__main__":
-
-    xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\003_检测结果\result_eff_0.15_71"
-
-    OperateResXml.remove_no_need_class(xml_dir, xml_dir, need_obj_name_list=["K", "Lm", "Xnormal"])
-
-    OperateResXml.show_class_count(xml_dir)
 
 
 

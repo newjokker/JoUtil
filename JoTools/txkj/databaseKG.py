@@ -70,25 +70,34 @@ class DatabaseKG():
             each_obj["bndbox"]["ymax"] = str(int(each_obj["bndbox"]["ymax"]) - merge_range[1] )
         # 存储 xml 和 jpg
         xml_info_tmp["size"] = {'width': str(merge_range[2]-merge_range[0]), 'height': str(merge_range[3]-merge_range[1]), 'depth': '3'}
-        each_xml_save_path = os.path.join(save_dir, os.path.split(xml_path)[1])
+        xml_save_dir = os.path.join(save_dir, 'Annotations')
+        if not os.path.exists(xml_save_dir):
+            os.makedirs(xml_save_dir)
+        each_xml_save_path = os.path.join(xml_save_dir, os.path.split(xml_path)[1])
         xml_operate.save_to_xml(each_xml_save_path, xml_info_tmp)
         # 剪切图像
-        each_jpg_save_path = os.path.join(save_dir, os.path.split(xml_path)[1][:-4] + ".jpg")
+        jpg_save_dir = os.path.join(save_dir, 'JPEGImages')
+        if not os.path.exists(jpg_save_dir):
+            os.makedirs(jpg_save_dir)
+        each_jpg_save_path = os.path.join(jpg_save_dir, os.path.split(xml_path)[1][:-4] + ".jpg")
         #
         # img_path = xml_path[:-4] + ".jpg"
         img = Image.open(img_path)
         each_crop = img.crop(merge_range)
-        each_crop.save(each_jpg_save_path)
+        each_crop.save(each_jpg_save_path, quality=95)
 
         # 元素个数大于阈值，另外生成小图
-        if len(box_list) > min_count:
+        if len(box_list) >= min_count:
             for i in range(small_img_count):
                 # xml_info_tmp = xml_info.copy()
                 xml_info_tmp = copy.deepcopy(xml_info)      # copy() 原来不是深拷贝啊，不是直接开辟空间存放值？
                 # 打乱顺序
                 random.shuffle(box_list)
                 # 拿出其中的三个，得到外接矩形的外接矩形
-                merge_range = DatabaseKG.merge_range_list(box_list[:3])
+                if len(box_list) == 2:
+                    merge_range = DatabaseKG.merge_range_list(box_list[:2])
+                else:
+                    merge_range = DatabaseKG.merge_range_list(box_list[:3])
                 # 遍历所有要素，找到在 merge_range 中的要素，
                 obj_list = []
                 for each_obj in xml_info_tmp["object"]:
@@ -107,10 +116,10 @@ class DatabaseKG():
                 xml_name = "_{0}.xml".format(i)
                 img_name = "_{0}.jpg".format(i)
                 xml_info_tmp["filename"] = img_name                                                             # 修改文件名
-                each_xml_save_path = os.path.join(save_dir, os.path.split(xml_path)[1][:-4] + xml_name)
+                each_xml_save_path = os.path.join(xml_save_dir, os.path.split(xml_path)[1][:-4] + xml_name)
                 xml_operate.save_to_xml(each_xml_save_path, xml_info_tmp)
                 # 剪切图像
-                each_jpg_save_path = os.path.join(save_dir, os.path.split(xml_path)[1][:-4] + img_name)
+                each_jpg_save_path = os.path.join(jpg_save_dir, os.path.split(xml_path)[1][:-4] + img_name)
                 # img_path = xml_path[:-4] + ".jpg"
                 img = Image.open(img_path)
                 each_crop = img.crop(merge_range)

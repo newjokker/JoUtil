@@ -9,6 +9,7 @@ from PIL import Image
 import numpy as np
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkj.parseXml import parse_xml, save_to_xml
+import cv2
 
 """
 * 可用于中间结果
@@ -72,11 +73,20 @@ class DeteRes(object):
         """解析 xml 中存储的检测结果"""
         xml_info = parse_xml(self.xml_path)
         #
-        self.height = float(xml_info['size']['height'])
-        self.width = float(xml_info['size']['width'])
-        self.file_name = xml_info['filename']
-        self.img_path = xml_info['path']
-        self.folder = xml_info['folder']
+        if 'size' in xml_info:
+            if 'height' in xml_info['size']:
+                self.height = float(xml_info['size']['height'])
+            if 'width' in xml_info['size']:
+                self.width = float(xml_info['size']['width'])
+        #
+        if 'filename' in xml_info:
+            self.file_name = xml_info['filename']
+
+        if 'path' in xml_info:
+            self.img_path = xml_info['path']
+
+        if 'folder' in xml_info:
+            self.folder = xml_info['folder']
 
         # 解析 object 信息
         for each_obj in xml_info['object']:
@@ -212,7 +222,9 @@ class DeteRes(object):
             if method is not None:
                 each_crop = method(each_crop)
             # 保存截图
-            each_crop.save(each_save_path)
+            # each_crop.save(each_save_path)
+            # fixme 实验结果是压缩对训练后的模型性能有影响，需要看看哪种分辨率和质量的比较合适
+            each_crop.save(each_save_path, quality=95)
 
     def save_to_xml(self, save_path):
         """保存为 xml 文件"""
@@ -682,6 +694,16 @@ class OperateDeteRes(object):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    @staticmethod
+    def update_tags(xml_dir, update_dict):
+        """更新标签信息"""
+        xml_list = FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith('.xml'))
+        #
+        for xml_index, each_xml_path in enumerate(xml_list):
+            #
+            each_dete_res = DeteRes(each_xml_path)
+            each_dete_res.update_tags(update_dict)
+            each_dete_res.save_to_xml(each_xml_path)
 
 
 

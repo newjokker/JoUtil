@@ -9,6 +9,7 @@ from matplotlib.pylab import plt
 from PIL import Image, ImageDraw, ImageFont
 import imageio
 from PIL import Image
+import os
 # import h5py
 
 
@@ -430,6 +431,57 @@ class ImageUtil(object):
                 word_img.cut_border_in_assign_color(border_color=background_color)
         return word_img
 
+    # ---------------------------------------- need new -------------------------------------------------------------
+    @staticmethod
+    def region_augment(region_rect, img_size, augment_parameter=None):
+        """上下左右指定扩增长宽的比例, augment_parameter, 左右上下"""
+
+        if augment_parameter is None:
+            augment_parameter = [0.6, 0.6, 0.1, 0.1]
+
+        widht, height = img_size
+        x_min, y_min, x_max, y_max = region_rect
+        region_width = int(x_max - x_min)
+        region_height = int(y_max - y_min)
+        new_x_min = x_min - int(region_width * augment_parameter[0])
+        new_x_max = x_max + int(region_width * augment_parameter[1])
+        new_y_min = y_min - int(region_height * augment_parameter[2])
+        new_y_max = y_max + int(region_height * augment_parameter[3])
+
+        new_x_min = max(0, new_x_min)
+        new_y_min = max(0, new_y_min)
+        new_x_max = min(widht, new_x_max)
+        new_y_max = min(height, new_y_max)
+
+        return (new_x_min, new_y_min, new_x_max, new_y_max)
+
+    def cut_img_to_N_N(self, num_x, num_y, save_dir, augment_parameter=None):
+        """将图像裁剪为 N*N 块"""
+
+        # 设置扩展比率
+        if augment_parameter is None:
+            augment_parameter = [0, 0, 0, 0]
+
+        height, width = self.__img_mat.shape[:2]
+        each_height = int(height/float(num_x))
+        each_width = int(width/float(num_y))
+        img_name = os.path.split(self.__img_path)[1][:-4]
+
+        for i in range(num_x):
+            for j in range(num_y):
+                each_range = [i*each_height, j*each_width, (i+1)*each_height, (j+1)*each_width]
+                new_range = self.region_augment(each_range, (height, width), augment_parameter)
+                xmin, ymin, xmax, ymax = new_range
+
+                # 不丢弃图像化最后的几行像素
+                if i == num_x-1: xmax = height
+                if j == num_y-1: ymax = width
+
+                new_img = self.__img_mat[xmin:xmax, ymin:ymax, :]
+                img = Image.fromarray(new_img[:,:,:3])
+                each_save_path = os.path.join(save_dir, "{0}_{1}_{2}.jpg".format(img_name, i, j))
+                img.save(each_save_path)
+
     # ---------------------------------------- need repair -------------------------------------------------------------
 
     @staticmethod
@@ -513,15 +565,5 @@ class ImageUtil(object):
 
 if __name__ == "__main__":
 
-    a = ImageUtil(r"C:\Users\14271\Desktop\img_compare\1.png")
-    c = ImageUtil(r"C:\Users\14271\Desktop\img_compare\2.png")
-    b = a.get_img_mat()[:,:,0]
-    d = c.get_img_mat()[:,:,0]
-
-    e = b - d
-    f = np.sum(e, 1)
-
-    print(np.sum(e, 1))
-
-    for each in f :
-        print(each)
+    a = ImageUtil(r"C:\Users\14271\Desktop\del\test.jpg")
+    a.cut_img_to_N_N(15, 5, r"C:\Users\14271\Desktop\cut_res")

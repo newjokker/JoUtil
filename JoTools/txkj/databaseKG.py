@@ -141,3 +141,5 @@ if __name__ == "__main__":
         each_img_path = os.path.join(imgDir, os.path.split(each_xml_path)[1][:-4] + '.jpg')
         DatabaseKG.get_subset_from_pic(each_xml_path, each_img_path, saveDir, min_count=4, small_img_count=20)
     # --------------------------------------------------------------------------------------------------------
+
+    # todo 输入参数，xml_info img_mat 输出参数: [(xml_info, img_mat), ()]

@@ -482,8 +482,11 @@ class OperateDeteRes(object):
 
             # jpg 文件不存在就不进行画图了
             if not os.path.isfile(assign_img_path):
-                assign_img_path = None
-                save_img_path = None
+                # fixme 支持 jpg 和 JPG 两种格式
+                assign_img_path = os.path.join(assign_img_dir, xml_name[:-3] + 'JPG')
+                if not os.path.isfile(assign_img_path):
+                    assign_img_path = None
+                    save_img_path = None
             #
             if xml_path_c in customized_xml_path_set:
                 # 对比两个结果的差异

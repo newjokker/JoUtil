@@ -11,6 +11,8 @@ from ..utils.FileOperationUtil import FileOperationUtil
 # todo 图像的扩增代码
 # todo 两种模式，一种是每一个方法在原图上做变换，一种是每一个方法也对已做变换的图片进行变换
 
+# fixme 这个函数实现的内容其实很简单，直接把核心的内容写在一个函数里面
+
 
 class ImageAugmentation(object):
 

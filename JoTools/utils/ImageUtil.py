@@ -303,6 +303,35 @@ class ImageUtil(object):
             raise TypeError('only support jpg and png')
         img.save(save_path)
 
+    def cut_img_to_N_N(self, num_x, num_y, save_dir, augment_parameter=None):
+        """将图像裁剪为 N*N 块"""
+
+        # 设置扩展比率
+        if augment_parameter is None:
+            augment_parameter = [0, 0, 0, 0]
+
+        height, width = self.__img_mat.shape[:2]
+        each_height = int(height/float(num_x))
+        each_width = int(width/float(num_y))
+        img_name = os.path.split(self.__img_path)[1][:-4]
+
+        for i in range(num_x):
+            for j in range(num_y):
+                each_range = [i*each_height, j*each_width, (i+1)*each_height, (j+1)*each_width]
+                new_range = self.region_augment(each_range, (height, width), augment_parameter)
+                xmin, ymin, xmax, ymax = new_range
+
+                # 不丢弃图像化最后的几行像素
+                if i == num_x-1: xmax = height
+                if j == num_y-1: ymax = width
+
+                new_img = self.__img_mat[xmin:xmax, ymin:ymax, :]
+                img = Image.fromarray(new_img[:,:,:3])
+                each_save_path = os.path.join(save_dir, "{0}_{1}_{2}.jpg".format(img_name, i, j))
+                img.save(each_save_path)
+
+    # ------------------------------------------------------------------------------------------------------------------
+
     @staticmethod
     def __get_com_color(image_mat_a, image_mat_b):
         """在有透明度的情况下，得到重叠的颜色"""
@@ -431,7 +460,6 @@ class ImageUtil(object):
                 word_img.cut_border_in_assign_color(border_color=background_color)
         return word_img
 
-    # ---------------------------------------- need new -------------------------------------------------------------
     @staticmethod
     def region_augment(region_rect, img_size, augment_parameter=None):
         """上下左右指定扩增长宽的比例, augment_parameter, 左右上下"""
@@ -454,33 +482,6 @@ class ImageUtil(object):
         new_y_max = min(height, new_y_max)
 
         return (new_x_min, new_y_min, new_x_max, new_y_max)
-
-    def cut_img_to_N_N(self, num_x, num_y, save_dir, augment_parameter=None):
-        """将图像裁剪为 N*N 块"""
-
-        # 设置扩展比率
-        if augment_parameter is None:
-            augment_parameter = [0, 0, 0, 0]
-
-        height, width = self.__img_mat.shape[:2]
-        each_height = int(height/float(num_x))
-        each_width = int(width/float(num_y))
-        img_name = os.path.split(self.__img_path)[1][:-4]
-
-        for i in range(num_x):
-            for j in range(num_y):
-                each_range = [i*each_height, j*each_width, (i+1)*each_height, (j+1)*each_width]
-                new_range = self.region_augment(each_range, (height, width), augment_parameter)
-                xmin, ymin, xmax, ymax = new_range
-
-                # 不丢弃图像化最后的几行像素
-                if i == num_x-1: xmax = height
-                if j == num_y-1: ymax = width
-
-                new_img = self.__img_mat[xmin:xmax, ymin:ymax, :]
-                img = Image.fromarray(new_img[:,:,:3])
-                each_save_path = os.path.join(save_dir, "{0}_{1}_{2}.jpg".format(img_name, i, j))
-                img.save(each_save_path)
 
     # ---------------------------------------- need repair -------------------------------------------------------------
 

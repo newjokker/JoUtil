@@ -4,6 +4,8 @@
 from ..utils.XmlUtil import XmlUtil
 
 
+# fixme 重写这个函数，速度更快
+
 class ParseXml(object):
     """解析 xml 中的信息，将信息导出为 xml"""
 

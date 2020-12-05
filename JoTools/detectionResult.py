@@ -140,6 +140,18 @@ class DeteRes(object):
                           (dete_obj_2.x2 - dete_obj_2.x1 + 1) * (dete_obj_2.y2 - dete_obj_2.y1 + 1) - overlap_area)
             return overlap_area * 1. / union_area
 
+    @staticmethod
+    def _cal_iou_1(dete_obj_1, dete_obj_2, ignore_tag=False):
+        """计算两个矩形框的相交面积，占其中一个矩形框面积的比例 ， """
+        if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
+            return 0
+        else:
+            dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
+            dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
+            overlap_area = dx * dy
+            union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1))
+            return overlap_area * 1. / union_area
+
     # ------------------------------------------ common ----------------------------------------------------------------
 
     def add_obj(self, x1, y1, x2, y2, tag, conf):
@@ -149,7 +161,7 @@ class DeteRes(object):
 
     def add_obj_2(self, one_dete_obj):
         """增加一个检测框"""
-        self.alarms.append(one_dete_obj)
+        self._alarms.append(one_dete_obj)
 
     def draw_dete_res(self, save_path, line_thickness=2, color_dict=None):
         """在图像上画出检测的结果"""
@@ -226,14 +238,20 @@ class DeteRes(object):
             # fixme 实验结果是压缩对训练后的模型性能有影响，需要看看哪种分辨率和质量的比较合适
             each_crop.save(each_save_path, quality=95)
 
-    def save_to_xml(self, save_path):
+    def save_to_xml(self, save_path, assign_alarms=None):
         """保存为 xml 文件"""
         xml_info = {'size': {'height': str(self.height), 'width': str(self.width), 'depth': '3'},
                     'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
                     'segmented': "", 'source': ""}
         # 两个无关但是必要的参数，是否需要将其在保存时候，设置默认值
         # 处理
-        for each_dete_obj in self._alarms:
+
+        if assign_alarms is None:
+            alarms = self._alarms
+        else:
+            alarms = assign_alarms
+        #
+        for each_dete_obj in alarms:
             each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf),
                         'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
                                    'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
@@ -277,7 +295,7 @@ class DeteRes(object):
     def filter_by_conf(self, conf_th):
         """根据置信度进行筛选"""
         new_alarms = []
-        for each_dete_res in self.alarms:
+        for each_dete_res in self._alarms:
             if each_dete_res.conf >= conf_th:
                 new_alarms.append(each_dete_res)
         self._alarms = new_alarms
@@ -285,7 +303,7 @@ class DeteRes(object):
     def filter_by_area(self, area_th):
         """根据面积大小（像素个数）进行筛选"""
         new_alarms = []
-        for each_dete_res in self.alarms:
+        for each_dete_res in self._alarms:
             if each_dete_res.get_area() >= area_th:
                 new_alarms.append(each_dete_res)
         self._alarms = new_alarms
@@ -302,12 +320,12 @@ class DeteRes(object):
 
         if need_tag is not None:
             need_tag = set(need_tag)
-            for each_dete_res in self.alarms:
+            for each_dete_res in self._alarms:
                 if each_dete_res.tag in need_tag:
                     new_alarms.append(each_dete_res)
         else:
             remove_tag = set(remove_tag)
-            for each_dete_res in self.alarms:
+            for each_dete_res in self._alarms:
                 if each_dete_res.tag not in remove_tag:
                     new_alarms.append(each_dete_res)
         self._alarms = new_alarms
@@ -335,6 +353,49 @@ class DeteRes(object):
     def reset_alarms(self, assign_alarms):
         """重置 alarms"""
         self._alarms = assign_alarms
+
+    # ---------------------------------------------------- cut -------------------------------------------------------
+
+    def save_assign_range(self, assign_range, save_dir, save_name=None, iou_1=0.85):
+        """保存指定范围，同时保存图片和 xml """
+        x1, y1, x2, y2 = int(assign_range[0]),int(assign_range[1]),int(assign_range[2]),int(assign_range[3])
+        assign_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag='None', conf=-1)
+
+        offset_x, offset_y = -int(assign_range[0]), -int(assign_range[1])
+        height, width = y2 - y1, x2 - x1
+
+        new_alarms = []
+        # 这边要是直接使用 .copy 的话，alarms 里面的内容还是会被改变的, list 的 .copy() 属于 shallow copy 是浅复制，对浅复制中的可变类型修改的时候原数据会受到影响，https://blog.csdn.net/u011995719/article/details/82911392
+        for each_dete_obj in copy.deepcopy(self._alarms):
+            # 计算重合度
+            each_iou_1 = self._cal_iou_1(each_dete_obj, assign_dete_obj, ignore_tag=True)
+            if each_iou_1 > iou_1:
+                # 对结果 xml 的范围进行调整
+                each_dete_obj.do_offset(offset_x, offset_y)
+                # 修正目标的范围
+                if each_dete_obj.x1 < 0:
+                    each_dete_obj.x1 = 0
+                if each_dete_obj.y1 < 0:
+                    each_dete_obj.y1 = 0
+                if each_dete_obj.x2 > width:
+                    each_dete_obj.x2 = width
+                if each_dete_obj.y2 > height:
+                    each_dete_obj.y2 = height
+                #
+                new_alarms.append(each_dete_obj)
+
+        # 保存 xml
+        if save_name is None:
+            save_name = os.path.split(self.xml_path)[1].strip('.xml')
+
+        xml_save_path = os.path.join(save_dir, save_name + '.xml')
+        jpg_save_path = os.path.join(save_dir, save_name + '.jpg')
+        self.save_to_xml(xml_save_path, new_alarms)
+
+        # 保存 jpg
+        img = Image.open(self.img_path)
+        crop = img.crop(assign_range)
+        crop.save(jpg_save_path, quality=95)
 
     # ---------------------------------------------------- count -------------------------------------------------------
 

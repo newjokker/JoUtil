@@ -32,11 +32,12 @@ class OperateResXml(object):
             for each in each_xml_info['object']:
                 if each['name'] not in name_dict:
                     # 对置信度进行过滤
-                    if conf_func(each['prob']):
-                        name_dict[each['name']] = 1
+                    # fixme 因为很多 xml 没有置信度信息，所以这个功能在这边先关闭
+                    #if conf_func(each['prob']):
+                    name_dict[each['name']] = 1
                 else:
-                    if conf_func(each['prob']):
-                        name_dict[each['name']] += 1
+                    #if conf_func(each['prob']):
+                    name_dict[each['name']] += 1
         # 结束进度条
         pb.finish()
         # 将找到的信息用表格输出

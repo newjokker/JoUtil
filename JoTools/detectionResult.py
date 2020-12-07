@@ -292,6 +292,22 @@ class DeteRes(object):
                 res.append(each_res)
         self._alarms = res
 
+    def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
+        """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""
+
+        # 备份 alarms
+        all_alarms = copy.deepcopy(self._alarms)
+        # 拿到非指定 alarms
+        self.filter_by_tages(remove_tag=tag_list)
+        other_alarms = copy.deepcopy(self._alarms)
+        # 拿到指定 alarms 进行 nms
+        self.reset_alarms(all_alarms)
+        self.filter_by_tages(need_tag=tag_list)
+        self.do_nms(threshold, ignore_tag=True)
+        # 添加其他类型
+        for each_dete_obj in other_alarms:
+            self._alarms.append(each_dete_obj)
+
     def filter_by_conf(self, conf_th):
         """根据置信度进行筛选"""
         new_alarms = []

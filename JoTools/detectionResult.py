@@ -39,6 +39,10 @@ class DeteObj(object):
         """获取矩形范围"""
         return [self.x1, self.y1, self.x2, self.y2]
 
+    def get_center_point(self):
+        """得到中心点坐标"""
+        return float(self.x1+self.x2)/2, float(self.y1+self.y2)/2
+
     def get_format_list(self):
         """得到标准化的 list 主要用于打印"""
         return [str(self.tag), int(self.x1), int(self.y1), int(self.x2), int(self.y2), format(float(self.conf), '.4f')]
@@ -102,6 +106,17 @@ class DeteRes(object):
         img = Image.open(self.img_path)
         self.width, self.height = img.size
         self.folder = os.path.split(self.img_path)[0]
+
+    @staticmethod
+    def _merge_range_list(range_list):
+        """进行区域合并得到大的区域"""
+        x_min_list, y_min_list, x_max_list, y_max_list = [], [], [], []
+        for each_range in range_list:
+            x_min_list.append(each_range[0])
+            y_min_list.append(each_range[1])
+            x_max_list.append(each_range[2])
+            y_max_list.append(each_range[3])
+        return (min(x_min_list), min(y_min_list), max(x_max_list), max(y_max_list))
 
     @staticmethod
     def _region_augment(region_rect, img_size, augment_parameter=None):
@@ -402,7 +417,8 @@ class DeteRes(object):
 
         # 保存 xml
         if save_name is None:
-            save_name = os.path.split(self.xml_path)[1].strip('.xml')
+            loc_str = "[{0}_{1}_{2}_{3}]".format(assign_range[0], assign_range[1], assign_range[2], assign_range[3])
+            save_name = os.path.split(self.xml_path)[1].strip('.xml')+ '-+-' + loc_str
 
         xml_save_path = os.path.join(save_dir, save_name + '.xml')
         jpg_save_path = os.path.join(save_dir, save_name + '.jpg')
@@ -412,6 +428,38 @@ class DeteRes(object):
         img = Image.open(self.img_path)
         crop = img.crop(assign_range)
         crop.save(jpg_save_path, quality=95)
+
+    def get_max_range(self):
+        """得到标签的最大范围"""
+        # 拿到每一个标签的位置, 计算所有位置的最大值和最小值
+        range_list = []
+        for each_dete_obj in self._alarms:
+            range_list.append(each_dete_obj.get_rectangle())
+        return self._merge_range_list(range_list)
+
+    @staticmethod
+    def get_region_xml_from_cut_xml(xml_path, save_dir):
+        """从裁剪后的 xml 得到之前的 xml，恢复文件名和 dete_obj 位置"""
+
+        if not os.path.exists(xml_path):
+            raise ValueError("xml path is not exists")
+
+        xml_name = os.path.split(xml_path)[1][:-4]
+        split_loc = xml_name.rfind("-+-")
+
+        if split_loc == -1:
+            raise ValueError("no loc info in xml name")
+
+        region_name = xml_name[:split_loc]
+        range_list = eval(','.join(xml_name[split_loc+3:].split('_')))
+        off_x, off_y = range_list[0], range_list[1]
+        # xml 位置恢复
+        a = DeteRes(xml_path)
+        for each_dete_obj  in a.alarms:
+            each_dete_obj.do_offset(off_x, off_y)
+        # 保存
+        save_path = os.path.join(save_dir, region_name+'.xml')
+        a.save_to_xml(save_path)
 
     # ---------------------------------------------------- count -------------------------------------------------------
 

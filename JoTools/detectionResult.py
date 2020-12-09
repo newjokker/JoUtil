@@ -41,6 +41,7 @@ class DeteObj(object):
 
     def get_center_point(self):
         """得到中心点坐标"""
+        # fixme 未测试
         return float(self.x1+self.x2)/2, float(self.y1+self.y2)/2
 
     def get_format_list(self):
@@ -589,7 +590,11 @@ class OperateDeteRes(object):
         dete_res_standard.reset_alarms(check_res)
         if assign_img_path is not None:
             dete_res_standard.img_path = assign_img_path
+        # 保存图片
         dete_res_standard.draw_dete_res(save_path, color_dict=self.color_dict)
+        # 保存 xml
+        save_xml_path = save_path[:-4] + '.xml'
+        dete_res_standard.save_to_xml(save_xml_path)
         return check_dict
 
     def cal_model_acc(self, standard_xml_dir, customized_xml_dir, assign_img_dir, save_dir=None):

@@ -22,13 +22,17 @@ save_dir = r"C:\Users\14271\Desktop\del\get_max_range\recover"
 # exit()
 
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith('.xml')):
-    # each_img_name = os.path.split(each_xml_path)[1][:-4] + '.jpg'
-    # each_img_path = os.path.join(img_dir, each_img_name)
+    each_img_name = os.path.split(each_xml_path)[1][:-4] + '.jpg'
+    each_img_path = os.path.join(img_dir, each_img_name)
     #
-    # a = DeteRes(each_xml_path, each_img_path)
-    # max_range = a.get_max_range()
-    # a.save_assign_range(max_range, save_dir=save_dir)
+    a = DeteRes(each_xml_path, each_img_path)
+    max_range = a.get_max_range()
+    a.save_assign_range(max_range, save_dir=save_dir)
 
+
+
+
+for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith('.xml')):
     DeteRes.get_region_xml_from_cut_xml(each_xml_path, save_dir)
 
 

@@ -5,16 +5,17 @@
 
 import os
 import shutil
-from JoTools.detectionResult import OperateDeteRes, DeteRes, DeteObj
-from JoTools.operateResXml import OperateResXml
-from JoTools.txkj.parseXml import parse_xml
-from JoTools.for_csdn.word_pic.word_pic import WordImage
-from JoTools.for_csdn.the_art_of_war.the_art_of_war import TheArtOfWar
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.operateResXml import OperateResXml
-# from JoTools.txkj.databaseUtil import CocoDatabaseUtil
-from JoTools.utils.HashlibUtil import HashLibUtil
-import copy
+from JoTools.detectionResult import DeteRes, DeteObj
+from JoTools.operateDeteRes import OperateDeteRes
+# from JoTools.operateResXml import OperateResXml
+# from JoTools.txkj.parseXml import parse_xml
+# from JoTools.for_csdn.word_pic.word_pic import WordImage
+# from JoTools.for_csdn.the_art_of_war.the_art_of_war import TheArtOfWar
+# from JoTools.utils.FileOperationUtil import FileOperationUtil
+# from JoTools.operateResXml import OperateResXml
+# # from JoTools.txkj.databaseUtil import CocoDatabaseUtil
+# from JoTools.utils.HashlibUtil import HashLibUtil
+# import copy
 
 
 
@@ -36,7 +37,7 @@ res = a.cal_model_acc(standard_xml_dir=dete_res_standard, customized_xml_dir=det
 for each in res.items():
     print(each)
 
-res_2 = OperateDeteRes.cal_acc_rec(res)
+res_2 = OperateDeteRes.cal_acc_rec(res, ['Xnormal', 'K', 'Lm', 'kkxTC'])
 print(res_2)
 
 # a = [('extra_Xnormal', 929), ('correct_Xnormal', 4858),

@@ -13,6 +13,9 @@ from .utils.FileOperationUtil import FileOperationUtil
 # from JoTools.detectionResult import DeteRes
 # from JoTools.utils.FileOperationUtil import FileOperationUtil
 
+# todo 通用测试代码
+
+
 def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')

@@ -7,6 +7,7 @@ import copy
 import random
 from JoTools.txkj.parseXml import ParseXml, parse_xml
 from JoTools.utils.FileOperationUtil import FileOperationUtil
+from JoTools.detectionResult import DeteRes
 from PIL import Image
 
 
@@ -34,6 +35,18 @@ class DatabaseKG():
             return True
 
     @staticmethod
+    def _cal_iou_1(dete_obj_1, dete_obj_2, ignore_tag=False):
+        """计算两个矩形框的相交面积，占其中一个矩形框面积的比例 ， """
+        if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
+            return 0
+        else:
+            dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
+            dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
+            overlap_area = dx * dy
+            union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1))
+            return overlap_area * 1. / union_area
+
+    @staticmethod
     def merge_range_list(range_list):
         """进行区域合并得到大的区域"""
         x_min_list, y_min_list, x_max_list, y_max_list = [], [], [], []
@@ -45,85 +58,37 @@ class DatabaseKG():
         return (min(x_min_list), min(y_min_list), max(x_max_list), max(y_max_list))
 
     @staticmethod
-    def get_subset_from_pic(xml_path, img_path, save_dir, min_count=6, small_img_count=3):
+    def get_subset_from_pic(xml_path, img_path, save_dir, min_count=6, small_img_count=3, iou_1=0.5):
         """从一个图片中拿到标签元素的子集"""
-        xml_operate = ParseXml()
-        xml_info = xml_operate.get_xml_info(xml_path)
+
+        a = DeteRes(xml_path, img_path)
+        # 获取所有 box 位置
         box_list = []
-        for each in xml_info["object"]:
-            each_range = (int(each["bndbox"]["xmin"]), int(each["bndbox"]["ymin"]), int(each["bndbox"]["xmax"]), int(each["bndbox"]["ymax"]))
-            box_list.append(each_range)
-
-        if len(box_list) < 1:
-            return
-
-        # fixme 都有全局的图，要是元素大于等于 6 还另外生成小图
-
-        # 图片中的所有元素放到一个小截图中
-        merge_range = DatabaseKG.merge_range_list(box_list)
-        # 修改数据范围
-        xml_info_tmp = copy.deepcopy(xml_info)
-        for each_obj in xml_info_tmp["object"]:
-            each_obj["bndbox"]["xmin"] = str(int(each_obj["bndbox"]["xmin"]) - merge_range[0] )
-            each_obj["bndbox"]["ymin"] = str(int(each_obj["bndbox"]["ymin"]) - merge_range[1] )
-            each_obj["bndbox"]["xmax"] = str(int(each_obj["bndbox"]["xmax"]) - merge_range[0] )
-            each_obj["bndbox"]["ymax"] = str(int(each_obj["bndbox"]["ymax"]) - merge_range[1] )
-        # 存储 xml 和 jpg
-        xml_info_tmp["size"] = {'width': str(merge_range[2]-merge_range[0]), 'height': str(merge_range[3]-merge_range[1]), 'depth': '3'}
-        xml_save_dir = os.path.join(save_dir, 'Annotations')
-        if not os.path.exists(xml_save_dir):
-            os.makedirs(xml_save_dir)
-        each_xml_save_path = os.path.join(xml_save_dir, os.path.split(xml_path)[1])
-        xml_operate.save_to_xml(each_xml_save_path, xml_info_tmp)
-        # 剪切图像
-        jpg_save_dir = os.path.join(save_dir, 'JPEGImages')
-        if not os.path.exists(jpg_save_dir):
-            os.makedirs(jpg_save_dir)
-        each_jpg_save_path = os.path.join(jpg_save_dir, os.path.split(xml_path)[1][:-4] + ".jpg")
+        for each_box in a.alarms:
+            box_list.append(each_box.get_rectangle())
         #
-        # img_path = xml_path[:-4] + ".jpg"
-        img = Image.open(img_path)
-        each_crop = img.crop(merge_range)
-        each_crop.save(each_jpg_save_path, quality=95)
+        img_dir = os.path.join(save_dir, 'JPEGImages')
+        xml_dir = os.path.join(save_dir, 'Annotations')
+        if not os.path.exists(img_dir): os.makedirs(img_dir)
+        if not os.path.exists(xml_dir): os.makedirs(xml_dir)
+        # 保存最大范围
+        merge_range = a.get_max_range()
+        save_name = os.path.split(xml_path)[1][:-4]
+        a.save_assign_range(assign_range=merge_range, save_dir=save_dir, iou_1=0.5, save_name=save_name)
 
         # 元素个数大于阈值，另外生成小图
         if len(box_list) >= min_count:
             for i in range(small_img_count):
-                # xml_info_tmp = xml_info.copy()
-                xml_info_tmp = copy.deepcopy(xml_info)      # copy() 原来不是深拷贝啊，不是直接开辟空间存放值？
                 # 打乱顺序
                 random.shuffle(box_list)
-                # 拿出其中的三个，得到外接矩形的外接矩形
+                # 拿出其中的三个，得到外接矩形的外接矩形，如果只有两个元素那就拿出前两个
                 if len(box_list) == 2:
                     merge_range = DatabaseKG.merge_range_list(box_list[:2])
                 else:
                     merge_range = DatabaseKG.merge_range_list(box_list[:3])
-                # 遍历所有要素，找到在 merge_range 中的要素，
-                obj_list = []
-                for each_obj in xml_info_tmp["object"]:
-                    each_range = (int(each_obj["bndbox"]["xmin"]), int(each_obj["bndbox"]["ymin"]), int(each_obj["bndbox"]["xmax"]), int(each_obj["bndbox"]["ymax"]))
-                    # print(each_range, merge_range)
-                    if DatabaseKG.is_in_range(each_range, merge_range):
-                        # 裁剪后的图像范围要进行对应的平移
-                        each_obj["bndbox"]["xmin"] = str(int(each_obj["bndbox"]["xmin"]) - merge_range[0])
-                        each_obj["bndbox"]["ymin"] = str(int(each_obj["bndbox"]["ymin"]) - merge_range[1])
-                        each_obj["bndbox"]["xmax"] = str(int(each_obj["bndbox"]["xmax"]) - merge_range[0])
-                        each_obj["bndbox"]["ymax"] = str(int(each_obj["bndbox"]["ymax"]) - merge_range[1])
-                        obj_list.append(each_obj)
-                #
-                xml_info_tmp["object"] = obj_list
-                xml_info_tmp["size"] = {'width': str(merge_range[2]-merge_range[0]), 'height': str(merge_range[3]-merge_range[1]), 'depth': '3'}
-                xml_name = "_{0}.xml".format(i)
-                img_name = "_{0}.jpg".format(i)
-                xml_info_tmp["filename"] = img_name                                                             # 修改文件名
-                each_xml_save_path = os.path.join(xml_save_dir, os.path.split(xml_path)[1][:-4] + xml_name)
-                xml_operate.save_to_xml(each_xml_save_path, xml_info_tmp)
-                # 剪切图像
-                each_jpg_save_path = os.path.join(jpg_save_dir, os.path.split(xml_path)[1][:-4] + img_name)
-                # img_path = xml_path[:-4] + ".jpg"
-                img = Image.open(img_path)
-                each_crop = img.crop(merge_range)
-                each_crop.save(each_jpg_save_path)
+                # 截取指定范围并保存
+                save_name  = os.path.split(xml_path)[1][:-4] + "_{0}".format(i)
+                a.save_assign_range(assign_range=merge_range, save_dir=save_dir, iou_1=iou_1, save_name=save_name)
 
 
 

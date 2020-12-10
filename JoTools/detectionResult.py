@@ -570,7 +570,7 @@ class OperateDeteRes(object):
                     self.color_dict[new_tag] = self.color_dict["correct"]
                 obj_c.tag = new_tag
             elif obj_c.is_correct is False:
-                new_tag = "mistake_{0}_{1}".format(obj_c.correct_tag, obj_c.tag)
+                new_tag = "mistake_{0}-{1}".format(obj_c.correct_tag, obj_c.tag)
                 check_dict[new_tag] += 1
                 # 每出现一种新类型，保持和 mistake 颜色一致
                 if new_tag not in self.color_dict:
@@ -652,6 +652,48 @@ class OperateDeteRes(object):
             self._update_check_res(check_res, each_check_res)
 
         return check_res
+        # return self.cal_acc_rec(check_res)
+
+    @staticmethod
+    def cal_acc_rec(check_res, tag_list=None):
+        """根据结果得到正确率和召回率"""
+        res = {}
+        extra_dict, miss_dict, correct_dict, mistake_dict = {}, {}, {}, {}
+        # 获得字典
+        for each_key in check_res:
+            if str(each_key).startswith('extra_'):
+                new_key = each_key.lstrip('extra_')
+                extra_dict[new_key] = check_res[each_key]
+            elif str(each_key).startswith('correct_'):
+                new_key = each_key.lstrip('correct_')
+                correct_dict[new_key] = check_res[each_key]
+            elif str(each_key).startswith('miss_'):
+                new_key = each_key.lstrip('miss_')
+                miss_dict[new_key] = check_res[each_key]
+            elif str(each_key).startswith('mistake_'):
+                new_key = each_key.lstrip('mistake_')
+                mistake_dict[new_key] = check_res[each_key]
+        # 计算准确率和召回率
+        # 准确率，预测为正样本的有多少正样本 correct_a / (correct_a + mistake_x_a + extra_a)
+        # 召回率：是针对我们原来的样本而言的，它表示的是样本中的正例有多少被预测正确了
+        if tag_list is None:
+            tag_list = list(correct_dict.keys())
+        #
+        for each_tag in tag_list:
+            each_correct_num = correct_dict[each_tag]
+            each_extra_num = extra_dict[each_tag]
+            each_miss_num = miss_dict[each_tag]
+            each_mistake_num = 0
+            # 计算错检数
+            for each_mistake_tag in mistake_dict:
+                each_from, each_to = each_mistake_tag.split('-')
+                if each_to == each_tag:
+                    each_mistake_num += mistake_dict[each_mistake_tag]
+            # 计算准确率和召回率
+            each_acc = each_correct_num / float(sum([each_correct_num, each_mistake_num, each_extra_num]))
+            each_rec = each_correct_num / float(sum([each_correct_num, each_miss_num]))
+            res[each_tag] = {'acc':each_acc, 'rec':each_rec}
+        return res
 
     # ------------------------------------------- filter ---------------------------------------------------------------
 
@@ -841,8 +883,6 @@ class OperateDeteRes(object):
 
         a = DeteRes(xml_path)
         pass
-
-
 
     # ------------------------------------------------------------------------------------------------------------------
 

@@ -421,8 +421,13 @@ class DeteRes(object):
             loc_str = "[{0}_{1}_{2}_{3}]".format(assign_range[0], assign_range[1], assign_range[2], assign_range[3])
             save_name = os.path.split(self.xml_path)[1].strip('.xml')+ '-+-' + loc_str
 
-        xml_save_path = os.path.join(save_dir, 'Annotations', save_name + '.xml')
-        jpg_save_path = os.path.join(save_dir, 'JPEGImages', save_name + '.jpg')
+        xml_save_dir = os.path.join(save_dir, 'Annotations')
+        img_save_dir = os.path.join(save_dir, 'JPEGImages')
+        xml_save_path = os.path.join(xml_save_dir, save_name + '.xml')
+        jpg_save_path = os.path.join(img_save_dir, save_name + '.jpg')
+        if not os.path.exists(xml_save_dir):os.makedirs(xml_save_dir)
+        if not os.path.exists(img_save_dir):os.makedirs(img_save_dir)
+
         self.save_to_xml(xml_save_path, new_alarms)
 
         # 保存 jpg

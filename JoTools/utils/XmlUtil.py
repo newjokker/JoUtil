@@ -40,6 +40,7 @@ class XmlUtil(object):
     def save_xml(document, xml_path):
         """save to xml file"""
         with open(xml_path, 'wb') as f:  # python 2|3 ==> 'w' | 'wb'
+        # with open(xml_path, 'w') as f:  # python 2|3 ==> 'w' | 'wb'
             f.write(document.toprettyxml(indent='\t', encoding='utf-8'))
 
     # ------------------------------ read xml --------------------------------------------------------------------------

@@ -3,17 +3,16 @@
 
 
 from JoTools.txkj.parseXml import parse_xml
-from JoTools.operateResXml import OperateResXml
-from JoTools.detectionResult import OperateDeteRes, DeteRes
+from JoTools.detectionResult import DeteRes
 from JoTools.for_csdn.word_pic.word_pic import WordImage
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 import os
 
 
 
-xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\000_原始数据_Part_CY-JTM_OrignalPic-Xml20200515\xml_002"
-img_dir = r"C:\Users\14271\Desktop\优化开口销第二步\000_原始数据_Part_CY-JTM_OrignalPic-Xml20200515\img_002"
-save_dir = r"C:\Users\14271\Desktop\优化开口销第二步\018_循环优化训练数据\000_原图进行裁剪"
+xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\000_标准测试集\NM_standerd_xml"
+img_dir = r"C:\Users\14271\Desktop\优化开口销第二步\000_标准测试集\NM_standerd_pic"
+save_dir = r"C:\Users\14271\Desktop\优化开口销第二步\017_新增数据后的结果对比\002_第二步使用验证集进行对比\000_验证集截图"
 
 # xml_path = r"C:\Users\14271\Desktop\del\get_max_range\res\35kV迪洋线017号塔右相大号侧横担端U型挂环销钉缺失-+-[1480_1556_3171_1835].xml"
 # DeteRes.get_region_xml_from_cut_xml(xml_path, save_dir)

@@ -11,7 +11,8 @@ from .detectionResult import DeteRes, DeteObj
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkj.parseXml import parse_xml, save_to_xml
 import cv2
-
+from .utils.NumberUtil import NumberUtil
+import prettytable
 
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
@@ -38,7 +39,7 @@ class OperateDeteRes(object):
             return overlap_area * 1. / union_area
 
 
-    # ------------------------------------------- filter ---------------------------------------------------------------
+    # ------------------------------------------- acc dete -------------------------------------------------------------
     @staticmethod
     def _update_check_res(res, each_res):
         """更新字典"""
@@ -229,6 +230,87 @@ class OperateDeteRes(object):
             res[each_tag] = {'acc':each_acc, 'rec':each_rec}
         return res
 
+    # ------------------------------------------- acc classify ---------------------------------------------------------
+    @staticmethod
+    def cal_acc_classify(standard_img_dir, customized_img_dir):
+        """"对比两个分类结果文件夹，分类就是将原图进行了重新的排列"""
+
+        # 拿到标签
+        standard_dict = {}
+        stand_label_count = {}
+        res_dict = {}
+        for each_img_path in FileOperationUtil.re_all_file(standard_img_dir, lambda x:str(x).endswith(('.jpg', '.JPG', '.png'))):
+            # 拿到第一级别文件夹名，作为 label
+            img_label = each_img_path[len(standard_img_dir):].strip(os.sep).split(os.sep)[0]
+            img_name = os.path.split(each_img_path)[1]
+            standard_dict[img_name] = img_label
+            if img_label in stand_label_count:
+                stand_label_count[img_label] += 1
+            else:
+                stand_label_count[img_label] = 1
+        #
+        for each_img_path in FileOperationUtil.re_all_file(customized_img_dir, lambda x:str(x).endswith(('.jpg', '.JPG', '.png'))):
+            # 拿到第一级别文件夹名，作为 label
+            img_label = each_img_path[len(customized_img_dir):].strip(os.sep).split(os.sep)[0]
+            img_name = os.path.split(each_img_path)[1]
+            #
+            standard_img_label = standard_dict[img_name]
+            #
+            if standard_img_label == img_label:
+                correct_str = "correct_{0}".format(standard_img_label)
+                if correct_str in res_dict:
+                    res_dict[correct_str].append(each_img_path)
+                else:
+                    res_dict[correct_str] = [each_img_path]
+            else:
+                mistake_str = "mistake_{0}_{1}".format(standard_img_label, img_label)
+                if mistake_str in res_dict:
+                    res_dict[mistake_str].append(each_img_path)
+                else:
+                    res_dict[mistake_str] = [each_img_path]
+
+        stand_label_list = list(stand_label_count.keys())
+        tb = prettytable.PrettyTable()
+        tb.field_names = ["  ", "class", "num", "per"]
+
+        # 计算每一个类型的召回率
+        for each in stand_label_list:
+            correct_str = "correct_{0}".format(each)
+            if correct_str in res_dict:
+                # print(correct_str, len(res_dict[correct_str]), NumberUtil.format_float(len(res_dict[correct_str])/stand_label_count[each], 2))
+                rec = NumberUtil.format_float(len(res_dict[correct_str])/stand_label_count[each], 2)
+                tb.add_row(['rec', each, "{0} | {1}".format(len(res_dict[correct_str]), stand_label_count[each]), rec])
+
+        # 计算每一个类型的准确率
+        for i in stand_label_list:
+            correct_str = "correct_{0}".format(i)
+            # 去掉没检测出来的类型
+            if correct_str not in res_dict:
+                continue
+            #
+            correct_num = len(res_dict[correct_str])
+            all_num = correct_num
+            for j in stand_label_list:
+                mistake_str = "mistake_{0}_{1}".format(j, i)
+                if mistake_str in res_dict:
+                    all_num += len(res_dict[mistake_str])
+            # print("rec {0} : {1}".format(i, NumberUtil.format_float(correct_num/all_num), 2))
+            acc = NumberUtil.format_float(correct_num/all_num, 2)
+            tb.add_row(['acc', i, "{0} | {1}".format(correct_num, all_num), acc])
+
+        mistake_tb = prettytable.PrettyTable()
+        mistake_tb.field_names = ["correct", "mistake", "num"]
+
+        for i in stand_label_list:
+            for j in stand_label_list:
+                mistake_str = "mistake_{0}_{1}".format(i, j)
+                if mistake_str in res_dict:
+                    # print(mistake_str, len(res_dict[mistake_str]))
+                    mistake_tb.add_row([i, j, len(res_dict[mistake_str])])
+
+        print(tb)
+        print(mistake_tb)
+
     # ------------------------------------------- filter ---------------------------------------------------------------
 
     @staticmethod
@@ -323,8 +405,9 @@ class OperateDeteRes(object):
             a.save_to_xml(xml_path)
 
     @staticmethod
-    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False):
+    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None):
         """将文件夹下面的所有 xml 进行裁剪"""
+        # todo 增加裁剪指定类型
         index = 0
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
             each_img_path = os.path.join(img_dir, os.path.split(each_xml_path)[1][:-3] + 'jpg')
@@ -336,7 +419,7 @@ class OperateDeteRes(object):
             a = DeteRes(each_xml_path)
             a.img_path = each_img_path
 
-            a.crop_and_save(save_dir, split_by_tag=split_by_tag)
+            a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list)
             index += 1
 
     @staticmethod

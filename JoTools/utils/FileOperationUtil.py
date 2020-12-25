@@ -103,6 +103,11 @@ class FileOperationUtil(object):
             else:
                 shutil.copyfile(each_file_path, new_file_path)
 
+    @staticmethod
+    def merge_root_dir(root_dir_1, root_dir_2):
+        """对 root 文件夹进行合并，两个 root 文件夹及其包含的子文件夹，A(a,b,c), B(b,c,d) 那么将 A B 中的 b,c 文件夹中的内容进行合并，并复制 a, d """
+        pass
+
     # ------------------------------------ need repair -----------------------------------------------------------------
 
     @staticmethod

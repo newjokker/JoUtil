@@ -10,12 +10,9 @@ import os
 
 
 
-xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\000_标准测试集\NM_standerd_xml"
-img_dir = r"C:\Users\14271\Desktop\优化开口销第二步\000_标准测试集\NM_standerd_pic"
-save_dir = r"C:\Users\14271\Desktop\优化开口销第二步\017_新增数据后的结果对比\002_第二步使用验证集进行对比\000_验证集截图"
-
-# xml_path = r"C:\Users\14271\Desktop\del\get_max_range\res\35kV迪洋线017号塔右相大号侧横担端U型挂环销钉缺失-+-[1480_1556_3171_1835].xml"
-# DeteRes.get_region_xml_from_cut_xml(xml_path, save_dir)
+xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\xml"
+img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\img"
+save_dir = r"C:\Users\14271\Desktop\fzc_train_data_extend"
 
 
 # exit()

@@ -236,6 +236,7 @@ class OperateDeteRes(object):
         """"对比两个分类结果文件夹，分类就是将原图进行了重新的排列"""
 
         # 拿到标签
+        return_res = []
         standard_dict = {}
         stand_label_count = {}
         res_dict = {}
@@ -279,7 +280,9 @@ class OperateDeteRes(object):
             if correct_str in res_dict:
                 # print(correct_str, len(res_dict[correct_str]), NumberUtil.format_float(len(res_dict[correct_str])/stand_label_count[each], 2))
                 rec = NumberUtil.format_float(len(res_dict[correct_str])/stand_label_count[each], 2)
-                tb.add_row(['rec', each, "{0} | {1}".format(len(res_dict[correct_str]), stand_label_count[each]), rec])
+                one_row = ['rec', each, "{0} | {1}".format(len(res_dict[correct_str]), stand_label_count[each]), rec]
+                tb.add_row(one_row)
+                return_res.append(one_row)
 
         # 计算每一个类型的准确率
         for i in stand_label_list:
@@ -296,7 +299,9 @@ class OperateDeteRes(object):
                     all_num += len(res_dict[mistake_str])
             # print("rec {0} : {1}".format(i, NumberUtil.format_float(correct_num/all_num), 2))
             acc = NumberUtil.format_float(correct_num/all_num, 2)
-            tb.add_row(['acc', i, "{0} | {1}".format(correct_num, all_num), acc])
+            one_row = ['acc', i, "{0} | {1}".format(correct_num, all_num), acc]
+            tb.add_row(one_row)
+            return_res.append(one_row)
 
         mistake_tb = prettytable.PrettyTable()
         mistake_tb.field_names = ["correct", "mistake", "num"]
@@ -310,6 +315,8 @@ class OperateDeteRes(object):
 
         print(tb)
         print(mistake_tb)
+        return return_res
+
 
     # ------------------------------------------- filter ---------------------------------------------------------------
 

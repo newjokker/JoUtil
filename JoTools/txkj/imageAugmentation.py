@@ -188,20 +188,17 @@ class ImageAugmentation(object):
 
 if __name__ == "__main__":
 
-    # img_folder = r"C:\Users\14271\Desktop\del\test_augment\in"
-    # out_folder = r"C:\Users\14271\Desktop\ImageAugmentation"
-    out_folder = r"C:\Users\14271\Desktop\bbb"
+    img_dir = r"C:\Users\14271\Desktop\classify_step_1.5\fzc_broken\normal"
+    out_dir = r"C:\Users\14271\Desktop\classify_step_1.5\fzc_broken\normal_extend"
+    # 期望扩展的图片的数量
+    expect_img_num = 5000
 
-    # for each_dir in os.listdir(out_folder):
-    #     each_dir_path = os.path.join(out_folder, each_dir)
-    #     imgs_list = FileOperationUtil.re_all_file(each_dir_path, lambda x:str(x).endswith('.jpg'))  # 遍历找到文件夹中符合要求的图片
-    #     a = ImageAugmentation(imgs_list, each_dir_path)
-    #     a.mode = 0
-    #     a.do_process()
+    imgs_list = FileOperationUtil.re_all_file(img_dir, lambda x: str(x).endswith('.jpg'))  # 遍历找到文件夹中符合要求的图片
+    # 计算得到为了达到期望扩展图片量，需要的 prob 值
+    img_count = len(imgs_list)
+    prob = expect_img_num / float(img_count * 12)
 
-
-    imgs_list = FileOperationUtil.re_all_file(out_folder, lambda x:str(x).endswith('.jpg'))  # 遍历找到文件夹中符合要求的图片
-    a = ImageAugmentation(imgs_list, r"C:\Users\14271\Desktop\ccc")
-    a.mode = 1
+    a = ImageAugmentation(imgs_list, out_dir, prob=prob)
+    a.mode = 0
     a.do_process()
 

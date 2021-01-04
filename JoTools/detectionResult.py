@@ -9,6 +9,7 @@ from PIL import Image
 import numpy as np
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkj.parseXml import parse_xml, save_to_xml
+from .utils.JsonUtil import JsonUtil
 import cv2
 
 """
@@ -52,11 +53,23 @@ class DeteObj(object):
         """返回面积，面积大小按照像素个数进行统计"""
         return int(self.x2 - self.x1) * int(self.y2 - self.y1)
 
+    def format_check(self):
+        """类型检查和调整"""
+        self.conf = float(self.conf)
+        self.tag = str(self.tag)
+        self.x1 = int(self.x1)
+        self.y1 = int(self.y1)
+        self.x2 = int(self.x2)
+        self.y2 = int(self.y2)
 
 class DeteRes(object):
     """检测结果"""
 
-    def __init__(self, xml_path=None, assign_img_path=None):
+    # todo 这边可以解析 xml 也可以解析 json 看需求了
+
+    # todo 执行类型检查，或者是类型矫正，在转换的时候先进行操作一下
+
+    def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
         self.height = -1            # 检测图像的高
         self.width = -1             # 检测图像的宽
         self.folder = ""            # 图像存在的文件夹
@@ -64,11 +77,15 @@ class DeteRes(object):
         self._alarms = []            # 这里面存储的是 DeteObj 对象
         self.img_path = ""          # 对应的原图的路径
         self.xml_path = xml_path    # 可以从 xml 中读取检测结果
+        self.json_path = json_path
+
+        # todo json path 和 xml path 不能同时设定
 
         # 从 xml 中获取检测结果
         if self.xml_path is not None:
             self._parse_xml_info()
-
+        elif self.json_path is not None:
+            self._parse_json_info()
         # 因为文件名在 xml 中经常写错，所以还是要有一个地方输入正确的文件名的
         if assign_img_path is not None:
             self._get_img_info(assign_img_path)
@@ -77,6 +94,39 @@ class DeteRes(object):
         # todo 重写这个函数，直接从 xml 中进行解析，确保运行效率
         """解析 xml 中存储的检测结果"""
         xml_info = parse_xml(self.xml_path)
+        #
+        if 'size' in xml_info:
+            if 'height' in xml_info['size']:
+                self.height = float(xml_info['size']['height'])
+            if 'width' in xml_info['size']:
+                self.width = float(xml_info['size']['width'])
+        #
+        if 'filename' in xml_info:
+            self.file_name = xml_info['filename']
+
+        if 'path' in xml_info:
+            self.img_path = xml_info['path']
+
+        if 'folder' in xml_info:
+            self.folder = xml_info['folder']
+
+        # 解析 object 信息
+        for each_obj in xml_info['object']:
+            bndbox = each_obj['bndbox']
+            x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+            if 'prob' not in each_obj:
+                each_obj['prob'] = -1
+            self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']))
+
+    def _parse_json_info(self, json_dict=None):
+        """解析 json 信息"""
+
+        if self.json_path is not None:
+            xml_info = JsonUtil.load_data_from_json_file(self.json_path)
+        elif json_dict is not None:
+            xml_info = json_dict
+        else:
+            raise ValueError("json_file_path json_dict 不能同时为空")
         #
         if 'size' in xml_info:
             if 'height' in xml_info['size']:
@@ -254,6 +304,16 @@ class DeteRes(object):
             # fixme 实验结果是压缩对训练后的模型性能有影响，需要看看哪种分辨率和质量的比较合适
             each_crop.save(each_save_path, quality=95)
 
+    # ---------------------------------------------------- save --------------------------------------------------------
+
+    def format_check(self):
+        """类型检查，规范类型"""
+        self.height = int(self.height)
+        self.width = int(self.width)
+        # object 类型整理
+        for each_alarm in self.alarms:
+            each_alarm.format_check()
+
     def save_to_xml(self, save_path, assign_alarms=None):
         """保存为 xml 文件"""
         xml_info = {'size': {'height': str(self.height), 'width': str(self.width), 'depth': '3'},
@@ -274,6 +334,29 @@ class DeteRes(object):
             xml_info['object'].append(each_obj)
         # 保存为 xml
         save_to_xml(xml_info, xml_path=save_path)
+
+    def save_to_json(self, save_path, assign_alarms=None):
+        """转为 json 结构"""
+
+        json_dict = {'size': {'height': int(self.height), 'width': int(self.width), 'depth': '3'},
+                    'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
+                    'segmented': "", 'source': ""}
+        # 可以指定输出的 alarms
+        if assign_alarms is None:
+            alarms = self._alarms
+        else:
+            alarms = assign_alarms
+        #
+        for each_dete_obj in alarms:
+            each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf),
+                        'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
+                                   'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
+            json_dict['object'].append(each_obj)
+
+        if save_path is None:
+            return json_dict
+        else:
+            JsonUtil.save_data_to_json_file(json_dict, save_path)
 
     # ------------------------------------------------------------------------------------------------------------------
 

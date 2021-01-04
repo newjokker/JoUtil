@@ -16,7 +16,7 @@ import random
 
 class ImageAugmentation(object):
 
-    def __init__(self, img_list, save_dir, prob=1):
+    def __init__(self, img_list, save_dir, prob=1.0):
         self.save_dir = save_dir
         self.img_list = img_list
         self.mode = 0  # mode == 0 所有变换只针对原图， mode == 1 所有变换针对原图和变换过的图
@@ -139,7 +139,7 @@ class ImageAugmentation(object):
             img_list.append(each_save_path)
         return img_list
 
-    def flip(self, img_path, prob=1):
+    def flip(self, img_path, prob=1.0):
         """左右翻转"""
 
         # 只有一定的概率进行扩增
@@ -186,6 +186,7 @@ class ImageAugmentation(object):
             img_list = self.deal_img(img_list, self.rotation)
             img_list = self.deal_img(img_list, self.flip)
 
+
 if __name__ == "__main__":
 
     img_dir = r"C:\Users\14271\Desktop\classify_step_1.5\fzc_broken\normal"
@@ -196,9 +197,9 @@ if __name__ == "__main__":
     imgs_list = FileOperationUtil.re_all_file(img_dir, lambda x: str(x).endswith('.jpg'))  # 遍历找到文件夹中符合要求的图片
     # 计算得到为了达到期望扩展图片量，需要的 prob 值
     img_count = len(imgs_list)
-    prob = expect_img_num / float(img_count * 12)
+    assign_prob = expect_img_num / float(img_count * 12)
 
-    a = ImageAugmentation(imgs_list, out_dir, prob=prob)
+    a = ImageAugmentation(imgs_list, out_dir, prob=assign_prob)
     a.mode = 0
     a.do_process()
 

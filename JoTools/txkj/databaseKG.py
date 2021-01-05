@@ -3,13 +3,9 @@
 
 
 import os
-import copy
 import random
-from JoTools.txkj.parseXml import ParseXml, parse_xml
 from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.detectionResult import DeteRes
-from PIL import Image
-
+from JoTools.txkjRes.detectionResult import DeteRes
 
 
 class DatabaseKG():

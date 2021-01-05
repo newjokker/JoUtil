@@ -2,15 +2,8 @@
 # -*- author: jokker -*-
 
 
-
-from JoTools.txkj.parseXml import parse_xml
-from JoTools.operateResXml import OperateResXml
-from JoTools.detectionResult import OperateDeteRes, DeteRes
-from JoTools.for_csdn.word_pic.word_pic import WordImage
+from JoTools.txkjRes.detectionResult import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
-import os
-
-
 
 xml_dir = r"C:\Users\14271\Desktop\优化开口销第二步\018_循环优化训练数据\001_未优化前裁剪xml"
 img_dir = r"C:\Users\14271\Desktop\优化开口销第二步\000_原始数据_Part_CY-JTM_OrignalPic-Xml20200515\img_002"

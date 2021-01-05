@@ -2,10 +2,6 @@
 # -*- author: jokker -*-
 
 
-
-import os
-import shutil
-from JoTools.detectionResult import DeteRes, DeteObj
 from JoTools.operateDeteRes import OperateDeteRes
 # from JoTools.operateResXml import OperateResXml
 # from JoTools.txkj.parseXml import parse_xml

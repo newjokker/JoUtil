@@ -7,88 +7,28 @@ import random
 import collections
 from PIL import Image
 import numpy as np
-from .utils.FileOperationUtil import FileOperationUtil
-from .txkj.parseXml import parse_xml, save_to_xml
-from .utils.JsonUtil import JsonUtil
+from JoTools.utils.JsonUtil import JsonUtil
+from JoTools.utils.FileOperationUtil import FileOperationUtil
+from JoTools.txkj.parseXml import parse_xml, save_to_xml
 import cv2
+from abc import ABCMeta, abstractmethod, ABC
+from .res import Res
 
 """
 * 可用于中间结果
 * xml_info 应该进行重写，不应该将结果放在字典中，而应该放在类中，这样编程比较方便，不容易出错
 """
 
+# fixme DeteRes 计算 , xml 存储，json 通信
+# todo 这边可以解析 xml 也可以解析 json 看需求了
+# todo 执行类型检查，或者是类型矫正，在转换的时候先进行操作一下
 
-class DeteObj(object):
-    """检测结果的一个检测对象，就是一个矩形框对应的信息"""
 
-    def __init__(self, x1=None, y1=None, x2=None, y2=None, tag=None, conf=-1):
-        self.conf = conf
-        self.tag = tag
-        self.x1 = x1
-        self.x2 = x2
-        self.y1 = y1
-        self.y2 = y2
-
-    def do_offset(self, offset_x, offset_y):
-        """对结果进行偏移"""
-        self.x1 += offset_x
-        self.x2 += offset_x
-        self.y1 += offset_y
-        self.y2 += offset_y
-
-    def get_rectangle(self):
-        """获取矩形范围"""
-        return [self.x1, self.y1, self.x2, self.y2]
-
-    def get_center_point(self):
-        """得到中心点坐标"""
-        # fixme 未测试
-        return float(self.x1+self.x2)/2, float(self.y1+self.y2)/2
-
-    def get_format_list(self):
-        """得到标准化的 list 主要用于打印"""
-        return [str(self.tag), int(self.x1), int(self.y1), int(self.x2), int(self.y2), format(float(self.conf), '.4f')]
-
-    def get_area(self):
-        """返回面积，面积大小按照像素个数进行统计"""
-        return int(self.x2 - self.x1) * int(self.y2 - self.y1)
-
-    def format_check(self):
-        """类型检查和调整"""
-        self.conf = float(self.conf)
-        self.tag = str(self.tag)
-        self.x1 = int(self.x1)
-        self.y1 = int(self.y1)
-        self.x2 = int(self.x2)
-        self.y2 = int(self.y2)
-
-class DeteRes(object):
+class DeteRes(Res, ABC):
     """检测结果"""
 
-    # todo 这边可以解析 xml 也可以解析 json 看需求了
-
-    # todo 执行类型检查，或者是类型矫正，在转换的时候先进行操作一下
-
     def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
-        self.height = -1            # 检测图像的高
-        self.width = -1             # 检测图像的宽
-        self.folder = ""            # 图像存在的文件夹
-        self.file_name = ""         # 检测图像文件名
-        self._alarms = []            # 这里面存储的是 DeteObj 对象
-        self.img_path = ""          # 对应的原图的路径
-        self.xml_path = xml_path    # 可以从 xml 中读取检测结果
-        self.json_path = json_path
-
-        # todo json path 和 xml path 不能同时设定
-
-        # 从 xml 中获取检测结果
-        if self.xml_path is not None:
-            self._parse_xml_info()
-        elif self.json_path is not None:
-            self._parse_json_info()
-        # 因为文件名在 xml 中经常写错，所以还是要有一个地方输入正确的文件名的
-        if assign_img_path is not None:
-            self._get_img_info(assign_img_path)
+        super().__init__(xml_path, assign_img_path, json_path)
 
     def _parse_xml_info(self):
         # todo 重写这个函数，直接从 xml 中进行解析，确保运行效率
@@ -150,13 +90,6 @@ class DeteRes(object):
             if 'prob' not in each_obj:
                 each_obj['prob'] = -1
             self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']))
-
-    def _get_img_info(self, assign_img_path):
-        """数据中添加图片地址"""
-        self.img_path = assign_img_path
-        img = Image.open(self.img_path)
-        self.width, self.height = img.size
-        self.folder = os.path.split(self.img_path)[0]
 
     @staticmethod
     def _merge_range_list(range_list):
@@ -335,7 +268,7 @@ class DeteRes(object):
         # 保存为 xml
         save_to_xml(xml_info, xml_path=save_path)
 
-    def save_to_json(self, save_path, assign_alarms=None):
+    def save_to_json(self, save_path=None, assign_alarms=None):
         """转为 json 结构"""
 
         json_dict = {'size': {'height': int(self.height), 'width': int(self.width), 'depth': '3'},
@@ -448,10 +381,10 @@ class DeteRes(object):
     def filter_by_area_ratio(self, ar=0.0006):
         """根据面积比例进行删选"""
         # 对于无法获取长宽的数据进行报错
-        if (not os.path.exists(self.img_path)) and ((not self.width) or  (not self.height)):
-            raise ValueError("img not exists")
-        elif not os.path.exists(self.img_path):
-            self._get_img_info(self.img_path)
+        # if (not os.path.exists(self.img_path)) and ((not self.width) or  (not self.height)):
+        #     raise ValueError("img not exists")
+        # elif not os.path.exists(self.img_path):
+        #     self._get_img_info(self.img_path)
         # get area
         th_area = float(sel.width * self.height) * ar
         self.filter_by_area(area_th=th_area)

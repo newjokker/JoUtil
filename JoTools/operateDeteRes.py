@@ -2,15 +2,12 @@
 # -*- author: jokker -*-
 
 import os
-import copy
 import random
 import collections
-from PIL import Image
 import numpy as np
-from .detectionResult import DeteRes, DeteObj
+from JoTools.txkjRes.detectionResult import DeteRes, DeteObj
 from .utils.FileOperationUtil import FileOperationUtil
-from .txkj.parseXml import parse_xml, save_to_xml
-import cv2
+from .txkj.parseXml import parse_xml
 from .utils.NumberUtil import NumberUtil
 import prettytable
 

@@ -2,9 +2,7 @@
 # -*- author: jokker -*-
 
 
-from JoTools.txkj.parseXml import parse_xml
-from JoTools.detectionResult import DeteRes
-from JoTools.for_csdn.word_pic.word_pic import WordImage
+from JoTools.txkjRes.detectionResult import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 import os
 

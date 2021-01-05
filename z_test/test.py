@@ -1,13 +1,9 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-from JoTools.txkj.parseXml import parse_xml
 from JoTools.operateResXml import OperateResXml
-from JoTools.detectionResult import OperateDeteRes, DeteRes
-from JoTools.for_csdn.word_pic.word_pic import WordImage
+from JoTools.txkjRes.detectionResult import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
-
-from PIL import Image
 
 xml_path = r"C:\Users\14271\Desktop\del\test.xml"
 img_path = r"C:\Users\14271\Desktop\del\test.jpg"

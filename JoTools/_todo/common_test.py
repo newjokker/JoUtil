@@ -7,7 +7,7 @@ import json
 import os
 import argparse
 import time
-from JoTools.detectionResult import DeteRes
+from JoTools.txkjRes.detectionResult import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 # from JoTools.detectionResult import DeteRes

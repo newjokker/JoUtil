@@ -2,7 +2,7 @@
 # -*- author: jokker -*-
 
 
-from JoTools.detectionResult import DeteRes
+from JoTools.txkjRes.detectionResult import DeteRes
 
 
 a = DeteRes()

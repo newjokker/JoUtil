@@ -1,12 +1,6 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-from JoTools.txkj.parseXml import parse_xml
-from JoTools.operateResXml import OperateResXml
-from JoTools.detectionResult import OperateDeteRes, DeteRes
-from JoTools.for_csdn.word_pic.word_pic import WordImage
-from PIL import Image
-
 # 菜要有有一两天的保存释迦
 
 # 米饭多长时间煮一次，最好能三天，第一天软饭，第二天，盖浇饭，第三天，炒饭

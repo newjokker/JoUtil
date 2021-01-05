@@ -4,7 +4,7 @@
 import os
 from JoTools.txkj.databaseKG import DatabaseKG
 from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.detectionResult import OperateDeteRes, DeteRes, DeteObj
+from JoTools.txkjRes.detectionResult import OperateDeteRes, DeteRes, DeteObj
 from JoTools.txkj.parseXml import parse_xml
 
 

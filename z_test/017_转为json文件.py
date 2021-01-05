@@ -2,9 +2,7 @@
 # -*- author: jokker -*-
 
 
-from JoTools.txkj.imageAugmentation import ImageAugmentation
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.detectionResult import DeteRes
+from JoTools.txkjRes.detectionResult import DeteRes
 
 
 

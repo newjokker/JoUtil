@@ -2,17 +2,22 @@
 # -*- author: jokker -*-
 
 
-from JoTools.txkjRes.detectionResult import DeteRes
+from JoTools.txkjRes.deteRes import DeteRes
+from JoTools.txkjRes.classifyRes import ClassifyRes
 
 
 
+img_path = r"C:\Users\14271\Desktop\del\img_xml\test.jpg"
+xml_path = r"C:\Users\14271\Desktop\del\img_xml\test_2.xml"
+json_path = r"C:\Users\14271\Desktop\del\img_xml\test_2.json"
 
-xml_path = r"C:\data\kkx_退出\000_标准验证集\xml\00c07dc3-10b8-4fff-84b7-2cda4e68fa58.xml"
-json_path = r"C:\Users\14271\Desktop\del\123.json"
+a = ClassifyRes(assign_img_path=img_path, xml_path=xml_path)
+# a.format_check()
 
-a = DeteRes(json_path=json_path)
-a.format_check()
-a.save_to_xml(r"C:\Users\14271\Desktop\del\123.xml")
+print(a.tag)
+
+a.save_to_json(json_path)
+# a.save_to_xml(xml_path, "test")
 
 
 

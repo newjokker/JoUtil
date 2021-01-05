@@ -13,6 +13,7 @@ from JoTools.txkj.parseXml import parse_xml, save_to_xml
 import cv2
 from abc import ABCMeta, abstractmethod, ABC
 from .res import Res
+from .deteObj import DeteObj
 
 """
 * 可用于中间结果
@@ -28,6 +29,8 @@ class DeteRes(Res, ABC):
     """检测结果"""
 
     def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
+        # 子类新方法需要放在前面
+        self._alarms = []
         super().__init__(xml_path, assign_img_path, json_path)
 
     def _parse_xml_info(self):
@@ -44,8 +47,8 @@ class DeteRes(Res, ABC):
         if 'filename' in xml_info:
             self.file_name = xml_info['filename']
 
-        if 'path' in xml_info:
-            self.img_path = xml_info['path']
+        # if 'path' in xml_info:
+        #     self.img_path = xml_info['path']
 
         if 'folder' in xml_info:
             self.folder = xml_info['folder']

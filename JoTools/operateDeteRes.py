@@ -5,7 +5,7 @@ import os
 import random
 import collections
 import numpy as np
-from JoTools.txkjRes.detectionResult import DeteRes, DeteObj
+from .txkjRes.deteRes import DeteRes
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkj.parseXml import parse_xml
 from .utils.NumberUtil import NumberUtil

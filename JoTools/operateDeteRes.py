@@ -409,7 +409,7 @@ class OperateDeteRes(object):
             a.save_to_xml(xml_path)
 
     @staticmethod
-    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None):
+    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None, augment_parameter=None):
         """将文件夹下面的所有 xml 进行裁剪"""
         # todo 增加裁剪指定类型
         index = 0
@@ -423,7 +423,7 @@ class OperateDeteRes(object):
             a = DeteRes(each_xml_path)
             a.img_path = each_img_path
 
-            a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list)
+            a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
             index += 1
 
     @staticmethod

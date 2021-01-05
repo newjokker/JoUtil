@@ -5,8 +5,6 @@
 from ..utils.XmlUtil import XmlUtil
 
 
-# fixme 重写这个函数，速度更快
-
 class ParseXml(object):
     """解析 xml 中的信息，将信息导出为 xml"""
 
@@ -76,27 +74,12 @@ class ParseXml(object):
         # 增加 "folder", "filename", "path", "segmented"
         for attr_name in ["folder", "filename", "path", "tag"]:
             XmlUtil.add_sub_node(root, xml_calss_1, attr_name, assign_xml_info[attr_name])
-        # # 增加 source
-        # source_node = XmlUtil.add_sub_node(root, xml_calss_1, "source", '')
-        # for each_node in assign_xml_info["source"]:
-        #     XmlUtil.add_sub_node(root, source_node, each_node, assign_xml_info["source"][each_node])
         # 增加 size
         size_node = XmlUtil.add_sub_node(root, xml_calss_1, "size", '')
         for each_node in assign_xml_info["size"]:
             XmlUtil.add_sub_node(root, size_node, each_node, assign_xml_info["size"][each_node])
-        # # 增加 object
-        # for each_object in assign_xml_info["object"]:
-        #     object_node = XmlUtil.add_sub_node(root, xml_calss_1, "object", '')
-        #     for each_node in each_object:
-        #         if each_node != "bndbox":
-        #             XmlUtil.add_sub_node(root, object_node, each_node, each_object[each_node])
-        #         else:
-        #             bndbox_node = XmlUtil.add_sub_node(root, object_node, "bndbox", "")
-        #             for each_bndbox in each_object["bndbox"]:
-        #                 XmlUtil.add_sub_node(root, bndbox_node, each_bndbox, each_object["bndbox"][each_bndbox])
         # 保存 xml 到文件
         XmlUtil.save_xml(root, save_path)
-
 
 def parse_xml(xml_path):
     """简易的函数使用版本"""

@@ -2,18 +2,17 @@
 # -*- author: jokker -*-
 
 import os
+import cv2
 import copy
 import random
-import collections
-from PIL import Image
 import numpy as np
+from abc import ABC
+from PIL import Image
 from JoTools.utils.JsonUtil import JsonUtil
-from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.txkj.parseXml import parse_xml, save_to_xml
-import cv2
-from abc import ABCMeta, abstractmethod, ABC
 from .res import Res
 from .deteObj import DeteObj
+from JoTools.txkjRes.resTools import ResTools
 
 """
 * 可用于中间结果
@@ -22,7 +21,7 @@ from .deteObj import DeteObj
 
 # fixme DeteRes 计算 , xml 存储，json 通信
 # todo 这边可以解析 xml 也可以解析 json 看需求了
-# todo 执行类型检查，或者是类型矫正，在转换的时候先进行操作一下
+# todo 检测模型输出都是 json 结构
 
 
 class DeteRes(Res, ABC):
@@ -47,9 +46,6 @@ class DeteRes(Res, ABC):
         if 'filename' in xml_info:
             self.file_name = xml_info['filename']
 
-        # if 'path' in xml_info:
-        #     self.img_path = xml_info['path']
-
         if 'folder' in xml_info:
             self.folder = xml_info['folder']
 
@@ -65,94 +61,34 @@ class DeteRes(Res, ABC):
         """解析 json 信息"""
 
         if self.json_path is not None:
-            xml_info = JsonUtil.load_data_from_json_file(self.json_path)
+            json_info = JsonUtil.load_data_from_json_file(self.json_path)
         elif json_dict is not None:
-            xml_info = json_dict
+            json_info = json_dict
         else:
             raise ValueError("json_file_path json_dict 不能同时为空")
         #
-        if 'size' in xml_info:
-            if 'height' in xml_info['size']:
-                self.height = float(xml_info['size']['height'])
-            if 'width' in xml_info['size']:
-                self.width = float(xml_info['size']['width'])
+        if 'size' in json_info:
+            if 'height' in json_info['size']:
+                self.height = float(json_info['size']['height'])
+            if 'width' in json_info['size']:
+                self.width = float(json_info['size']['width'])
         #
-        if 'filename' in xml_info:
-            self.file_name = xml_info['filename']
+        if 'filename' in json_info:
+            self.file_name = json_info['filename']
 
-        if 'path' in xml_info:
-            self.img_path = xml_info['path']
+        if 'path' in json_info:
+            self.img_path = json_info['path']
 
-        if 'folder' in xml_info:
-            self.folder = xml_info['folder']
+        if 'folder' in json_info:
+            self.folder = json_info['folder']
 
         # 解析 object 信息
-        for each_obj in xml_info['object']:
+        for each_obj in json_info['object']:
             bndbox = each_obj['bndbox']
             x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
             if 'prob' not in each_obj:
                 each_obj['prob'] = -1
             self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']))
-
-    @staticmethod
-    def _merge_range_list(range_list):
-        """进行区域合并得到大的区域"""
-        x_min_list, y_min_list, x_max_list, y_max_list = [], [], [], []
-        for each_range in range_list:
-            x_min_list.append(each_range[0])
-            y_min_list.append(each_range[1])
-            x_max_list.append(each_range[2])
-            y_max_list.append(each_range[3])
-        return (min(x_min_list), min(y_min_list), max(x_max_list), max(y_max_list))
-
-    @staticmethod
-    def _region_augment(region_rect, img_size, augment_parameter=None):
-        """上下左右指定扩增长宽的比例, augment_parameter, 左右上下"""
-
-        if augment_parameter is None:
-            augment_parameter = [0.6, 0.6, 0.1, 0.1]
-
-        widht, height = img_size
-        x_min, y_min, x_max, y_max = region_rect
-        region_width = int(x_max - x_min)
-        region_height = int(y_max - y_min)
-        #
-        new_x_min = x_min - int(region_width * augment_parameter[0])
-        new_x_max = x_max + int(region_width * augment_parameter[1])
-        new_y_min = y_min - int(region_height * augment_parameter[2])
-        new_y_max = y_max + int(region_height * augment_parameter[3])
-        #
-        new_x_min = max(0, new_x_min)
-        new_y_min = max(0, new_y_min)
-        new_x_max = min(widht, new_x_max)
-        new_y_max = min(height, new_y_max)
-
-        return (new_x_min, new_y_min, new_x_max, new_y_max)
-
-    @staticmethod
-    def _cal_iou(dete_obj_1, dete_obj_2, ignore_tag=False):
-        """计算两个检测结果相交程度, xmin, ymin, xmax, ymax，标签不同，检测结果相交为 0, ignore_tag 为 True 那么不同标签也计算 iou"""
-        if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
-            return 0
-        else:
-            dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
-            dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
-            overlap_area = dx * dy
-            union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1) +
-                          (dete_obj_2.x2 - dete_obj_2.x1 + 1) * (dete_obj_2.y2 - dete_obj_2.y1 + 1) - overlap_area)
-            return overlap_area * 1. / union_area
-
-    @staticmethod
-    def _cal_iou_1(dete_obj_1, dete_obj_2, ignore_tag=False):
-        """计算两个矩形框的相交面积，占其中一个矩形框面积的比例 ， """
-        if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
-            return 0
-        else:
-            dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
-            dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
-            overlap_area = dx * dy
-            union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1))
-            return overlap_area * 1. / union_area
 
     # ------------------------------------------ common ----------------------------------------------------------------
 
@@ -219,7 +155,7 @@ class DeteRes(Res, ABC):
                 tag_count_dict[each_obj.tag] += 1
             # 图片扩展
             if augment_parameter is not None:
-                bndbox = self._region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
+                bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
             # 保存截图
             loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
             # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
@@ -236,19 +172,9 @@ class DeteRes(Res, ABC):
             if method is not None:
                 each_crop = method(each_crop)
             # 保存截图
-            # each_crop.save(each_save_path)
-            # fixme 实验结果是压缩对训练后的模型性能有影响，需要看看哪种分辨率和质量的比较合适
             each_crop.save(each_save_path, quality=95)
 
     # ---------------------------------------------------- save --------------------------------------------------------
-
-    def format_check(self):
-        """类型检查，规范类型"""
-        self.height = int(self.height)
-        self.width = int(self.width)
-        # object 类型整理
-        for each_alarm in self.alarms:
-            each_alarm.format_check()
 
     def save_to_xml(self, save_path, assign_alarms=None):
         """保存为 xml 文件"""
@@ -294,7 +220,7 @@ class DeteRes(Res, ABC):
         else:
             JsonUtil.save_data_to_json_file(json_dict, save_path)
 
-    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------- property ----------------------------------------------------
 
     @property
     def alarms(self):
@@ -319,7 +245,7 @@ class DeteRes(Res, ABC):
             is_add = True
             for each in res:
                 # 计算每两个框之间的 iou，要是 nms 大于阈值，同时标签一致，去除置信度比较小的标签
-                if self._cal_iou(each, each_res, ignore_tag=ignore_tag) > threshold:
+                if ResTools.cal_iou(each, each_res, ignore_tag=ignore_tag) > threshold:
                     is_add = False
                     break
             # 如果判断需要添加到结果中
@@ -329,7 +255,6 @@ class DeteRes(Res, ABC):
 
     def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
         """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""
-
         # 备份 alarms
         all_alarms = copy.deepcopy(self._alarms)
         # 拿到非指定 alarms
@@ -383,14 +308,25 @@ class DeteRes(Res, ABC):
 
     def filter_by_area_ratio(self, ar=0.0006):
         """根据面积比例进行删选"""
-        # 对于无法获取长宽的数据进行报错
-        # if (not os.path.exists(self.img_path)) and ((not self.width) or  (not self.height)):
-        #     raise ValueError("img not exists")
-        # elif not os.path.exists(self.img_path):
-        #     self._get_img_info(self.img_path)
         # get area
         th_area = float(sel.width * self.height) * ar
         self.filter_by_area(area_th=th_area)
+
+    def filter_by_func(self, func):
+        """根据指定方法进行筛选"""
+        new_alarms = []
+        for each_dete_res in self._alarms:
+            if func(each_dete_res):
+                new_alarms.append(each_dete_res)
+        self._alarms = new_alarms
+
+    def format_check(self):
+        """类型检查，规范类型"""
+        self.height = int(self.height)
+        self.width = int(self.width)
+        # object 类型整理
+        for each_alarm in self.alarms:
+            each_alarm.format_check()
 
     # ---------------------------------------------------- update -------------------------------------------------------
 
@@ -419,7 +355,7 @@ class DeteRes(Res, ABC):
         # 这边要是直接使用 .copy 的话，alarms 里面的内容还是会被改变的, list 的 .copy() 属于 shallow copy 是浅复制，对浅复制中的可变类型修改的时候原数据会受到影响，https://blog.csdn.net/u011995719/article/details/82911392
         for each_dete_obj in copy.deepcopy(self._alarms):
             # 计算重合度
-            each_iou_1 = self._cal_iou_1(each_dete_obj, assign_dete_obj, ignore_tag=True)
+            each_iou_1 = ResTools.cal_iou_1(each_dete_obj, assign_dete_obj, ignore_tag=True)
             if each_iou_1 > iou_1:
                 # 对结果 xml 的范围进行调整
                 each_dete_obj.do_offset(offset_x, offset_y)
@@ -446,7 +382,7 @@ class DeteRes(Res, ABC):
         jpg_save_path = os.path.join(img_save_dir, save_name + '.jpg')
         if not os.path.exists(xml_save_dir):os.makedirs(xml_save_dir)
         if not os.path.exists(img_save_dir):os.makedirs(img_save_dir)
-
+        #
         self.save_to_xml(xml_save_path, new_alarms)
 
         # 保存 jpg
@@ -460,7 +396,7 @@ class DeteRes(Res, ABC):
         range_list = []
         for each_dete_obj in self._alarms:
             range_list.append(each_dete_obj.get_rectangle())
-        return self._merge_range_list(range_list)
+        return ResTools.merge_range_list(range_list)
 
     @staticmethod
     def get_region_xml_from_cut_xml(xml_path, save_dir, img_dir):

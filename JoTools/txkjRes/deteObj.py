@@ -1,23 +1,11 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-import os
-import copy
-import random
-import collections
-from PIL import Image
-import numpy as np
-from JoTools.utils.JsonUtil import JsonUtil
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.txkj.parseXml import parse_xml, save_to_xml
-import cv2
-
-
 
 class DeteObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
 
-    def __init__(self, x1=None, y1=None, x2=None, y2=None, tag=None, conf=-1):
+    def __init__(self, x1, y1, x2, y2, tag, conf=-1):
         self.conf = conf
         self.tag = tag
         self.x1 = x1
@@ -38,7 +26,6 @@ class DeteObj(object):
 
     def get_center_point(self):
         """得到中心点坐标"""
-        # fixme 未测试
         return float(self.x1+self.x2)/2, float(self.y1+self.y2)/2
 
     def get_format_list(self):

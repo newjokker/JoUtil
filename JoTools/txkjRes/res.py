@@ -1,18 +1,8 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-import os
-import copy
-import random
-import collections
 from PIL import Image
-import numpy as np
-from ..utils.JsonUtil import JsonUtil
-from ..utils.FileOperationUtil import FileOperationUtil
-from ..txkj.parseXml import parse_xml, save_to_xml
-import cv2
 from abc import ABCMeta, abstractmethod
-
 
 
 class Res():

@@ -2,20 +2,12 @@
 # -*- author: jokker -*-
 
 import os
-import copy
-import random
-import collections
-from PIL import Image
-import numpy as np
-from JoTools.utils.JsonUtil import JsonUtil
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-# from JoTools.txkj.parseXml import parse_xml, save_to_xml
-from JoTools.txkjRes.classifyXml import parse_xml, save_to_xml
 import cv2
-from abc import ABCMeta, abstractmethod, ABC
+from abc import ABC
 from .res import Res
 from .deteObj import DeteObj
-
+from JoTools.utils.JsonUtil import JsonUtil
+from JoTools.txkjRes.classifyXml import parse_xml, save_to_xml
 
 
 class ClassifyRes(Res, ABC):
@@ -50,29 +42,29 @@ class ClassifyRes(Res, ABC):
         """解析 json 信息"""
 
         if self.json_path is not None:
-            xml_info = JsonUtil.load_data_from_json_file(self.json_path)
+            json_info = JsonUtil.load_data_from_json_file(self.json_path)
         elif json_dict is not None:
-            xml_info = json_dict
+            json_info = json_dict
         else:
             raise ValueError("json_file_path json_dict 不能同时为空")
         #
-        if 'size' in xml_info:
-            if 'height' in xml_info['size']:
-                self.height = float(xml_info['size']['height'])
-            if 'width' in xml_info['size']:
-                self.width = float(xml_info['size']['width'])
+        if 'size' in json_info:
+            if 'height' in json_info['size']:
+                self.height = float(json_info['size']['height'])
+            if 'width' in json_info['size']:
+                self.width = float(json_info['size']['width'])
         #
-        if 'filename' in xml_info:
-            self.file_name = xml_info['filename']
+        if 'filename' in json_info:
+            self.file_name = json_info['filename']
 
-        if 'path' in xml_info:
-            self.img_path = xml_info['path']
+        if 'path' in json_info:
+            self.img_path = json_info['path']
 
-        if 'folder' in xml_info:
-            self.folder = xml_info['folder']
+        if 'folder' in json_info:
+            self.folder = json_info['folder']
 
-        if 'tag' in xml_info:
-            self.folder = xml_info['tag']
+        if 'tag' in json_info:
+            self.folder = json_info['tag']
 
     def save_to_xml(self, save_path, assign_tag=None):
         """保存为 xml"""

@@ -6,9 +6,8 @@
 
 
 
-
 class ResTools(object):
-
+    """Res 需要的函数"""
 
     @staticmethod
     def merge_range_list(range_list):
@@ -49,7 +48,7 @@ class ResTools(object):
     def cal_iou(dete_obj_1, dete_obj_2, ignore_tag=False):
         """计算两个检测结果相交程度, xmin, ymin, xmax, ymax，标签不同，检测结果相交为 0, ignore_tag 为 True 那么不同标签也计算 iou"""
         if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
-            return 0
+            return 0.0
         else:
             dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
             dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)

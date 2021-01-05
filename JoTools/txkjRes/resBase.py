@@ -5,7 +5,7 @@ from PIL import Image
 from abc import ABCMeta, abstractmethod
 
 
-class Res():
+class ResBase():
 
     def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
         self.height = -1                # 检测图像的高

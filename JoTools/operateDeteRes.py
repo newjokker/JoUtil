@@ -5,12 +5,12 @@ import os
 import random
 import collections
 import numpy as np
-from .txkjRes.deteRes import DeteRes
+from .txkjRes.deteRes import DeteResBase
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkj.parseXml import parse_xml
 from .utils.NumberUtil import NumberUtil
 import prettytable
-
+from JoTools.txkjRes.resTools import ResTools
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
 
@@ -22,21 +22,6 @@ class OperateDeteRes(object):
         self.iou_thershold = 0.4                                                   # 判定两矩形重合的 iou 阈值
         self.color_dict = {"extra":(0,0,255), "correct":(0,255,0), "mistake":(203,192,255), "miss":(0,255,255)}    # 颜色表
 
-    @staticmethod
-    def _cal_iou(dete_obj_1, dete_obj_2, ignore_tag=False):
-        """计算两个检测结果相交程度, xmin, ymin, xmax, ymax，标签不同，检测结果相交为 0, ignore_tag 为 True 那么不同标签也计算 iou"""
-        if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
-            return 0.0
-        else:
-            dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
-            dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
-            overlap_area = dx * dy
-            union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1) +
-                          (dete_obj_2.x2 - dete_obj_2.x1 + 1) * (dete_obj_2.y2 - dete_obj_2.y1 + 1) - overlap_area)
-            return overlap_area * 1. / union_area
-
-
-    # ------------------------------------------- acc dete -------------------------------------------------------------
     @staticmethod
     def _update_check_res(res, each_res):
         """更新字典"""
@@ -63,7 +48,7 @@ class OperateDeteRes(object):
 
                 # 当两个范围 iou 在一定范围内，认为识别正确，此时，给 customized 的 dete_obj 增加一个已被检测的标签
                 if obj_c.is_correct is None:
-                    each_iou = self._cal_iou(obj_s, obj_c, ignore_tag=True)
+                    each_iou = ResTools.cal_iou(obj_s, obj_c, ignore_tag=True)
                     if each_iou >= self.iou_thershold:
                         if obj_s.tag == obj_c.tag:
                             obj_c.is_correct = True
@@ -146,12 +131,12 @@ class OperateDeteRes(object):
             #
             if xml_path_c in customized_xml_path_set:
                 # 对比两个结果的差异
-                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s), DeteRes(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path)
+                each_check_res = self.compare_customer_and_standard(DeteResBase(xml_path_s), DeteResBase(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path)
                 # 对比完了之后在 customized_xml_path_set 中删除这个对比过的 xml 路径
                 customized_xml_path_set.remove(xml_path_c)
             else:
                 # 算作漏检，新建一个空的 customized_xml_path 放进去检查
-                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s), DeteRes(), assign_img_path=assign_img_path, save_path=save_img_path)
+                each_check_res = self.compare_customer_and_standard(DeteResBase(xml_path_s), DeteResBase(), assign_img_path=assign_img_path, save_path=save_img_path)
             # 更新统计字典
             self._update_check_res(check_res, each_check_res)
 
@@ -166,7 +151,7 @@ class OperateDeteRes(object):
                 assign_img_path = None
                 save_img_path = None
 
-            each_check_res = self.compare_customer_and_standard(DeteRes(), DeteRes(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path)
+            each_check_res = self.compare_customer_and_standard(DeteResBase(), DeteResBase(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path)
             self._update_check_res(check_res, each_check_res)
 
         return check_res
@@ -314,14 +299,13 @@ class OperateDeteRes(object):
         print(mistake_tb)
         return return_res
 
-
     # ------------------------------------------- filter ---------------------------------------------------------------
 
     @staticmethod
     def filter_by_area_ratio(xml_dir, area_ratio_threshold=0.0006, save_dir=None):
         """根据面积比例阈值进行筛选"""
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
-            a = DeteRes(each_xml_path)
+            a = DeteResBase(each_xml_path)
             a.filter_by_area_ratio(area_ratio_threshold)
             if save_dir is None:
                 os.remove(each_xml_path)
@@ -403,7 +387,7 @@ class OperateDeteRes(object):
                 continue
 
             # 保存文件
-            a = DeteRes(assign_img_path=region_img_path)
+            a = DeteResBase(assign_img_path=region_img_path)
             a.reset_alarms(dete_res_dict[each_img_name])
             xml_path = os.path.join(save_xml_dir, "{0}.xml".format(each_img_name))
             a.save_to_xml(xml_path)
@@ -420,7 +404,7 @@ class OperateDeteRes(object):
                 continue
 
             print(index, each_xml_path)
-            a = DeteRes(each_xml_path)
+            a = DeteResBase(each_xml_path)
             a.img_path = each_img_path
 
             a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
@@ -463,7 +447,7 @@ class OperateDeteRes(object):
                 continue
 
             print(index, each_xml_path)
-            a = DeteRes(each_xml_path)
+            a = DeteResBase(each_xml_path)
             a.img_path = each_img_path
 
             # 对重复标签进行处理
@@ -485,7 +469,7 @@ class OperateDeteRes(object):
         xml_list = FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith('.xml'))
         #
         for xml_index, each_xml_path in enumerate(xml_list):
-            each_dete_res = DeteRes(each_xml_path)
+            each_dete_res = DeteResBase(each_xml_path)
             for each_dete_obj in each_dete_res.alarms:
                 area_list.append(each_dete_obj.get_area())
         #
@@ -502,7 +486,7 @@ class OperateDeteRes(object):
     def get_subset_from_pic(xml_path, save_dir, assign_num):
         """从大图中扩展小图"""
 
-        a = DeteRes(xml_path)
+        a = DeteResBase(xml_path)
         pass
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -514,7 +498,7 @@ class OperateDeteRes(object):
         #
         for xml_index, each_xml_path in enumerate(xml_list):
             #
-            each_dete_res = DeteRes(each_xml_path)
+            each_dete_res = DeteResBase(each_xml_path)
             each_dete_res.update_tags(update_dict)
             each_dete_res.save_to_xml(each_xml_path)
 

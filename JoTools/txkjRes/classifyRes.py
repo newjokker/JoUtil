@@ -4,13 +4,13 @@
 import os
 import cv2
 from abc import ABC
-from .res import Res
+from .resBase import ResBase
 from .deteObj import DeteObj
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.txkjRes.classifyXml import parse_xml, save_to_xml
 
 
-class ClassifyRes(Res, ABC):
+class ClassifyResBase(ResBase, ABC):
     """检测结果"""
 
     def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
@@ -94,8 +94,6 @@ class ClassifyRes(Res, ABC):
             return json_dict
         else:
             JsonUtil.save_data_to_json_file(json_dict, save_path)
-
-    # ------------------------------------------------------------------------------------------------------------------
 
     def set_tag(self, assign_tag):
         """设定标签"""

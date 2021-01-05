@@ -10,7 +10,7 @@ from abc import ABC
 from PIL import Image
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.txkj.parseXml import parse_xml, save_to_xml
-from .res import Res
+from .resBase import ResBase
 from .deteObj import DeteObj
 from JoTools.txkjRes.resTools import ResTools
 
@@ -24,7 +24,7 @@ from JoTools.txkjRes.resTools import ResTools
 # todo 检测模型输出都是 json 结构
 
 
-class DeteRes(Res, ABC):
+class DeteResBase(ResBase, ABC):
     """检测结果"""
 
     def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
@@ -422,7 +422,7 @@ class DeteRes(Res, ABC):
         img = Image.open(img_path)
 
         #
-        a = DeteRes(xml_path)
+        a = DeteResBase(xml_path)
         a.height, a.width = img.height, img.width
         for each_dete_obj  in a.alarms:
             each_dete_obj.do_offset(off_x, off_y)

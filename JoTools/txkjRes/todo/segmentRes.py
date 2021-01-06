@@ -4,7 +4,7 @@
 
 
 
-class SegmentObj(object):
+class SegmentRes(object):
     """一个分割结果的对象"""
 
 

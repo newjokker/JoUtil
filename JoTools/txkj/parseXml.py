@@ -27,7 +27,7 @@ class ParseXml(object):
         object_info = {}
         for each_node in assign_node.childNodes:
             node_name = each_node.nodeName
-            if node_name in ["name", "pose", "truncated", "difficult", "prob"]:
+            if node_name in ["name", "pose", "truncated", "difficult", "prob", "id"]:
                 object_info[node_name] = XmlUtil.get_info_from_node(each_node)['value']
             elif node_name == "bndbox":
                 bndbox_info = {}
@@ -124,7 +124,6 @@ class ParseXml(object):
                         XmlUtil.add_sub_node(root, bndbox_node, each_bndbox, each_object["bndbox"][each_bndbox])
         # 保存 xml 到文件
         XmlUtil.save_xml(root, save_path)
-
 
 def parse_xml(xml_path):
     """简易的函数使用版本"""

@@ -34,7 +34,7 @@ class ParseXml(object):
         # 遍历根节点下面的子节点
         for each_node in root_node.childNodes:
             node_name = each_node.nodeName
-            if node_name in ["folder", "filename", "path", "tag"]:
+            if node_name in ["folder", "filename", "path", "tag", "id"]:
                 self._parse_node(each_node)
             elif node_name == "size":
                 self._parse_size(each_node)
@@ -72,7 +72,7 @@ class ParseXml(object):
         root = XmlUtil.get_document()
         xml_calss_1 = XmlUtil.add_sub_node(root, root, 'annotation', '')
         # 增加 "folder", "filename", "path", "segmented"
-        for attr_name in ["folder", "filename", "path", "tag"]:
+        for attr_name in ["folder", "filename", "path", "tag", "id"]:
             XmlUtil.add_sub_node(root, xml_calss_1, attr_name, assign_xml_info[attr_name])
         # 增加 size
         size_node = XmlUtil.add_sub_node(root, xml_calss_1, "size", '')

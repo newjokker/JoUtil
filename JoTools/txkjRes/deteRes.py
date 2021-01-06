@@ -23,14 +23,20 @@ from JoTools.txkjRes.resTools import ResTools
 # todo 这边可以解析 xml 也可以解析 json 看需求了
 # todo 检测模型输出都是 json 结构
 
+# todo 增加 id 信息，可以根据 id 进行筛选，对没有 id 的从 0 开始赋值 id，保存时候，也要加上 id 信息，
 
-class DeteResBase(ResBase, ABC):
+class DeteRes(ResBase, ABC):
     """检测结果"""
 
     def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
         # 子类新方法需要放在前面
         self._alarms = []
         super().__init__(xml_path, assign_img_path, json_path)
+
+    @property
+    def alarms(self):
+        """获取属性自动进行排序"""
+        return sorted(self._alarms, key=lambda x:x.conf)
 
     def _parse_xml_info(self):
         # todo 重写这个函数，直接从 xml 中进行解析，确保运行效率
@@ -53,9 +59,15 @@ class DeteResBase(ResBase, ABC):
         for each_obj in xml_info['object']:
             bndbox = each_obj['bndbox']
             x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+
             if 'prob' not in each_obj:
                 each_obj['prob'] = -1
-            self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']))
+            #
+            if 'id' not in each_obj:
+                each_obj['id'] = -1
+
+            self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
+                         tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
 
     def _parse_json_info(self, json_dict=None):
         """解析 json 信息"""
@@ -86,13 +98,61 @@ class DeteResBase(ResBase, ABC):
         for each_obj in json_info['object']:
             bndbox = each_obj['bndbox']
             x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+            #
             if 'prob' not in each_obj:
                 each_obj['prob'] = -1
-            self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']))
+            #
+            if 'id' not in each_obj:
+                each_obj['id'] = -1
+
+            self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
+                         tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+
+    def save_to_xml(self, save_path, assign_alarms=None):
+        """保存为 xml 文件"""
+        xml_info = {'size': {'height': str(self.height), 'width': str(self.width), 'depth': '3'},
+                    'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
+                    'segmented': "", 'source': ""}
+
+        if assign_alarms is None:
+            alarms = self._alarms
+        else:
+            alarms = assign_alarms
+        #
+        for each_dete_obj in alarms:
+            each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id':str(each_dete_obj.id),
+                        'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
+                                   'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
+            xml_info['object'].append(each_obj)
+        # 保存为 xml
+        save_to_xml(xml_info, xml_path=save_path)
+
+    def save_to_json(self, save_path=None, assign_alarms=None):
+        """转为 json 结构"""
+
+        json_dict = {'size': {'height': int(self.height), 'width': int(self.width), 'depth': '3'},
+                    'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
+                    'segmented': "", 'source': ""}
+        # 可以指定输出的 alarms
+        if assign_alarms is None:
+            alarms = self._alarms
+        else:
+            alarms = assign_alarms
+        #
+        for each_dete_obj in alarms:
+            each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf), 'id':int(each_dete_obj.id),
+                        'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
+                                   'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
+            json_dict['object'].append(each_obj)
+
+        if save_path is None:
+            return json_dict
+        else:
+            JsonUtil.save_data_to_json_file(json_dict, save_path)
 
     # ------------------------------------------ common ----------------------------------------------------------------
 
-    def add_obj(self, x1, y1, x2, y2, tag, conf):
+    def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=None):
         """快速增加一个检测框要素"""
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf)
         self._alarms.append(one_dete_obj)
@@ -174,59 +234,6 @@ class DeteResBase(ResBase, ABC):
             # 保存截图
             each_crop.save(each_save_path, quality=95)
 
-    # ---------------------------------------------------- save --------------------------------------------------------
-
-    def save_to_xml(self, save_path, assign_alarms=None):
-        """保存为 xml 文件"""
-        xml_info = {'size': {'height': str(self.height), 'width': str(self.width), 'depth': '3'},
-                    'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
-                    'segmented': "", 'source': ""}
-        # 两个无关但是必要的参数，是否需要将其在保存时候，设置默认值
-        # 处理
-
-        if assign_alarms is None:
-            alarms = self._alarms
-        else:
-            alarms = assign_alarms
-        #
-        for each_dete_obj in alarms:
-            each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf),
-                        'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
-                                   'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
-            xml_info['object'].append(each_obj)
-        # 保存为 xml
-        save_to_xml(xml_info, xml_path=save_path)
-
-    def save_to_json(self, save_path=None, assign_alarms=None):
-        """转为 json 结构"""
-
-        json_dict = {'size': {'height': int(self.height), 'width': int(self.width), 'depth': '3'},
-                    'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
-                    'segmented': "", 'source': ""}
-        # 可以指定输出的 alarms
-        if assign_alarms is None:
-            alarms = self._alarms
-        else:
-            alarms = assign_alarms
-        #
-        for each_dete_obj in alarms:
-            each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf),
-                        'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
-                                   'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
-            json_dict['object'].append(each_obj)
-
-        if save_path is None:
-            return json_dict
-        else:
-            JsonUtil.save_data_to_json_file(json_dict, save_path)
-
-    # ---------------------------------------------------- property ----------------------------------------------------
-
-    @property
-    def alarms(self):
-        """获取属性自动进行排序"""
-        return sorted(self._alarms, key=lambda x:x.conf)
-
     # --------------------------------------------------- filter -------------------------------------------------------
 
     def do_nms(self, threshold=0.1, ignore_tag=False):
@@ -268,10 +275,14 @@ class DeteResBase(ResBase, ABC):
         for each_dete_obj in other_alarms:
             self._alarms.append(each_dete_obj)
 
-    def filter_by_conf(self, conf_th):
-        """根据置信度进行筛选"""
+    def filter_by_conf(self, conf_th, assign_tag_list=None):
+        """根据置信度进行筛选，指定标签就能对不同标签使用不同的分辨率"""
         new_alarms = []
         for each_dete_res in self._alarms:
+            if assign_tag_list is not None:
+                if each_dete_res.tag not in assign_tag_list:
+                    new_alarms.append(each_dete_res)
+                    continue
             if each_dete_res.conf >= conf_th:
                 new_alarms.append(each_dete_res)
         self._alarms = new_alarms
@@ -422,7 +433,7 @@ class DeteResBase(ResBase, ABC):
         img = Image.open(img_path)
 
         #
-        a = DeteResBase(xml_path)
+        a = DeteRes(xml_path)
         a.height, a.width = img.height, img.width
         for each_dete_obj  in a.alarms:
             each_dete_obj.do_offset(off_x, off_y)

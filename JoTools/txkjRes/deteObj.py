@@ -5,13 +5,14 @@
 class DeteObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
 
-    def __init__(self, x1, y1, x2, y2, tag, conf=-1):
+    def __init__(self, x1, y1, x2, y2, tag, conf=-1, assign_id=-1):
         self.conf = conf
         self.tag = tag
         self.x1 = x1
         self.x2 = x2
         self.y1 = y1
         self.y2 = y2
+        self.id=assign_id
 
     def do_offset(self, offset_x, offset_y):
         """对结果进行偏移"""

@@ -16,6 +16,7 @@ class ClassifyResBase(ResBase, ABC):
     def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
         # 子类新方法需要放在前面
         self.tag = None
+        self.id = -1
         super().__init__(xml_path, assign_img_path, json_path)
 
     def _parse_xml_info(self):
@@ -37,6 +38,9 @@ class ClassifyResBase(ResBase, ABC):
 
         if 'tag' in xml_info:
             self.tag = xml_info['tag']
+
+        if 'id' in xml_info:
+            self.id = xml_info['id']
 
     def _parse_json_info(self, json_dict=None):
         """解析 json 信息"""
@@ -66,6 +70,9 @@ class ClassifyResBase(ResBase, ABC):
         if 'tag' in json_info:
             self.folder = json_info['tag']
 
+        if 'id' in json_info:
+            self.folder = json_info['id']
+
     def save_to_xml(self, save_path, assign_tag=None):
         """保存为 xml"""
 
@@ -75,7 +82,7 @@ class ClassifyResBase(ResBase, ABC):
             tag = assign_tag
 
         xml_info = {'size':{'height': str(self.height), 'width': str(self.width), 'depth': '3'},
-                    'filename': self.file_name, 'path': self.img_path, 'folder': self.folder, 'tag':tag}
+                    'filename': self.file_name, 'path': self.img_path, 'folder': self.folder, 'tag':tag, "id":self.id}
 
         # 保存为 xml
         save_to_xml(xml_info, xml_path=save_path)
@@ -89,7 +96,7 @@ class ClassifyResBase(ResBase, ABC):
             tag = assign_tag
         #
         json_dict = {'size': {'height': int(self.height), 'width': int(self.width), 'depth': '3'},
-                    'filename': self.file_name, 'path': self.img_path, 'tag':tag, 'folder': self.folder}
+                    'filename': self.file_name, 'path': self.img_path, 'tag':tag, 'folder': self.folder, "id":self.id}
         if save_path is None:
             return json_dict
         else:

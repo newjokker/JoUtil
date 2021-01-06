@@ -23,7 +23,6 @@ class ResTools(object):
     @staticmethod
     def region_augment(region_rect, img_size, augment_parameter=None):
         """上下左右指定扩增长宽的比例, augment_parameter, 左右上下"""
-
         if augment_parameter is None:
             augment_parameter = [0.6, 0.6, 0.1, 0.1]
 

@@ -92,7 +92,7 @@ class DeteRes(ResBase, ABC):
             self.folder = json_info['folder']
 
         # 解析 object 信息
-        for each_obj in json_info['object']:
+        for each_obj in JsonUtil.load_data_from_json_str(json_info['object']):
             each_obj = JsonUtil.load_data_from_json_str(each_obj)
             bndbox = each_obj['bndbox']
             x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
@@ -141,12 +141,15 @@ class DeteRes(ResBase, ABC):
         else:
             alarms = assign_alarms
         #
+        json_object = []
         for each_dete_obj in alarms:
             each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf), 'id':int(each_dete_obj.id),
                         'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
                                    'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
             # json_dict['object'].append(each_obj)
-            json_dict['object'].append(JsonUtil.save_data_to_json_str(each_obj))
+            json_object.append(JsonUtil.save_data_to_json_str(each_obj))
+
+        json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
 
         if save_path is None:
             return json_dict

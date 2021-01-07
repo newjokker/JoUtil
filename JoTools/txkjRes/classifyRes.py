@@ -13,11 +13,11 @@ from JoTools.txkjRes.classifyXml import parse_xml, save_to_xml
 class ClassifyResBase(ResBase, ABC):
     """检测结果"""
 
-    def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
+    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None):
         # 子类新方法需要放在前面
         self.tag = None
         self.id = -1
-        super().__init__(xml_path, assign_img_path, json_path)
+        super().__init__(xml_path, assign_img_path, json_dict)
 
     def _parse_xml_info(self):
         """解析 xml 中存储的分类结果"""
@@ -45,8 +45,8 @@ class ClassifyResBase(ResBase, ABC):
     def _parse_json_info(self, json_dict=None):
         """解析 json 信息"""
 
-        if self.json_path is not None:
-            json_info = JsonUtil.load_data_from_json_file(self.json_path)
+        if self.json_dict is not None:
+            json_info = JsonUtil.load_data_from_json_file(self.json_dict)
         elif json_dict is not None:
             json_info = json_dict
         else:

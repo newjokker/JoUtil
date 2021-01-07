@@ -21,14 +21,16 @@ from JoTools.txkjRes.resTools import ResTools
 
 # todo json 只能存放一层字典结构，需要将里面的一层转为 json_str
 
+# todo json 适用于传输，所以不给其有保存的属性
+
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
-    def __init__(self, xml_path=None, assign_img_path=None, json_path=None):
+    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None):
         # 子类新方法需要放在前面
         self._alarms = []
-        super().__init__(xml_path, assign_img_path, json_path)
+        super().__init__(xml_path, assign_img_path, json_dict)
 
     @property
     def alarms(self):
@@ -66,16 +68,11 @@ class DeteRes(ResBase, ABC):
             self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
                          tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
 
-    def _parse_json_info(self, json_dict=None):
+    def _parse_json_info(self):
         """解析 json 信息"""
 
-        if self.json_path is not None:
-            json_info = JsonUtil.load_data_from_json_file(self.json_path)
-        elif json_dict is not None:
-            json_info = json_dict
-        else:
-            raise ValueError("json_file_path json_dict 不能同时为空")
-        #
+        json_info = self.json_dict
+
         if 'size' in json_info:
             if 'height' in json_info['size']:
                 self.height = float(json_info['size']['height'])
@@ -129,7 +126,7 @@ class DeteRes(ResBase, ABC):
         # 保存为 xml
         save_to_xml(xml_info, xml_path=save_path)
 
-    def save_to_json(self, save_path=None, assign_alarms=None):
+    def save_to_json(self, assign_alarms=None):
         """转为 json 结构"""
 
         json_dict = {'size': {'height': int(self.height), 'width': int(self.width), 'depth': '3'},
@@ -146,15 +143,12 @@ class DeteRes(ResBase, ABC):
             each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf), 'id':int(each_dete_obj.id),
                         'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
                                    'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
-            # json_dict['object'].append(each_obj)
             json_object.append(JsonUtil.save_data_to_json_str(each_obj))
 
         json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
+        #
+        return json_dict
 
-        if save_path is None:
-            return json_dict
-        else:
-            JsonUtil.save_data_to_json_file(json_dict, save_path)
 
     # ------------------------------------------ common ----------------------------------------------------------------
 

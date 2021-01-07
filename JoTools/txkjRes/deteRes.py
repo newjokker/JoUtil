@@ -149,12 +149,11 @@ class DeteRes(ResBase, ABC):
         #
         return json_dict
 
-
     # ------------------------------------------ common ----------------------------------------------------------------
 
     def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=None):
         """快速增加一个检测框要素"""
-        one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf)
+        one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf, assign_id=assign_id)
         self._alarms.append(one_dete_obj)
 
     def add_obj_2(self, one_dete_obj):
@@ -442,6 +441,10 @@ class DeteRes(ResBase, ABC):
         save_path = os.path.join(save_dir, region_name+'.xml')
         a.save_to_xml(save_path)
 
+    def get_sub_img_by_id(self, assign_id):
+        """根据指定 id 得到小图的矩阵数据"""
+        pass
+
     # ---------------------------------------------------- count -------------------------------------------------------
 
     def count_tags(self):
@@ -463,7 +466,8 @@ class DeteRes(ResBase, ABC):
         index = 0
         # 遍历得到多有的
         for each_res in self._alarms:
-            res_list.append([each_res.tag, index, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
+            # res_list.append([each_res.tag, index, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
+            res_list.append([each_res.tag, each_res.id, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
             index += 1
         return res_list
 

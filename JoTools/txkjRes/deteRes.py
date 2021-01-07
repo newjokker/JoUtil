@@ -37,6 +37,11 @@ class DeteRes(ResBase, ABC):
         """获取属性自动进行排序"""
         return sorted(self._alarms, key=lambda x:x.conf)
 
+    @property
+    def obj_count(self):
+        """要素个数"""
+        return len(self._alarms)
+
     def _parse_xml_info(self):
         # todo 重写这个函数，直接从 xml 中进行解析，确保运行效率
         """解析 xml 中存储的检测结果"""
@@ -443,8 +448,21 @@ class DeteRes(ResBase, ABC):
 
     def get_sub_img_by_id(self, assign_id):
         """根据指定 id 得到小图的矩阵数据"""
-        pass
 
+        assign_dete_res = None
+        for each_dete_res in self._alarms:
+            print(each_dete_res.id, assign_id)
+            if int(each_dete_res.id) == int(assign_id):
+                assign_dete_res = each_dete_res
+                break
+
+        if assign_dete_res is None:
+            raise ValueError("assign id not exist")
+
+        img = Image.open(self.img_path)
+        crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
+        img_crop = img.crop(crop_range)
+        return np.array(img_crop)
     # ---------------------------------------------------- count -------------------------------------------------------
 
     def count_tags(self):

@@ -19,9 +19,7 @@ from JoTools.txkjRes.resTools import ResTools
 * xml_info 应该进行重写，不应该将结果放在字典中，而应该放在类中，这样编程比较方便，不容易出错
 """
 
-# todo json 只能存放一层字典结构，需要将里面的一层转为 json_str
-
-# todo json 适用于传输，所以不给其有保存的属性
+# todo save_to_json, save_to_xml ，是否直接改为 to_json，to_xml
 
 
 class DeteRes(ResBase, ABC):
@@ -160,6 +158,20 @@ class DeteRes(ResBase, ABC):
             if int(each_dete_obj.id) == int(assign_id):
                 return each_dete_obj
         return None
+
+    def get_id_list(self):
+        """获取要素 id list，有时候会过滤掉一些 id 这时候按照 id 寻找就会有问题"""
+        id_list = []
+        for each_dete_obj in self._alarms:
+            id_list.append(each_dete_obj.id)
+        return id_list
+
+    def refresh_obj_id(self):
+        """跟新要素的 id，重新排列"""
+        index = 0
+        for each_dete_obj in self._alarms:
+            each_dete_obj.id = index
+            index += 1
 
     # ------------------------------------------ common ----------------------------------------------------------------
 

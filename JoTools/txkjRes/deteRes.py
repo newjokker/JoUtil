@@ -154,6 +154,13 @@ class DeteRes(ResBase, ABC):
         #
         return json_dict
 
+    def get_dete_obj_by_id(self, assign_id):
+        """获取 id 对应的 deteObj 对象"""
+        for each_dete_obj in self._alarms:
+            if int(each_dete_obj.id) == int(assign_id):
+                return each_dete_obj
+        return None
+
     # ------------------------------------------ common ----------------------------------------------------------------
 
     def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=None):
@@ -446,23 +453,23 @@ class DeteRes(ResBase, ABC):
         save_path = os.path.join(save_dir, region_name+'.xml')
         a.save_to_xml(save_path)
 
-    def get_sub_img_by_id(self, assign_id):
+    def get_sub_img_by_id(self, assign_id, augment_parameter=None):
         """根据指定 id 得到小图的矩阵数据"""
-
-        assign_dete_res = None
-        for each_dete_res in self._alarms:
-            print(each_dete_res.id, assign_id)
-            if int(each_dete_res.id) == int(assign_id):
-                assign_dete_res = each_dete_res
-                break
+        assign_dete_res = self.get_dete_obj_by_id(assign_id=assign_id)
 
         if assign_dete_res is None:
             raise ValueError("assign id not exist")
 
         img = Image.open(self.img_path)
-        crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
+        if augment_parameter is None:
+            crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
+        else:
+            crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
+            crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
+
         img_crop = img.crop(crop_range)
         return np.array(img_crop)
+
     # ---------------------------------------------------- count -------------------------------------------------------
 
     def count_tags(self):

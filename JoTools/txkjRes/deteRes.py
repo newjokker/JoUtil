@@ -19,11 +19,8 @@ from JoTools.txkjRes.resTools import ResTools
 * xml_info 应该进行重写，不应该将结果放在字典中，而应该放在类中，这样编程比较方便，不容易出错
 """
 
-# fixme DeteRes 计算 , xml 存储，json 通信
-# todo 这边可以解析 xml 也可以解析 json 看需求了
-# todo 检测模型输出都是 json 结构
+# todo json 只能存放一层字典结构，需要将里面的一层转为 json_str
 
-# todo 增加 id 信息，可以根据 id 进行筛选，对没有 id 的从 0 开始赋值 id，保存时候，也要加上 id 信息，
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -96,6 +93,7 @@ class DeteRes(ResBase, ABC):
 
         # 解析 object 信息
         for each_obj in json_info['object']:
+            each_obj = JsonUtil.load_data_from_json_str(each_obj)
             bndbox = each_obj['bndbox']
             x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
             #
@@ -107,6 +105,10 @@ class DeteRes(ResBase, ABC):
 
             self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
                          tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+
+    def parse_img_info(self):
+        """主动解析图像信息"""
+        self._parse_img_info()
 
     def save_to_xml(self, save_path, assign_alarms=None):
         """保存为 xml 文件"""
@@ -143,7 +145,8 @@ class DeteRes(ResBase, ABC):
             each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf), 'id':int(each_dete_obj.id),
                         'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
                                    'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
-            json_dict['object'].append(each_obj)
+            # json_dict['object'].append(each_obj)
+            json_dict['object'].append(JsonUtil.save_data_to_json_str(each_obj))
 
         if save_path is None:
             return json_dict
@@ -216,8 +219,9 @@ class DeteRes(ResBase, ABC):
             # 图片扩展
             if augment_parameter is not None:
                 bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
-            # 保存截图
-            loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
+                loc_str = "[{0}_{1}_{2}_{3}]".format(bndbox[0], bndbox[1], bndbox[2], bndbox[3])
+            else:
+                loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
             # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
             if split_by_tag is True:
                 each_save_dir = os.path.join(save_dir, each_obj.tag)

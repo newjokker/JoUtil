@@ -12,13 +12,17 @@ xml_path = r"C:\Users\14271\Desktop\del\img_xml\test.xml"
 json_path = r"C:\Users\14271\Desktop\del\img_xml\test.json"
 
 # a = ClassifyResBase(assign_img_path=img_path, xml_path=xml_path)
-a = DeteRes(assign_img_path=img_path, xml_path=xml_path)
+# a = DeteRes(assign_img_path=img_path, xml_path=xml_path)
+a = DeteRes(assign_img_path=img_path, json_path=json_path)
+
 # a.format_check()
 
 # print(a.tag)
 
+print(a.alarms)
+
 # a.save_to_json(json_path)
-a.save_to_xml(r"C:\Users\14271\Desktop\del\img_xml\test_2.xml")
+# a.save_to_xml(r"C:\Users\14271\Desktop\del\img_xml\test_2.xml")
 
 
 

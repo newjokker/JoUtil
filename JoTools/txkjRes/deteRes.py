@@ -64,9 +64,10 @@ class DeteRes(ResBase, ABC):
     def _parse_json_info(self):
         """解析 json 信息"""
 
-        json_info = JsonUtil.load_data_from_json_str(self.json_dict)
+        json_info = self.json_dict
 
         if 'size' in json_info:
+            json_info['size'] = JsonUtil.load_data_from_json_str(json_info['size'])
             if 'height' in json_info['size']:
                 self.height = float(json_info['size']['height'])
             if 'width' in json_info['size']:
@@ -134,7 +135,7 @@ class DeteRes(ResBase, ABC):
     def save_to_json(self, assign_alarms=None):
         """转为 json 结构"""
 
-        json_dict = {'size': {'height': int(self.height), 'width': int(self.width), 'depth': '3'},
+        json_dict = {'size': JsonUtil.save_data_to_json_str({'height': int(self.height), 'width': int(self.width), 'depth': '3'}),
                     'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
                     'segmented': "", 'source': ""}
         # 可以指定输出的 alarms
@@ -151,9 +152,7 @@ class DeteRes(ResBase, ABC):
             json_object.append(JsonUtil.save_data_to_json_str(each_obj))
 
         json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
-        #
-        json_dict_str = JsonUtil.save_data_to_json_str(json_dict)
-        return json_dict_str
+        return json_dict
 
     def get_dete_obj_by_id(self, assign_id):
         """获取 id 对应的 deteObj 对象"""

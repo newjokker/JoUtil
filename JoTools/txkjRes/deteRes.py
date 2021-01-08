@@ -30,16 +30,6 @@ class DeteRes(ResBase, ABC):
         self._alarms = []
         super().__init__(xml_path, assign_img_path, json_dict)
 
-    @property
-    def alarms(self):
-        """获取属性自动进行排序"""
-        return sorted(self._alarms, key=lambda x:x.conf)
-
-    @property
-    def obj_count(self):
-        """要素个数"""
-        return len(self._alarms)
-
     def _parse_xml_info(self):
         # todo 重写这个函数，直接从 xml 中进行解析，确保运行效率
         """解析 xml 中存储的检测结果"""
@@ -74,7 +64,7 @@ class DeteRes(ResBase, ABC):
     def _parse_json_info(self):
         """解析 json 信息"""
 
-        json_info = self.json_dict
+        json_info = JsonUtil.load_data_from_json_str(self.json_dict)
 
         if 'size' in json_info:
             if 'height' in json_info['size']:
@@ -92,19 +82,31 @@ class DeteRes(ResBase, ABC):
             self.folder = json_info['folder']
 
         # 解析 object 信息
-        for each_obj in JsonUtil.load_data_from_json_str(json_info['object']):
-            each_obj = JsonUtil.load_data_from_json_str(each_obj)
-            bndbox = each_obj['bndbox']
-            x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
-            #
-            if 'prob' not in each_obj:
-                each_obj['prob'] = -1
-            #
-            if 'id' not in each_obj:
-                each_obj['id'] = -1
+        if 'object' in json_info:
+            for each_obj in JsonUtil.load_data_from_json_str(json_info['object']):
+                each_obj = JsonUtil.load_data_from_json_str(each_obj)
+                bndbox = each_obj['bndbox']
+                x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+                #
+                if 'prob' not in each_obj:
+                    each_obj['prob'] = -1
+                #
+                if 'id' not in each_obj:
+                    each_obj['id'] = -1
 
-            self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
-                         tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+                self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
+                             tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+
+    # ------------------------------------------ common ----------------------------------------------------------------
+    @property
+    def alarms(self):
+        """获取属性自动进行排序"""
+        return sorted(self._alarms, key=lambda x:x.conf)
+
+    @property
+    def obj_count(self):
+        """要素个数"""
+        return len(self._alarms)
 
     def parse_img_info(self):
         """主动解析图像信息"""
@@ -150,7 +152,8 @@ class DeteRes(ResBase, ABC):
 
         json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
         #
-        return json_dict
+        json_dict_str = JsonUtil.save_data_to_json_str(json_dict)
+        return json_dict_str
 
     def get_dete_obj_by_id(self, assign_id):
         """获取 id 对应的 deteObj 对象"""
@@ -173,15 +176,26 @@ class DeteRes(ResBase, ABC):
             each_dete_obj.id = index
             index += 1
 
-    # ------------------------------------------ common ----------------------------------------------------------------
+    def get_sub_img_by_id(self, assign_id, augment_parameter=None):
+        """根据指定 id 得到小图的矩阵数据"""
+        assign_dete_res = self.get_dete_obj_by_id(assign_id=assign_id)
+
+        if assign_dete_res is None:
+            raise ValueError("assign id not exist")
+
+        img = Image.open(self.img_path)
+        if augment_parameter is None:
+            crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
+        else:
+            crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
+            crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
+
+        img_crop = img.crop(crop_range)
+        return np.array(img_crop)
 
     def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=None):
         """快速增加一个检测框要素"""
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf, assign_id=assign_id)
-        self._alarms.append(one_dete_obj)
-
-    def add_obj_2(self, one_dete_obj):
-        """增加一个检测框"""
         self._alarms.append(one_dete_obj)
 
     def draw_dete_res(self, save_path, line_thickness=2, color_dict=None):
@@ -215,6 +229,89 @@ class DeteRes(ResBase, ABC):
         # 保存图片，解决保存中文乱码问题
         cv2.imencode('.jpg', img)[1].tofile(save_path)
         return color_dict
+
+    def do_nms(self, threshold=0.1, ignore_tag=False):
+        """对结果做 nms 处理，"""
+        # 参考：https://blog.csdn.net/shuzfan/article/details/52711706
+        dete_res_list = copy.deepcopy(self._alarms)
+        dete_res_list = sorted(dete_res_list, key=lambda x:x.conf, reverse=True)
+        if len(dete_res_list) > 0:
+            res = [dete_res_list.pop(0)]
+        else:
+            self._alarms = []
+            return
+        # 循环，直到 dete_res_list 中的数据被处理完
+        while len(dete_res_list) > 0:
+            each_res = dete_res_list.pop(0)
+            is_add = True
+            for each in res:
+                # 计算每两个框之间的 iou，要是 nms 大于阈值，同时标签一致，去除置信度比较小的标签
+                if ResTools.cal_iou(each, each_res, ignore_tag=ignore_tag) > threshold:
+                    is_add = False
+                    break
+            # 如果判断需要添加到结果中
+            if is_add is True:
+                res.append(each_res)
+        self._alarms = res
+
+    def filter_by_area(self, area_th):
+        """根据面积大小（像素个数）进行筛选"""
+        new_alarms = []
+        for each_dete_res in self._alarms:
+            if each_dete_res.get_area() >= area_th:
+                new_alarms.append(each_dete_res)
+        self._alarms = new_alarms
+
+    def filter_by_tages(self, need_tag=None, remove_tag=None):
+        """根据 tag 类型进行筛选"""
+        new_alarms = []
+
+        if (need_tag is not None and remove_tag is not None) or (need_tag is None and remove_tag is None):
+            raise ValueError(" need tag and remove tag cant be None or not None in the same time")
+
+        if isinstance(need_tag, str) or isinstance(remove_tag, str):
+            raise ValueError("need list tuple or set not str")
+
+        if need_tag is not None:
+            need_tag = set(need_tag)
+            for each_dete_res in self._alarms:
+                if each_dete_res.tag in need_tag:
+                    new_alarms.append(each_dete_res)
+        else:
+            remove_tag = set(remove_tag)
+            for each_dete_res in self._alarms:
+                if each_dete_res.tag not in remove_tag:
+                    new_alarms.append(each_dete_res)
+        self._alarms = new_alarms
+
+    def filter_by_conf(self, conf_th, assign_tag_list=None):
+        """根据置信度进行筛选，指定标签就能对不同标签使用不同的置信度"""
+        new_alarms = []
+        for each_dete_res in self._alarms:
+            if assign_tag_list is not None:
+                if each_dete_res.tag not in assign_tag_list:
+                    new_alarms.append(each_dete_res)
+                    continue
+            if each_dete_res.conf >= conf_th:
+                new_alarms.append(each_dete_res)
+        self._alarms = new_alarms
+
+    def do_fzc_format(self):
+        """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""
+        res_list = []
+        index = 0
+        # 遍历得到多有的
+        for each_res in self._alarms:
+            # res_list.append([each_res.tag, index, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
+            res_list.append([each_res.tag, each_res.id, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
+            index += 1
+        return res_list
+
+    # ------------------------------------------ common test -----------------------------------------------------------
+
+    def add_obj_2(self, one_dete_obj):
+        """增加一个检测框"""
+        self._alarms.append(one_dete_obj)
 
     def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
@@ -258,32 +355,6 @@ class DeteRes(ResBase, ABC):
             # 保存截图
             each_crop.save(each_save_path, quality=95)
 
-    # --------------------------------------------------- filter -------------------------------------------------------
-
-    def do_nms(self, threshold=0.1, ignore_tag=False):
-        """对结果做 nms 处理，"""
-        # 参考：https://blog.csdn.net/shuzfan/article/details/52711706
-        dete_res_list = copy.deepcopy(self._alarms)
-        dete_res_list = sorted(dete_res_list, key=lambda x:x.conf, reverse=True)
-        if len(dete_res_list) > 0:
-            res = [dete_res_list.pop(0)]
-        else:
-            self._alarms = []
-            return
-        # 循环，直到 dete_res_list 中的数据被处理完
-        while len(dete_res_list) > 0:
-            each_res = dete_res_list.pop(0)
-            is_add = True
-            for each in res:
-                # 计算每两个框之间的 iou，要是 nms 大于阈值，同时标签一致，去除置信度比较小的标签
-                if ResTools.cal_iou(each, each_res, ignore_tag=ignore_tag) > threshold:
-                    is_add = False
-                    break
-            # 如果判断需要添加到结果中
-            if is_add is True:
-                res.append(each_res)
-        self._alarms = res
-
     def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
         """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""
         # 备份 alarms
@@ -298,48 +369,6 @@ class DeteRes(ResBase, ABC):
         # 添加其他类型
         for each_dete_obj in other_alarms:
             self._alarms.append(each_dete_obj)
-
-    def filter_by_conf(self, conf_th, assign_tag_list=None):
-        """根据置信度进行筛选，指定标签就能对不同标签使用不同的分辨率"""
-        new_alarms = []
-        for each_dete_res in self._alarms:
-            if assign_tag_list is not None:
-                if each_dete_res.tag not in assign_tag_list:
-                    new_alarms.append(each_dete_res)
-                    continue
-            if each_dete_res.conf >= conf_th:
-                new_alarms.append(each_dete_res)
-        self._alarms = new_alarms
-
-    def filter_by_area(self, area_th):
-        """根据面积大小（像素个数）进行筛选"""
-        new_alarms = []
-        for each_dete_res in self._alarms:
-            if each_dete_res.get_area() >= area_th:
-                new_alarms.append(each_dete_res)
-        self._alarms = new_alarms
-
-    def filter_by_tages(self, need_tag=None, remove_tag=None):
-        """根据 tag 类型进行筛选"""
-        new_alarms = []
-
-        if (need_tag is not None and remove_tag is not None) or (need_tag is None and remove_tag is None):
-            raise ValueError(" need tag and remove tag cant be None or not None in the same time")
-
-        if isinstance(need_tag, str) or isinstance(remove_tag, str):
-            raise ValueError("need list tuple or set not str")
-
-        if need_tag is not None:
-            need_tag = set(need_tag)
-            for each_dete_res in self._alarms:
-                if each_dete_res.tag in need_tag:
-                    new_alarms.append(each_dete_res)
-        else:
-            remove_tag = set(remove_tag)
-            for each_dete_res in self._alarms:
-                if each_dete_res.tag not in remove_tag:
-                    new_alarms.append(each_dete_res)
-        self._alarms = new_alarms
 
     def filter_by_area_ratio(self, ar=0.0006):
         """根据面积比例进行删选"""
@@ -363,8 +392,6 @@ class DeteRes(ResBase, ABC):
         for each_alarm in self.alarms:
             each_alarm.format_check()
 
-    # ---------------------------------------------------- update -------------------------------------------------------
-
     def update_tags(self, update_dict):
         """更新标签"""
         # tag 不在不更新字典中的就不进行更新
@@ -375,8 +402,6 @@ class DeteRes(ResBase, ABC):
     def reset_alarms(self, assign_alarms):
         """重置 alarms"""
         self._alarms = assign_alarms
-
-    # ---------------------------------------------------- cut -------------------------------------------------------
 
     def save_assign_range(self, assign_range, save_dir, save_name=None, iou_1=0.85):
         """保存指定范围，同时保存图片和 xml """
@@ -465,25 +490,6 @@ class DeteRes(ResBase, ABC):
         save_path = os.path.join(save_dir, region_name+'.xml')
         a.save_to_xml(save_path)
 
-    def get_sub_img_by_id(self, assign_id, augment_parameter=None):
-        """根据指定 id 得到小图的矩阵数据"""
-        assign_dete_res = self.get_dete_obj_by_id(assign_id=assign_id)
-
-        if assign_dete_res is None:
-            raise ValueError("assign id not exist")
-
-        img = Image.open(self.img_path)
-        if augment_parameter is None:
-            crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
-        else:
-            crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
-            crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
-
-        img_crop = img.crop(crop_range)
-        return np.array(img_crop)
-
-    # ---------------------------------------------------- count -------------------------------------------------------
-
     def count_tags(self):
         """统计标签数"""
         tags_count = {}
@@ -495,16 +501,5 @@ class DeteRes(ResBase, ABC):
                 tags_count[each_tag] = 1
         return tags_count
 
-    # ---------------------------------------------------- format ------------------------------------------------------
 
-    def do_fzc_format(self):
-        """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""
-        res_list = []
-        index = 0
-        # 遍历得到多有的
-        for each_res in self._alarms:
-            # res_list.append([each_res.tag, index, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
-            res_list.append([each_res.tag, each_res.id, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
-            index += 1
-        return res_list
 

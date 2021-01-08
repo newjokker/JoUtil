@@ -20,14 +20,18 @@ from JoTools.txkjRes.resTools import ResTools
 """
 
 # todo save_to_json, save_to_xml ，是否直接改为 to_json，to_xml
+# todo 添加 log 信息，
+# todo 增加隐式的 try except 并记录报错信息
 
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
-    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None):
+    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, log=None):
         # 子类新方法需要放在前面
         self._alarms = []
+        # todo 执行操作的时候自动记录操作状态和结果
+        self._log = log
         super().__init__(xml_path, assign_img_path, json_dict)
 
     def _parse_xml_info(self):

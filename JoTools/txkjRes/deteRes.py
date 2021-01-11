@@ -14,10 +14,6 @@ from .resBase import ResBase
 from .deteObj import DeteObj
 from JoTools.txkjRes.resTools import ResTools
 
-"""
-* 可用于中间结果
-* xml_info 应该进行重写，不应该将结果放在字典中，而应该放在类中，这样编程比较方便，不容易出错
-"""
 
 # todo save_to_json, save_to_xml ，是否直接改为 to_json，to_xml
 # todo 添加 log 信息，

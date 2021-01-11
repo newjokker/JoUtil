@@ -3,6 +3,7 @@
 
 import os
 import cv2
+import copy
 from abc import ABC
 from .resBase import ResBase
 from .deteObj import DeteObj

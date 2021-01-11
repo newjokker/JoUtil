@@ -1,6 +1,7 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
+import copy
 import os
 from PIL import Image
 from abc import ABCMeta, abstractmethod
@@ -15,7 +16,7 @@ class ResBase():
         self.file_name = ""             # 检测图像文件名
         self.img_path = assign_img_path # 对应的原图的路径
         self.xml_path = xml_path        # 可以从 xml 中读取检测结果
-        self.json_dict = json_dict      # json 文件地址
+        self.json_dict = copy.deepcopy(json_dict)      # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
         # 从 xml 中获取检测结果
         if self.xml_path is not None:
             self._parse_xml_info()

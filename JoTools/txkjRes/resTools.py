@@ -4,6 +4,8 @@
 
 """相关的工具"""
 
+import cv2
+import numpy as np
 
 
 class ResTools(object):
@@ -68,5 +70,21 @@ class ResTools(object):
             union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1))
             return overlap_area * 1. / union_area
 
-
+    @staticmethod
+    def crop_angle_rect(img_path, rect):
+        """输入的是弧度，需要转为角度"""
+        # get the parameter of the small rectangle
+        print(rect)
+        center, size, angle = rect[0], rect[1], rect[2]
+        center, size = tuple(map(int, center)), tuple(map(int, size))
+        # get row and col num in img
+        img = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
+        height, width = img.shape[0], img.shape[1]
+        # calculate the rotation matrix
+        M = cv2.getRotationMatrix2D(center, (180*angle)/3.14, 1)
+        # rotate the original image
+        img_rot = cv2.warpAffine(img, M, (width, height))
+        # now rotated rectangle becomes vertical and we crop it
+        img_crop = cv2.getRectSubPix(img_rot, size, center)
+        return img_crop
 

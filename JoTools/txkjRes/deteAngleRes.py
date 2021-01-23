@@ -13,6 +13,7 @@ from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.txkjRes.deteAngleXml import parse_xml, save_to_xml
 from .resBase import ResBase
 from .deteObj import DeteObj
+from .deteAngleObj import DeteAngleObj
 from JoTools.txkjRes.resTools import ResTools
 
 
@@ -21,7 +22,7 @@ from JoTools.txkjRes.resTools import ResTools
 # todo 增加隐式的 try except 并记录报错信息
 
 
-class DeteRes(ResBase, ABC):
+class DeteAngleRes(ResBase, ABC):
     """检测结果"""
 
     def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, log=None):
@@ -50,17 +51,33 @@ class DeteRes(ResBase, ABC):
 
         # 解析 object 信息
         for each_obj in xml_info['object']:
-            bndbox = each_obj['bndbox']
-            x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+            if isinstance(each_obj, DeteObj):
+                bndbox = each_obj['bndbox']
+                x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
 
-            if 'prob' not in each_obj:
-                each_obj['prob'] = -1
-            #
-            if 'id' not in each_obj:
-                each_obj['id'] = -1
+                if 'prob' not in each_obj:
+                    each_obj['prob'] = -1
+                #
+                if 'id' not in each_obj:
+                    each_obj['id'] = -1
 
-            self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
-                         tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+                self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
+                             tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+            else:
+                if 'robndbox' in each_obj:
+
+                    bndbox = each_obj['robndbox']
+                    cx, cy, w, h, angle = float(bndbox['cx']), float(bndbox['cy']), float(bndbox['w']), float(
+                        bndbox['h']), float(bndbox['angle'])
+
+                    if 'prob' not in each_obj:
+                        each_obj['prob'] = -1
+                    #
+                    if 'id' not in each_obj:
+                        each_obj['id'] = -1
+
+                    self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=each_obj['prob'],
+                                       assign_id=each_obj['id'])
 
     def _parse_json_info(self):
         """解析 json 信息"""
@@ -127,8 +144,12 @@ class DeteRes(ResBase, ABC):
         #
         for each_dete_obj in alarms:
             each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id':str(each_dete_obj.id),
-                        'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
-                                   'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
+                        'robndbox': {'cx': str(each_dete_obj.cx), 'cy': str(each_dete_obj.cy),
+                                   'w': str(each_dete_obj.w), 'h': str(each_dete_obj.h), 'angle': str(each_dete_obj.angle)}}
+
+            # each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id':str(each_dete_obj.id),
+            #             'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
+            #                        'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
             xml_info['object'].append(each_obj)
         # 保存为 xml
         save_to_xml(xml_info, xml_path=save_path)
@@ -196,6 +217,11 @@ class DeteRes(ResBase, ABC):
     def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=None):
         """快速增加一个检测框要素"""
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf, assign_id=assign_id)
+        self._alarms.append(one_dete_obj)
+
+    def add_angle_obj(self, cx, cy, w, h, angle, tag, conf, assign_id=None):
+        """增加一个角度矩形对象"""
+        one_dete_obj = DeteAngleObj(cx=cx, cy=cy, w=w, h=h, angle=angle, tag=tag, conf=conf, assign_id=assign_id)
         self._alarms.append(one_dete_obj)
 
     def draw_dete_res(self, save_path, line_thickness=2, color_dict=None):
@@ -322,8 +348,6 @@ class DeteRes(ResBase, ABC):
         tag_count_dict = {}
         #
         for each_obj in self._alarms:
-            # 截图的区域
-            bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
             # 排除掉不需要保存的 tag
             if not exclude_tag_list is None:
                 if each_obj.tag in exclude_tag_list:
@@ -334,11 +358,17 @@ class DeteRes(ResBase, ABC):
             else:
                 tag_count_dict[each_obj.tag] += 1
             # 图片扩展
-            if augment_parameter is not None:
-                bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
-                loc_str = "[{0}_{1}_{2}_{3}]".format(bndbox[0], bndbox[1], bndbox[2], bndbox[3])
+            if isinstance(each_obj, DeteAngleRes):
+                # 截图的区域
+                bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
+                if augment_parameter is not None:
+                    bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
+                    loc_str = "[{0}_{1}_{2}_{3}]".format(bndbox[0], bndbox[1], bndbox[2], bndbox[3])
+                else:
+                    loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
             else:
-                loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
+                loc_str = "[{0}_{1}_{2}_{3}_{4}]".format(each_obj.cx, each_obj.cy, each_obj.w, each_obj.h, each_obj.angle)
+
             # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
             if split_by_tag is True:
                 each_save_dir = os.path.join(save_dir, each_obj.tag)
@@ -346,14 +376,24 @@ class DeteRes(ResBase, ABC):
                     os.makedirs(each_save_dir)
             else:
                 each_save_dir = save_dir
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}_{2}_{3}_{4}.jpg'.format(img_name, each_obj.tag,tag_count_dict[each_obj.tag], loc_str, each_obj.conf))
 
-            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}_{2}_{3}_{4}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str, each_obj.conf))
-            each_crop = img.crop(bndbox)
-            # 对截图的图片自定义操作, 可以指定缩放大小之类的
-            if method is not None:
-                each_crop = method(each_crop)
-            # 保存截图
-            each_crop.save(each_save_path, quality=95)
+            if isinstance(each_obj, DeteAngleRes):
+                # fixme 需要想办法兼容两个模型，这边代码需要进行修改
+                each_crop = img.crop(bndbox)
+                # 对截图的图片自定义操作, 可以指定缩放大小之类的
+                if method is not None:
+                    each_crop = method(each_crop)
+                # 保存截图
+                each_crop.save(each_save_path, quality=95)
+            else:
+                each_crop = ResTools.crop_angle_rect(self.img_path, ((each_obj.cx, each_obj.cy), (each_obj.w, each_obj.h), each_obj.angle))
+                # 先转为 Img 结构再去保存
+                # cv2.imwrite(each_save_path, each_crop)
+
+                crop = Image.fromarray(each_crop)
+                crop.save(each_save_path)
+                # print(each_save_path)
 
     def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
         """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""
@@ -482,7 +522,7 @@ class DeteRes(ResBase, ABC):
         img = Image.open(img_path)
 
         #
-        a = DeteRes(xml_path)
+        a = DeteAngleRes(xml_path)
         a.height, a.width = img.height, img.width
         for each_dete_obj  in a.alarms:
             each_dete_obj.do_offset(off_x, off_y)

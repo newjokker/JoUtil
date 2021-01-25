@@ -1,6 +1,10 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
+import cv2
+import math
+import numpy as np
+from .deteObj import DeteObj
 
 class DeteAngleObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
@@ -32,11 +36,34 @@ class DeteAngleObj(object):
         """返回面积，面积大小按照像素个数进行统计"""
         return float(self.w) * float(self.h)
 
-    # def format_check(self):
-    #     """类型检查和调整"""
-    #     self.conf = float(self.conf)
-    #     self.tag = str(self.tag)
-    #     self.x1 = int(self.x1)
-    #     self.y1 = int(self.y1)
-    #     self.x2 = int(self.x2)
-    #     self.y2 = int(self.y2)
+    def to_dete_obj(self):
+        """dete_angle_obj 转为 dete_obj"""
+        cx, cy, w, h, angle = self.cx, self.cy, self.w, self.h, self.angle
+        angle=angle*np.pi/180
+        p0x,p0y = self.rotate_point(cx, cy, cx - w / 2, cy - h / 2, -angle)
+        p1x,p1y = self.rotate_point(cx, cy, cx + w / 2, cy - h / 2, -angle)
+        p2x,p2y = self.rotate_point(cx, cy, cx + w / 2, cy + h / 2, -angle)
+        p3x,p3y = self.rotate_point(cx, cy, cx - w / 2, cy + h / 2, -angle)
+        # 转为 dete_obj
+        x1 = math.ceil(min(p0x, p1x, p2x, p3x))
+        y1 = math.ceil(min(p0y, p1y, p2y, p3y))
+        x2 = math.ceil(max(p0x, p1x, p2x, p3x))
+        y2 = math.ceil(max(p0y, p1y, p2y, p3y))
+        a = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=self.tag, conf=self.conf, assign_id=self.id)
+        return a
+
+    @staticmethod
+    def rotate_point(xc, yc, xp, yp, theta):
+        xoff = xp-xc
+        yoff = yp-yc
+        cosTheta = np.cos(theta)
+        sinTheta = np.sin(theta)
+        pResx = cosTheta * xoff + sinTheta * yoff
+        pResy = - sinTheta * xoff + cosTheta * yoff
+        return xc+pResx, yc+pResy
+
+
+
+
+
+

@@ -1,0 +1,42 @@
+# -*- coding: utf-8  -*-
+# -*- author: jokker -*-
+
+import sys
+import cv2
+import os
+from JoTools.txkjRes.deteAngleXml import parse_xml, save_to_xml
+from JoTools.txkjRes.deteAngleRes import DeteAngleRes
+from JoTools.txkjRes.deteRes import DeteRes
+from JoTools.operateDeteRes import OperateDeteRes
+from JoTools.utils.FileOperationUtil import FileOperationUtil
+
+
+img_dir = r"C:\Users\14271\Desktop\10kV_part1"
+xml_dir = r"C:\Users\14271\Desktop\10kV_part1"
+save_dir = r"C:\Users\14271\Desktop\10kv_crop"
+
+
+
+def crop(xml_path, jpg_path, save_dir):
+    """裁剪"""
+    a = DeteAngleRes(xml_path=xml_path, assign_img_path=jpg_path)
+    b = DeteRes(assign_img_path=jpg_path)
+    new_alarms = []
+    for each in a.alarms:
+        new_alarms.append(each.to_dete_obj())
+
+    b.reset_alarms(new_alarms)
+    b.crop_and_save(save_dir, augment_parameter=[0.3,0.3,0.3,0.3], split_by_tag=True)
+
+
+for index, each_xml_path in enumerate(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith(".xml"))[448:]):
+    print(index, each_xml_path)
+    each_img_path = os.path.join(img_dir, os.path.split(each_xml_path)[1][:-3] + 'jpg')
+
+    if not os.path.exists(each_img_path):
+        continue
+
+    try:
+        crop(each_xml_path, each_img_path, save_dir)
+    except Exception as e:
+        print(e)

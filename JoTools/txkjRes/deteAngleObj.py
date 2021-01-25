@@ -39,7 +39,6 @@ class DeteAngleObj(object):
     def to_dete_obj(self):
         """dete_angle_obj 转为 dete_obj"""
         cx, cy, w, h, angle = self.cx, self.cy, self.w, self.h, self.angle
-        angle=angle*np.pi/180
         p0x,p0y = self.rotate_point(cx, cy, cx - w / 2, cy - h / 2, -angle)
         p1x,p1y = self.rotate_point(cx, cy, cx + w / 2, cy - h / 2, -angle)
         p2x,p2y = self.rotate_point(cx, cy, cx + w / 2, cy + h / 2, -angle)

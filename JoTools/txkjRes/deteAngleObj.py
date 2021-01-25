@@ -4,7 +4,8 @@
 import cv2
 import math
 import numpy as np
-from .deteObj import DeteObj
+# from .deteObj import DeteObj
+from JoTools.txkjRes.deteObj import DeteObj
 
 class DeteAngleObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
@@ -30,7 +31,7 @@ class DeteAngleObj(object):
 
     def get_format_list(self):
         """得到标准化的 list 主要用于打印"""
-        return [str(self.tag), float(self.cx), float(self.cy), float(self.w), float(self.h), float(angle), format(float(self.conf), '.4f')]
+        return [str(self.tag), float(self.cx), float(self.cy), float(self.w), float(self.h), float(self.angle), format(float(self.conf), '.4f')]
 
     def get_area(self):
         """返回面积，面积大小按照像素个数进行统计"""
@@ -61,8 +62,28 @@ class DeteAngleObj(object):
         pResy = - sinTheta * xoff + cosTheta * yoff
         return xc+pResx, yc+pResy
 
+    # ------------------------------------------------------------------------------------------------------------------
 
+    def to_name_str(self):
+        """信息保存为文件名"""
+        name_str = "[{0},{1},{2},{3},{4},{5}]_{6}_{7}".format(self.cx, self.cy, self.w, self.h, self.angle, "'" + self.tag + "'", self.conf, self.id)
+        return name_str
 
+    def load_from_name_str(self, name_str):
+        """从文件名获取信息"""
+        conf_str, index_str = name_str.split('_')[-2:]
+        loc_list_str = '_'.join(name_str.split('_')[:-2])
+        self.cx, self.cy, self.w, self.h, self.angle, self.tag = eval(loc_list_str)
+        self.conf = float(conf_str)
+        self.id = int(index_str)
+
+if __name__ == "__main__":
+
+    a = DeteAngleObj(10.23,10.35,10.22,15.78,0.356,'ok_good')
+    b = a.to_name_str()
+    print(b)
+    a.load_from_name_str(b)
+    print(a.get_format_list())
 
 
 

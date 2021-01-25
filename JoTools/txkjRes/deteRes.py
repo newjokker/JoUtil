@@ -326,6 +326,10 @@ class DeteRes(ResBase, ABC):
                 new_alarms.append(each_dete_res)
         self._alarms = new_alarms
 
+    def filter_by_mask(self, mask):
+        """使用多边形 mask 进行过滤，mask 支持任意对变形，设定重合比例, mask 一连串的点连接起来的"""
+        pass
+
     def do_fzc_format(self):
         """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""
         res_list = []
@@ -352,6 +356,9 @@ class DeteRes(ResBase, ABC):
         tag_count_dict = {}
         #
         for each_obj in self._alarms:
+            # 只支持正框的裁切
+            if not isinstance(each_obj, DeteObj):
+                continue
             # 截图的区域
             bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
             # 排除掉不需要保存的 tag
@@ -384,6 +391,47 @@ class DeteRes(ResBase, ABC):
                 each_crop = method(each_crop)
             # 保存截图
             each_crop.save(each_save_path, quality=95)
+
+    def crop_angle_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
+        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
+        * augment_parameter = [0.2, 0.2] w,h的扩展比例
+        """
+        img_name = os.path.split(self.img_path)[1][:-4]
+        tag_count_dict = {}
+        #
+        for each_obj in self._alarms:
+            # 去除正框
+            if not isinstance(each_obj, DeteAngleObj): continue
+            # 排除掉不需要保存的 tag
+            if not exclude_tag_list is None:
+                if each_obj.tag in exclude_tag_list:
+                    continue
+            # 计算这是当前 tag 的第几个图片
+            if each_obj.tag not in tag_count_dict:
+                tag_count_dict[each_obj.tag] = 0
+            else:
+                tag_count_dict[each_obj.tag] += 1
+            # 图片扩展
+            loc_str = "[{0}_{1}_{2}_{3}_{4}]".format(each_obj.cx, each_obj.cy, each_obj.w, each_obj.h, each_obj.angle)
+
+            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
+            if split_by_tag is True:
+                each_save_dir = os.path.join(save_dir, each_obj.tag)
+                if not os.path.exists(each_save_dir): os.makedirs(each_save_dir)
+            else:
+                each_save_dir = save_dir
+
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}_{2}_{3}_{4}.jpg'.format(img_name, each_obj.tag,tag_count_dict[each_obj.tag], loc_str, each_obj.conf))
+            cx, cy, w, h, angle = each_obj.cx, each_obj.cy, each_obj.w, each_obj.h, each_obj.angle
+            # 范围扩展
+            if augment_parameter is not None:
+                w += w * augment_parameter[0]
+                h += h * augment_parameter[1]
+            # 裁剪
+            each_crop = ResTools.crop_angle_rect(self.img_path, ((cx, cy), (w, h), angle))
+            if method is not None: each_crop = method(each_crop)
+            crop = Image.fromarray(each_crop)
+            crop.save(each_save_path)
 
     def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
         """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""

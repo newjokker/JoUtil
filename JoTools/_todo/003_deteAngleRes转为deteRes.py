@@ -13,7 +13,7 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 img_dir = r"C:\Users\14271\Desktop\10kv\10kV_part4"
 xml_dir = r"C:\Users\14271\Desktop\10kv\10kV_part4"
-save_dir = r"C:\Users\14271\Desktop\10kv_crop"
+save_dir = r"C:\Users\14271\Desktop\deldel"
 
 
 
@@ -30,6 +30,14 @@ def crop(xml_path, jpg_path, save_dir):
     # b.crop_and_save(save_dir)
 
 
+def crop2(xml_path, jpg_path, save_dir):
+    """裁剪"""
+    a = DeteRes(xml_path=xml_path, assign_img_path=jpg_path)
+    a.angle_obj_to_obj()
+    a.crop_and_save(save_dir, augment_parameter=[0.3,0.3,0.3,0.3], split_by_tag=True)
+
+
+
 if __name__ == "__main__":
 
 
@@ -44,7 +52,7 @@ if __name__ == "__main__":
             continue
 
         try:
-            crop(each_xml_path, each_img_path, save_dir)
+            crop2(each_xml_path, each_img_path, save_dir)
         except Exception as e:
             print(e)
 

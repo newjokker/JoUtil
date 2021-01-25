@@ -13,6 +13,7 @@ from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.txkjRes.deteAngleXml import parse_xml, save_to_xml
 from .resBase import ResBase
 from .deteObj import DeteObj
+from .deteAngleObj import DeteAngleObj
 from JoTools.txkjRes.resTools import ResTools
 
 
@@ -20,6 +21,8 @@ from JoTools.txkjRes.resTools import ResTools
 # todo 添加 log 信息，
 # todo 增加隐式的 try except 并记录报错信息
 
+
+# todo 很多功能还不支持斜框的操作，比如 nms 之类的
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -32,7 +35,6 @@ class DeteRes(ResBase, ABC):
         super().__init__(xml_path, assign_img_path, json_dict)
 
     def _parse_xml_info(self):
-        # todo 重写这个函数，直接从 xml 中进行解析，确保运行效率
         """解析 xml 中存储的检测结果"""
         xml_info = parse_xml(self.xml_path)
         #
@@ -50,17 +52,20 @@ class DeteRes(ResBase, ABC):
 
         # 解析 object 信息
         for each_obj in xml_info['object']:
-            bndbox = each_obj['bndbox']
-            x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
-
-            if 'prob' not in each_obj:
-                each_obj['prob'] = -1
-            #
-            if 'id' not in each_obj:
-                each_obj['id'] = -1
-
-            self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
-                         tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+            # bndbox
+            if 'bndbox' in each_obj:
+                bndbox = each_obj['bndbox']
+                x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+                if 'prob' not in each_obj: each_obj['prob'] = -1
+                if 'id' not in each_obj: each_obj['id'] = -1
+                self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+            # robndbox
+            if 'robndbox' in each_obj:
+                bndbox = each_obj['robndbox']
+                cx, cy, w, h, angle = float(bndbox['cx']), float(bndbox['cy']), float(bndbox['w']), float(bndbox['h']), float(bndbox['angle'])
+                if 'prob' not in each_obj: each_obj['prob'] = -1
+                if 'id' not in each_obj: each_obj['id'] = -1
+                self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
 
     def _parse_json_info(self):
         """解析 json 信息"""
@@ -87,17 +92,20 @@ class DeteRes(ResBase, ABC):
         if 'object' in json_info:
             for each_obj in JsonUtil.load_data_from_json_str(json_info['object']):
                 each_obj = JsonUtil.load_data_from_json_str(each_obj)
-                bndbox = each_obj['bndbox']
-                x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
-                #
-                if 'prob' not in each_obj:
-                    each_obj['prob'] = -1
-                #
-                if 'id' not in each_obj:
-                    each_obj['id'] = -1
-
-                self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max,
-                             tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+                # bndbox
+                if 'bndbox' in each_obj:
+                    bndbox = each_obj['bndbox']
+                    x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+                    if 'prob' not in each_obj: each_obj['prob'] = -1
+                    if 'id' not in each_obj: each_obj['id'] = -1
+                    self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+                # robndbox
+                if 'robndbox' in each_obj:
+                    bndbox = each_obj['robndbox']
+                    cx, cy, w, h, angle = float(bndbox['cx']), float(bndbox['cy']), float(bndbox['w']), float(bndbox['h']), float(bndbox['angle'])
+                    if 'prob' not in each_obj: each_obj['prob'] = -1
+                    if 'id' not in each_obj: each_obj['id'] = -1
+                    self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=each_obj['prob'],assign_id=each_obj['id'])
 
     # ------------------------------------------ common ----------------------------------------------------------------
     @property
@@ -126,10 +134,19 @@ class DeteRes(ResBase, ABC):
             alarms = assign_alarms
         #
         for each_dete_obj in alarms:
-            each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id':str(each_dete_obj.id),
-                        'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
-                                   'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
-            xml_info['object'].append(each_obj)
+            # bndbox
+            if isinstance(each_dete_obj, DeteObj):
+                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id':str(each_dete_obj.id),
+                            'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
+                                       'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
+                xml_info['object'].append(each_obj)
+            # robndbox
+            elif isinstance(each_dete_obj, DeteAngleObj):
+                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id': str(each_dete_obj.id),
+                            'robndbox': {'cx': str(each_dete_obj.cx), 'cy': str(each_dete_obj.cy),
+                                         'w': str(each_dete_obj.w), 'h': str(each_dete_obj.h),'angle': str(each_dete_obj.angle)}}
+                xml_info['object'].append(each_obj)
+
         # 保存为 xml
         save_to_xml(xml_info, xml_path=save_path)
 
@@ -147,11 +164,19 @@ class DeteRes(ResBase, ABC):
         #
         json_object = []
         for each_dete_obj in alarms:
-            each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf), 'id':int(each_dete_obj.id),
-                        'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
-                                   'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
-            json_object.append(JsonUtil.save_data_to_json_str(each_obj))
-
+            # bndbox
+            if isinstance(each_dete_obj, DeteObj):
+                each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf), 'id':int(each_dete_obj.id),
+                            'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
+                                       'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
+                json_object.append(JsonUtil.save_data_to_json_str(each_obj))
+            # robndbox
+            elif isinstance(each_dete_obj, DeteAngleObj):
+                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id': str(each_dete_obj.id),
+                            'robndbox': {'cx': float(each_dete_obj.cx), 'cy': float(each_dete_obj.cy),
+                                         'w': float(each_dete_obj.w), 'h': float(each_dete_obj.h),
+                                         'angle': float(each_dete_obj.angle)}}
+                json_object.append(JsonUtil.save_data_to_json_str(each_obj))
         json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
         return json_dict
 
@@ -196,6 +221,11 @@ class DeteRes(ResBase, ABC):
     def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=None):
         """快速增加一个检测框要素"""
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf, assign_id=assign_id)
+        self._alarms.append(one_dete_obj)
+
+    def add_angle_obj(self, cx, cy, w, h, angle, tag, conf, assign_id=None):
+        """增加一个角度矩形对象"""
+        one_dete_obj = DeteAngleObj(cx=cx, cy=cy, w=w, h=h, angle=angle, tag=tag, conf=conf, assign_id=assign_id)
         self._alarms.append(one_dete_obj)
 
     def draw_dete_res(self, save_path, line_thickness=2, color_dict=None):
@@ -501,5 +531,13 @@ class DeteRes(ResBase, ABC):
                 tags_count[each_tag] = 1
         return tags_count
 
-
-
+    def angle_obj_to_obj(self):
+        """将斜框全部转为正框"""
+        new_alarms = []
+        for each_obj in self._alarms:
+            if isinstance(each_obj, DeteRes):
+                new_alarms.append(each_obj)
+            elif isinstance(each_obj, DeteAngleObj):
+                each_obj = each_obj.to_dete_obj()
+                new_alarms.append(each_obj)
+        self._alarms = new_alarms

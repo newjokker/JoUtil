@@ -11,8 +11,8 @@ from JoTools.operateDeteRes import OperateDeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
-img_dir = r"C:\Users\14271\Desktop\10kV_part4"
-xml_dir = r"C:\Users\14271\Desktop\10kV_part4"
+img_dir = r"C:\Users\14271\Desktop\10kv\10kV_part4"
+xml_dir = r"C:\Users\14271\Desktop\10kv\10kV_part4"
 save_dir = r"C:\Users\14271\Desktop\10kv_crop"
 
 
@@ -26,25 +26,25 @@ def crop(xml_path, jpg_path, save_dir):
         new_alarms.append(each.to_dete_obj())
 
     b.reset_alarms(new_alarms)
-    # b.crop_and_save(save_dir, augment_parameter=[0.3,0.3,0.3,0.3], split_by_tag=True)
-    b.crop_and_save(save_dir)
+    b.crop_and_save(save_dir, augment_parameter=[0.3,0.3,0.3,0.3], split_by_tag=True)
+    # b.crop_and_save(save_dir)
 
 
 if __name__ == "__main__":
 
 
-    crop(r"C:\Users\14271\Desktop\del\A相大号侧-1.xml", r"C:\Users\14271\Desktop\del\A相大号侧-1.jpg", r"C:\Users\14271\Desktop\del\crop")
+    # crop(r"C:\Users\14271\Desktop\del\A相大号侧-1.xml", r"C:\Users\14271\Desktop\del\A相大号侧-1.jpg", r"C:\Users\14271\Desktop\del\crop")
 
 
-    # for index, each_xml_path in enumerate(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith(".xml"))):
-    #     print(index, each_xml_path)
-    #     each_img_path = os.path.join(img_dir, os.path.split(each_xml_path)[1][:-3] + 'jpg')
-    #
-    #     if not os.path.exists(each_img_path):
-    #         continue
-    #
-    #     try:
-    #         crop(each_xml_path, each_img_path, save_dir)
-    #     except Exception as e:
-    #         print(e)
+    for index, each_xml_path in enumerate(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith(".xml"))):
+        print(index, each_xml_path)
+        each_img_path = os.path.join(img_dir, os.path.split(each_xml_path)[1][:-3] + 'jpg')
+
+        if not os.path.exists(each_img_path):
+            continue
+
+        try:
+            crop(each_xml_path, each_img_path, save_dir)
+        except Exception as e:
+            print(e)
 

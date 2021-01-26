@@ -360,13 +360,13 @@ class OperateDeteRes(object):
     @staticmethod
     def _get_region_img_name(img_name):
         """找到原始的文件名"""
-        a = str(img_name).find("-+-")
+        a = str(img_name).rfind("-+-")
         return img_name[:a]
 
     @staticmethod
     def _get_crop_img_tag(img_name):
         """获取裁切小图的标签"""
-        a = str(img_name).find("-+-")
+        a = str(img_name).rfind("-+-")
         b = img_name[a + 3:]
         tag = b.split('_')[0]
         return tag

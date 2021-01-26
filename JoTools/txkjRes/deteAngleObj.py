@@ -4,8 +4,8 @@
 import cv2
 import math
 import numpy as np
-# from .deteObj import DeteObj
-from JoTools.txkjRes.deteObj import DeteObj
+from .deteObj import DeteObj
+
 
 class DeteAngleObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
@@ -76,14 +76,6 @@ class DeteAngleObj(object):
         self.cx, self.cy, self.w, self.h, self.angle, self.tag = eval(loc_list_str)
         self.conf = float(conf_str)
         self.id = int(index_str)
-
-if __name__ == "__main__":
-
-    a = DeteAngleObj(10.23,10.35,10.22,15.78,0.356,'ok_good')
-    b = a.to_name_str()
-    print(b)
-    a.load_from_name_str(b)
-    print(a.get_format_list())
 
 
 

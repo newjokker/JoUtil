@@ -11,9 +11,9 @@ from JoTools.operateDeteRes import OperateDeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
-img_dir = r"C:\Users\14271\Desktop\10kv\10kV_part2"
-xml_dir = r"C:\Users\14271\Desktop\10kv\10kV_part2"
-save_dir = r"C:\Users\14271\Desktop\10kv_crop_new_2"
+img_dir = r"C:\Users\14271\Desktop\10kv\10kV_part3"
+xml_dir = r"C:\Users\14271\Desktop\10kv\10kV_part3"
+save_dir = r"C:\Users\14271\Desktop\10kv_crop"
 
 
 

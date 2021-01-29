@@ -341,7 +341,40 @@ class DeteRes(ResBase, ABC):
             index += 1
         return res_list
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def __contains__(self, item):
+        """是否包含元素"""
+
+        if not(isinstance(item, DeteAngleObj) or isinstance(item, DeteObj)):
+             raise TypeError("item should 被 DeteAngleObj or DeteObj")
+
+        for each_dete_obj in self._alarms:
+            if item == each_dete_obj:
+                return True
+
+        return False
+
+    def __add__(self, other):
+        """DeteRes之间进行相加"""
+
+        if not isinstance(other, DeteRes):
+            raise TypeError("should be DeteRes")
+
+        for each_dete_obj in other.alarms:
+            # 不包含这个元素的时候进行添加
+            if each_dete_obj not in self:
+                self._alarms.append(each_dete_obj)
+        return self
+
     # ------------------------------------------ common test -----------------------------------------------------------
+
+    def offset(self, x, y):
+        """横纵坐标中的偏移量"""
+        for each_dete_obj in self._alarms:
+            # todo 目前只处理正框，斜框不进行处理
+            if isinstance(each_dete_obj, DeteObj):
+                each_dete_obj.do_offset(x, y)
 
     def add_obj_2(self, one_dete_obj):
         """增加一个检测框"""

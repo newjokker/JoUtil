@@ -64,6 +64,20 @@ class DeteAngleObj(object):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    def __eq__(self, other):
+        """等于"""
+
+        # 类型不同返回 false
+        if not isinstance(other, DeteAngleObj):
+            return False
+
+        if self.cx == other.cx and self.cy == other.cy and self.w == other.w and self.h == other.h and self.tag == other.tag and self.angle == other.angle:
+            return True
+        else:
+            return False
+
+    # ------------------------------------------------------------------------------------------------------------------
+
     def to_name_str(self):
         """信息保存为文件名"""
         name_str = "[{0},{1},{2},{3},{4},{5}]_{6}_{7}".format(self.cx, self.cy, self.w, self.h, self.angle, "'" + self.tag + "'", self.conf, self.id)

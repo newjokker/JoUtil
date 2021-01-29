@@ -49,6 +49,20 @@ class DeteObj(object):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    def __eq__(self, other):
+        """等于"""
+
+        # 类型不同返回 false
+        if not isinstance(other, DeteObj):
+            return False
+
+        if self.x1 == other.x1 and self.x2 == other.x2 and self.y1 == other.y1 and self.y2 == other.y2 and self.tag == other.tag:
+            return True
+        else:
+            return False
+
+    # ------------------------------------------------------------------------------------------------------------------
+
     def to_name_str(self):
         """信息保存为文件名"""
         name_str = "[{0},{1},{2},{3},{4}]_{5}_{6}".format(self.x1, self.y1, self.x2, self.y2, "'" + self.tag + "'", self.conf, self.id)

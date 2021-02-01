@@ -70,7 +70,6 @@ if __name__ == "__main__":
         else:
             xml_dict[xml_name] = [each_xml]
 
-
     for each_xml in xml_dict:
         if len(xml_dict[each_xml]) > 0:
             merge_dete_res(xml_dict[each_xml], save_dir)

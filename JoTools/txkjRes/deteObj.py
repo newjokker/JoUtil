@@ -65,16 +65,12 @@ class DeteObj(object):
 
     def to_name_str(self):
         """信息保存为文件名"""
-        name_str = "[{0},{1},{2},{3},{4}]_{5}_{6}".format(self.x1, self.y1, self.x2, self.y2, "'" + self.tag + "'", self.conf, self.id)
+        name_str = "[{0},{1},{2},{3},{4},{5},{6}]".format(self.x1, self.y1, self.x2, self.y2, "'" + self.tag + "'", self.conf, self.id)
         return name_str
 
     def load_from_name_str(self, name_str):
         """从文件名获取信息"""
-        conf_str, index_str = name_str.split('_')[-2:]
-        loc_list_str = '_'.join(name_str.split('_')[:-2])
-        self.x1, self.y1, self.x2, self.y2, self.tag = eval(loc_list_str)
-        self.conf = float(conf_str)
-        self.id = int(index_str)
+        self.x1, self.y1, self.x2, self.y2, self.tag, self.conf, self.id = eval(name_str)
 
 
 if __name__ == "__main__":

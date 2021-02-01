@@ -5,6 +5,7 @@ import cv2
 import math
 import numpy as np
 from .deteObj import DeteObj
+# from JoTools.txkjRes.deteRes import DeteObj
 
 
 class DeteAngleObj(object):
@@ -80,16 +81,20 @@ class DeteAngleObj(object):
 
     def to_name_str(self):
         """信息保存为文件名"""
-        name_str = "[{0},{1},{2},{3},{4},{5}]_{6}_{7}".format(self.cx, self.cy, self.w, self.h, self.angle, "'" + self.tag + "'", self.conf, self.id)
+        name_str = "[{0},{1},{2},{3},{4},{5},{6},{7}]".format(self.cx, self.cy, self.w, self.h, self.angle, "'" + self.tag + "'", self.conf, self.id)
         return name_str
 
     def load_from_name_str(self, name_str):
         """从文件名获取信息"""
-        conf_str, index_str = name_str.split('_')[-2:]
-        loc_list_str = '_'.join(name_str.split('_')[:-2])
-        self.cx, self.cy, self.w, self.h, self.angle, self.tag = eval(loc_list_str)
-        self.conf = float(conf_str)
-        self.id = int(index_str)
+        self.cx, self.cy, self.w, self.h, self.angle, self.tag, self.conf, self.id = eval(name_str)
 
+
+if __name__ == "__main__":
+
+    a = DeteAngleObj(10,10,30,30,2.32,'ok_good')
+    b = a.to_name_str()
+    print(b)
+    a.load_from_name_str(b)
+    print(a.get_format_list())
 
 

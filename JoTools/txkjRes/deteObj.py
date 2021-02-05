@@ -38,6 +38,10 @@ class DeteObj(object):
         """返回面积，面积大小按照像素个数进行统计"""
         return int(self.x2 - self.x1) * int(self.y2 - self.y1)
 
+    def get_points(self):
+        """返回四边形顺序上的四个点"""
+        return [[self.x1,self.y1], [self.x2,self.y1], [self.x2,self.y2], [self.x2, self.y1]]
+
     def format_check(self):
         """类型检查和调整"""
         self.conf = float(self.conf)

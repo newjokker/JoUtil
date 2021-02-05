@@ -38,13 +38,22 @@ class DeteAngleObj(object):
         """返回面积，面积大小按照像素个数进行统计"""
         return float(self.w) * float(self.h)
 
+    def get_points(self):
+        """按照顺序返回斜框上的四个点"""
+        cx, cy, w, h, angle = self.cx, self.cy, self.w, self.h, self.angle
+        p0x,p0y = self._rotate_point(cx, cy, cx - w / 2, cy - h / 2, -angle)
+        p1x,p1y = self._rotate_point(cx, cy, cx + w / 2, cy - h / 2, -angle)
+        p2x,p2y = self._rotate_point(cx, cy, cx + w / 2, cy + h / 2, -angle)
+        p3x,p3y = self._rotate_point(cx, cy, cx - w / 2, cy + h / 2, -angle)
+        return [[p0x,p0y], [p1x,p1y], [p2x,p2y], [p3x,p3y]]
+
     def to_dete_obj(self):
         """dete_angle_obj 转为 dete_obj"""
         cx, cy, w, h, angle = self.cx, self.cy, self.w, self.h, self.angle
-        p0x,p0y = self.rotate_point(cx, cy, cx - w / 2, cy - h / 2, -angle)
-        p1x,p1y = self.rotate_point(cx, cy, cx + w / 2, cy - h / 2, -angle)
-        p2x,p2y = self.rotate_point(cx, cy, cx + w / 2, cy + h / 2, -angle)
-        p3x,p3y = self.rotate_point(cx, cy, cx - w / 2, cy + h / 2, -angle)
+        p0x,p0y = self._rotate_point(cx, cy, cx - w / 2, cy - h / 2, -angle)
+        p1x,p1y = self._rotate_point(cx, cy, cx + w / 2, cy - h / 2, -angle)
+        p2x,p2y = self._rotate_point(cx, cy, cx + w / 2, cy + h / 2, -angle)
+        p3x,p3y = self._rotate_point(cx, cy, cx - w / 2, cy + h / 2, -angle)
         # 转为 dete_obj
         x1 = math.ceil(min(p0x, p1x, p2x, p3x))
         y1 = math.ceil(min(p0y, p1y, p2y, p3y))
@@ -54,7 +63,7 @@ class DeteAngleObj(object):
         return a
 
     @staticmethod
-    def rotate_point(xc, yc, xp, yp, theta):
+    def _rotate_point(xc, yc, xp, yp, theta):
         xoff = xp-xc
         yoff = yp-yc
         cosTheta = np.cos(theta)

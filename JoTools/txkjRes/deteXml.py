@@ -37,6 +37,13 @@ class ParseXml(object):
                     if each_node_name in ["xmin", "ymin", "xmax", "ymax"]:
                         bndbox_info[each_node_name] = XmlUtil.get_info_from_node(each_node_2)['value']
                 object_info['bndbox'] = bndbox_info
+            elif node_name == "robndbox":
+                robndbox_info = {}
+                for each_node_2 in each_node.childNodes:
+                    each_node_name = each_node_2.nodeName
+                    if each_node_name in ["cx", "cy", "w", "h", "angle"]:
+                        robndbox_info[each_node_name] = XmlUtil.get_info_from_node(each_node_2)['value']
+                object_info['robndbox'] = robndbox_info
         self.__objects_info.append(object_info)
 
     def _parse_size(self, assign_node):
@@ -117,12 +124,16 @@ class ParseXml(object):
         for each_object in assign_xml_info["object"]:
             object_node = XmlUtil.add_sub_node(root, xml_calss_1, "object", '')
             for each_node in each_object:
-                if each_node != "bndbox":
+                if (each_node != "bndbox") and (each_node != "robndbox"):
                     XmlUtil.add_sub_node(root, object_node, each_node, each_object[each_node])
-                else:
+                elif each_node == "bndbox":
                     bndbox_node = XmlUtil.add_sub_node(root, object_node, "bndbox", "")
                     for each_bndbox in each_object["bndbox"]:
                         XmlUtil.add_sub_node(root, bndbox_node, each_bndbox, each_object["bndbox"][each_bndbox])
+                else:
+                    bndbox_node = XmlUtil.add_sub_node(root, object_node, "robndbox", "")
+                    for each_bndbox in each_object["robndbox"]:
+                        XmlUtil.add_sub_node(root, bndbox_node, each_bndbox, each_object["robndbox"][each_bndbox])
         # 保存 xml 到文件
         XmlUtil.save_xml(root, save_path)
 

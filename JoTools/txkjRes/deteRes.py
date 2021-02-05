@@ -9,8 +9,7 @@ import numpy as np
 from abc import ABC
 from PIL import Image
 from JoTools.utils.JsonUtil import JsonUtil
-# from JoTools.txkj.parseXml import parse_xml, save_to_xml
-from JoTools.txkjRes.deteAngleXml import parse_xml, save_to_xml
+from JoTools.txkjRes.deteXml import parse_xml, save_to_xml
 from .resBase import ResBase
 from .deteObj import DeteObj
 from .deteAngleObj import DeteAngleObj
@@ -20,8 +19,6 @@ from JoTools.txkjRes.resTools import ResTools
 # todo save_to_json, save_to_xml ，是否直接改为 to_json，to_xml
 # todo 添加 log 信息，
 # todo 增加隐式的 try except 并记录报错信息
-
-
 # todo 很多功能还不支持斜框的操作，比如 nms 之类的
 
 class DeteRes(ResBase, ABC):

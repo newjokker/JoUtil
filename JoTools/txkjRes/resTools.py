@@ -6,6 +6,12 @@
 
 import cv2
 import numpy as np
+from shapely.geometry import Polygon
+
+
+# todo 这边的输入参数最好不要是 dete_obj 之类的类，这样显得没那么通用？
+
+# todo 统一文件名，按照同样的逻辑对文件进行命名
 
 
 class ResTools(object):
@@ -87,4 +93,49 @@ class ResTools(object):
         # now rotated rectangle becomes vertical and we crop it
         img_crop = cv2.getRectSubPix(img_rot, size, center)
         return img_crop
+
+    @staticmethod
+    def polygon_iou(poly_points_list_1, poly_points_list_2):
+        """计算任意两个凸多边形之间的 IOU"""
+        #
+        poly1 = Polygon(poly_points_list_1).convex_hull  # 凸多边形
+        poly2 = Polygon(poly_points_list_2).convex_hull  # 凸多边形
+        poly3 = poly1.intersection(poly2)
+        #
+        area_1 = poly1.area
+        area_2 = poly2.area
+        area_3 = poly3.area
+        #
+        iou = area_3/(area_1 + area_2 - area_3)
+        return iou
+
+    @staticmethod
+    def cal_cover_index(poly_points_list_1, poly_mask_points_list_2):
+        """计算一个多边形被另外一个多边形覆盖的比例，覆盖比"""
+        poly1 = Polygon(poly_points_list_1).convex_hull  # 凸多边形
+        poly2 = Polygon(poly_mask_points_list_2).convex_hull  # 凸多边形
+        poly3 = poly1.intersection(poly2)
+        #
+        area_1 = poly1.area
+        area_3 = poly3.area
+        #
+        cover_index = area_3/area_1
+        return cover_index
+
+
+
+if __name__ == "__main__":
+
+    triangle_1 = np.array([[200,100], [180,180], [220,180]])
+    triangle_2 = np.array([[200,100], [180,180], [220,180]])
+    assign_iou = ResTools.polygon_iou(triangle_1, triangle_2)
+    print(assign_iou)
+
+
+
+
+
+
+
+
 

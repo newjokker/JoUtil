@@ -7,7 +7,8 @@
 import cv2
 import numpy as np
 from shapely.geometry import Polygon
-
+from .deteObj import DeteObj
+from .deteAngleObj import DeteAngleObj
 
 # todo 这边的输入参数最好不要是 dete_obj 之类的类，这样显得没那么通用？
 
@@ -19,7 +20,7 @@ class ResTools(object):
 
     @staticmethod
     def merge_range_list(range_list):
-        """进行区域合并得到大的区域"""
+        """正框进行区域合并得到大的区域"""
         x_min_list, y_min_list, x_max_list, y_max_list = [], [], [], []
         for each_range in range_list:
             x_min_list.append(each_range[0])
@@ -53,28 +54,46 @@ class ResTools(object):
 
     @staticmethod
     def cal_iou(dete_obj_1, dete_obj_2, ignore_tag=False):
-        """计算两个检测结果相交程度, xmin, ymin, xmax, ymax，标签不同，检测结果相交为 0, ignore_tag 为 True 那么不同标签也计算 iou"""
+        """计算两个检测结果相交程度, ignore_tag 为 True 那么不同标签也计算 iou"""
+
         if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
             return 0.0
-        else:
+
+        if isinstance(dete_obj_1, DeteObj) and isinstance(dete_obj_2, DeteObj):
+            # 计算两个正框之间的 iou
             dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
             dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
             overlap_area = dx * dy
             union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1) +
                           (dete_obj_2.x2 - dete_obj_2.x1 + 1) * (dete_obj_2.y2 - dete_obj_2.y1 + 1) - overlap_area)
             return overlap_area * 1. / union_area
+        else:
+            # 计算两个多边形之间的 iou
+            poly_points_list_1 = dete_obj_1.get_points()
+            poly_points_list_2 = dete_obj_2.get_points()
+            iou = ResTools.polygon_iou(poly_points_list_1, poly_points_list_2)
+            return iou
 
     @staticmethod
     def cal_iou_1(dete_obj_1, dete_obj_2, ignore_tag=False):
         """计算两个矩形框的相交面积，占其中一个矩形框面积的比例 ， """
         if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
             return 0
-        else:
+
+        if isinstance(dete_obj_1, DeteObj) and isinstance(dete_obj_2, DeteObj):
+            # 两个正框
             dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
             dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
             overlap_area = dx * dy
             union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1))
             return overlap_area * 1. / union_area
+        else:
+            # 非正框之间
+            # 计算两个多边形之间的 iou
+            poly_points_list_1 = dete_obj_1.get_points()
+            poly_points_list_2 = dete_obj_2.get_points()
+            cover_index = ResTools.cal_cover_index(poly_points_list_1, poly_points_list_2)
+            return cover_index
 
     @staticmethod
     def crop_angle_rect(img_path, rect):

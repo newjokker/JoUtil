@@ -14,6 +14,7 @@ a.refresh_obj_id()
 
 # a.angle_obj_to_obj()
 
+a.do_nms(0.15, ignore_tag=True)
 
 a.draw_dete_res(save_img_path)
 

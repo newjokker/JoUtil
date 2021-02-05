@@ -55,7 +55,7 @@ class DeteRes(ResBase, ABC):
                 x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
                 if 'prob' not in each_obj: each_obj['prob'] = -1
                 if 'id' not in each_obj: each_obj['id'] = -1
-                self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+                self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']))
             # robndbox
             if 'robndbox' in each_obj:
                 bndbox = each_obj['robndbox']
@@ -108,12 +108,7 @@ class DeteRes(ResBase, ABC):
     @property
     def alarms(self):
         """获取属性自动进行排序"""
-        return sorted(self._alarms, key=lambda x:x.conf)
-
-    @property
-    def obj_count(self):
-        """要素个数"""
-        return len(self._alarms)
+        return sorted(self._alarms, key=lambda x:x.id)
 
     def parse_img_info(self):
         """主动解析图像信息"""
@@ -177,6 +172,8 @@ class DeteRes(ResBase, ABC):
         json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
         return json_dict
 
+    # ------------------------------------------------------------------------------------------------------------------
+
     def get_dete_obj_by_id(self, assign_id):
         """获取 id 对应的 deteObj 对象"""
         for each_dete_obj in self._alarms:
@@ -215,6 +212,8 @@ class DeteRes(ResBase, ABC):
         img_crop = img.crop(crop_range)
         return np.array(img_crop)
 
+    # ------------------------------------------------------------------------------------------------------------------
+
     def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=None):
         """快速增加一个检测框要素"""
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf, assign_id=assign_id)
@@ -240,19 +239,25 @@ class DeteRes(ResBase, ABC):
             else:
                 each_color = [random.randint(0, 255), random.randint(0,255), random.randint(0, 255)]
                 color_dict[each_res.tag] = each_color
-            # --------------------------------------------------------------------------
-            tl = line_thickness or int(round(0.001 * max(img.shape[0:2])))
-            c1, c2 =(each_res.x1, each_res.y1), (each_res.x2, each_res.y2)
-            # --------------------------------------------------------------------------
-            # draw rectangle
-            cv2.rectangle(img, (each_res.x1, each_res.y1), (each_res.x2, each_res.y2), color=each_color, thickness=tl)
+
+            tl = line_thickness or int(round(0.001 * max(img.shape[0:2])))      # line thickness
+            tf = max(tl - 2, 1)                                                 # font thickness
+
+            if isinstance(each_res, DeteObj):
+                c1, c2 =(each_res.x1, each_res.y1), (each_res.x2, each_res.y2)
+                cv2.rectangle(img, (each_res.x1, each_res.y1), (each_res.x2, each_res.y2), color=each_color, thickness=tl)
+            else:
+                new_each_res = each_res.to_dete_obj()
+                c1, c2 = (new_each_res.x1, new_each_res.y1), (new_each_res.x2, new_each_res.y2)
+                pts = np.array(each_res.get_points(), np.int)
+                cv2.polylines(img, [pts], True, color=each_color, thickness=tl)
             #
-            tf = max(tl - 2, 1)  # font thickness
-            s_size = cv2.getTextSize(str('{:.0%}'.format(each_res.conf)), 0, fontScale=float(tl) / 3, thickness=tf)[0]
+            s_size = cv2.getTextSize(str('{:.0%}'.format(float(each_res.conf))), 0, fontScale=float(tl) / 3, thickness=tf)[0]
             t_size = cv2.getTextSize(each_res.tag, 0, fontScale=float(tl) / 3, thickness=tf)[0]
             c2 = c1[0] + t_size[0] + s_size[0] + 15, c1[1] - t_size[1] - 3
             cv2.rectangle(img, c1, c2, each_color, -1)  # filled
-            cv2.putText(img, '{}: {:.0%}'.format(each_res.tag, each_res.conf), (c1[0], c1[1] - 2), 0, float(tl) / 3, [0, 0, 0], thickness=tf, lineType=cv2.FONT_HERSHEY_SIMPLEX)
+            cv2.putText(img, '{}: {:.0%}'.format(str(each_res.tag), float(each_res.conf)), (c1[0], c1[1] - 2), 0, float(tl) / 3, [0, 0, 0], thickness=tf, lineType=cv2.FONT_HERSHEY_SIMPLEX)
+
         # 保存图片，解决保存中文乱码问题
         cv2.imencode('.jpg', img)[1].tofile(save_path)
         return color_dict
@@ -338,7 +343,13 @@ class DeteRes(ResBase, ABC):
             index += 1
         return res_list
 
+    def deep_copy(self):
+        """返回一个深拷贝"""
+        return copy.deepcopy(self)
+
     # ------------------------------------------------------------------------------------------------------------------
+
+    # todo 增加更多的魔法方法，简化逻辑
 
     def __contains__(self, item):
         """是否包含元素"""
@@ -364,14 +375,20 @@ class DeteRes(ResBase, ABC):
                 self._alarms.append(each_dete_obj)
         return self
 
+    def __len__(self):
+        """返回要素的个数"""
+        return len(self._alarms)
+
+    def __getitem__(self, index):
+        """按照 index 取对应的对象"""
+        return self._alarms[index]
+
     # ------------------------------------------ common test -----------------------------------------------------------
 
     def offset(self, x, y):
         """横纵坐标中的偏移量"""
         for each_dete_obj in self._alarms:
-            # todo 目前只处理正框，斜框不进行处理
-            if isinstance(each_dete_obj, DeteObj):
-                each_dete_obj.do_offset(x, y)
+            each_dete_obj.do_offset(x, y)
 
     def add_obj_2(self, one_dete_obj):
         """增加一个检测框"""
@@ -613,7 +630,7 @@ class DeteRes(ResBase, ABC):
         """将斜框全部转为正框"""
         new_alarms = []
         for each_obj in self._alarms:
-            if isinstance(each_obj, DeteRes):
+            if isinstance(each_obj, DeteObj):
                 new_alarms.append(each_obj)
             elif isinstance(each_obj, DeteAngleObj):
                 each_obj = each_obj.to_dete_obj()

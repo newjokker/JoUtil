@@ -47,8 +47,8 @@ class ResTools(object):
         #
         new_x_min = max(0, new_x_min)
         new_y_min = max(0, new_y_min)
-        new_x_max = min(widht, new_x_max)
-        new_y_max = min(height, new_y_max)
+        new_x_max = min(widht-1, new_x_max)
+        new_y_max = min(height-1, new_y_max)
 
         return (new_x_min, new_y_min, new_x_max, new_y_max)
 

@@ -6,15 +6,19 @@ import random
 import collections
 import numpy as np
 from .txkjRes.deteRes import DeteRes
-from .txkjRes.deteAngleRes import DeteAngleRes
+#from .txkjRes.deteAngleRes import DeteAngleRes
 from .txkjRes.deteAngleObj import DeteAngleObj
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkj.parseXml import parse_xml
 from .utils.NumberUtil import NumberUtil
 import prettytable
 from JoTools.txkjRes.resTools import ResTools
+from JoTools.txkjRes.deteObj import DeteObj
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
+
+# todo 将计算检测模型性能部分的代码独立出来，
+
 
 class OperateDeteRes(object):
     """基于检测结果的操作"""
@@ -318,26 +322,6 @@ class OperateDeteRes(object):
 
     # ------------------------------------------------------------------------------------------------------------------
     @staticmethod
-    def _get_loc_list(img_name):
-        """提取截图中的图片位置"""
-        loc_str = ""
-        start = False
-        #
-        for each_i in img_name[::-1]:
-            #
-            if start is True:
-                loc_str += each_i
-
-            if each_i == ']':
-                start = True
-            elif each_i == '[':
-                break
-
-        loc_list = loc_str[::-1].strip('[]').split("_")
-        loc_list = list(map(lambda x: int(x), loc_list))
-        return loc_list
-
-    @staticmethod
     def _get_loc_list_angle(img_name):
         """提取截图中的图片位置"""
         loc_str = ""
@@ -356,63 +340,6 @@ class OperateDeteRes(object):
         loc_list = loc_str[::-1].strip('[]').split("_")
         loc_list = list(map(lambda x: float(x), loc_list))
         return loc_list
-
-    @staticmethod
-    def _get_region_img_name(img_name):
-        """找到原始的文件名"""
-        a = str(img_name).rfind("-+-")
-        return img_name[:a]
-
-    @staticmethod
-    def _get_crop_img_tag(img_name):
-        """获取裁切小图的标签"""
-        a = str(img_name).rfind("-+-")
-        b = img_name[a + 3:]
-        tag = b.split('_')[0]
-        return tag
-
-    @staticmethod
-    def get_xml_from_crop_img(img_dir, region_img_dir, save_xml_dir=None):
-        """从小图构建 xml，用于快速指定标签和核对问题，可以将 labelimg 设置为使用固定标签进行标注（等待修改）"""
-
-        # todo 原先的标签和现在的标签不一致，就打印出内容
-
-        if save_xml_dir is None:
-            save_xml_dir = region_img_dir
-
-        dete_res_dict = {}
-        # 小截图信息获取
-        for each_xml_path in FileOperationUtil.re_all_file(img_dir, lambda x: str(x).endswith('.jpg')):
-            each_img_dir, img_name = os.path.split(each_xml_path)
-            # 位置
-            loc = OperateDeteRes._get_loc_list(img_name)
-            # 原先的标签
-            region_tag = OperateDeteRes._get_crop_img_tag(img_name)
-            # 现在的标签
-            each_tag = each_img_dir[len(img_dir) + 1:]
-            # 原先的文件名
-            region_img_name = OperateDeteRes._get_region_img_name(img_name)
-            # 拿到最新的 tag 信息
-            a = DeteObj(x1=loc[0], y1=loc[1], x2=loc[2], y2=loc[3], tag=each_tag)
-            #
-            if region_img_name in dete_res_dict:
-                dete_res_dict[region_img_name].append(a)
-            else:
-                dete_res_dict[region_img_name] = [a]
-
-        # 将小图信息合并为大图
-        for each_img_name in dete_res_dict:
-            region_img_path = os.path.join(region_img_dir, "{0}.jpg".format(each_img_name))
-
-            # 去除找不到文件
-            if not os.path.exists(region_img_path):
-                continue
-
-            # 保存文件
-            a = DeteRes(assign_img_path=region_img_path)
-            a.reset_alarms(dete_res_dict[each_img_name])
-            xml_path = os.path.join(save_xml_dir, "{0}.xml".format(each_img_name))
-            a.save_to_xml(xml_path)
 
     @staticmethod
     def get_xml_from_crop_img_angle(img_dir, region_img_dir, save_xml_dir=None):
@@ -459,6 +386,49 @@ class OperateDeteRes(object):
             xml_path = os.path.join(save_xml_dir, "{0}.xml".format(each_img_name))
             a.save_to_xml(xml_path)
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def get_xml_from_crop_img(img_dir, region_img_dir, save_xml_dir=None):
+        """从小图构建 xml，用于快速指定标签和核对问题，可以将 labelimg 设置为使用固定标签进行标注（等待修改）"""
+
+        if save_xml_dir is None:
+            save_xml_dir = region_img_dir
+
+        dete_res_dict = {}
+        # 小截图信息获取
+        for each_xml_path in FileOperationUtil.re_all_file(img_dir, lambda x: str(x).endswith('.jpg')):
+            each_img_dir, img_name, _ = FileOperationUtil.bang_path(each_xml_path)
+            region_img_name = img_name.split('-+-')[0]
+            img_name = img_name.split('-+-')[-1]
+            # 现在的标签
+            each_tag = each_img_dir[len(img_dir) + 1:]
+            # 构造新的 deteObj 实例
+            a = DeteObj(tag=each_tag)
+            a.load_from_name_str(img_name)
+
+            if region_img_name in dete_res_dict:
+                dete_res_dict[region_img_name].append(a)
+            else:
+                dete_res_dict[region_img_name] = [a]
+
+        # 将小图信息合并为大图
+        for each_img_name in dete_res_dict:
+            region_img_path = os.path.join(region_img_dir, "{0}.jpg".format(each_img_name))
+
+            # 去除找不到文件
+            if not os.path.exists(region_img_path):
+                continue
+
+            # 保存文件
+            a = DeteRes(assign_img_path=region_img_path)
+            a.reset_alarms(dete_res_dict[each_img_name])
+            xml_path = os.path.join(save_xml_dir, "{0}.xml".format(each_img_name))
+            a.refresh_obj_id()
+            a.save_to_xml(xml_path)
+
+    # ------------------------------------------------------------------------------------------------------------------
+
     @staticmethod
     def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None, augment_parameter=None):
         """将文件夹下面的所有 xml 进行裁剪"""
@@ -476,6 +446,8 @@ class OperateDeteRes(object):
 
             a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
             index += 1
+
+    # fixme 这个函数要重写，先要设计好，
 
     @staticmethod
     def crop_imgs_angles(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None, augment_parameter=None):

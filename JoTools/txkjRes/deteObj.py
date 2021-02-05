@@ -5,7 +5,7 @@
 class DeteObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
 
-    def __init__(self, x1, y1, x2, y2, tag, conf=-1, assign_id=-1):
+    def __init__(self, x1=None, y1=None, x2=None, y2=None, tag="", conf=-1, assign_id=-1):
         """(x1,y1), (x2,y2) 左下角右上角"""
         self.conf = conf
         self.tag = tag
@@ -67,7 +67,7 @@ class DeteObj(object):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def to_name_str(self):
+    def get_name_str(self):
         """信息保存为文件名"""
         name_str = "[{0},{1},{2},{3},{4},{5},{6}]".format(self.x1, self.y1, self.x2, self.y2, "'" + self.tag + "'", self.conf, self.id)
         return name_str
@@ -80,7 +80,7 @@ class DeteObj(object):
 if __name__ == "__main__":
 
     a = DeteObj(10,10,30,30,'ok_good')
-    b = a.to_name_str()
+    b = a.get_name_str()
     print(b)
     a.load_from_name_str(b)
     print(a.get_format_list())

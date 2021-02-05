@@ -11,7 +11,7 @@ from .deteObj import DeteObj
 class DeteAngleObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
 
-    def __init__(self, cx, cy, w, h, angle, tag, conf=-1, assign_id=-1):
+    def __init__(self, cx=None, cy=None, w=None, h=None, angle=None, tag="", conf=-1, assign_id=-1):
         self.conf = conf
         self.tag = tag
         self.cx = cx
@@ -47,7 +47,7 @@ class DeteAngleObj(object):
         p3x,p3y = self._rotate_point(cx, cy, cx - w / 2, cy + h / 2, -angle)
         return [[p0x,p0y], [p1x,p1y], [p2x,p2y], [p3x,p3y]]
 
-    def to_dete_obj(self):
+    def get_dete_obj(self):
         """dete_angle_obj 转为 dete_obj"""
         cx, cy, w, h, angle = self.cx, self.cy, self.w, self.h, self.angle
         p0x,p0y = self._rotate_point(cx, cy, cx - w / 2, cy - h / 2, -angle)

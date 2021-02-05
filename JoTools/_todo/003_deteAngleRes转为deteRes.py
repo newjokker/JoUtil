@@ -23,7 +23,7 @@ def crop(xml_path, jpg_path, save_dir):
     b = DeteRes(assign_img_path=jpg_path)
     new_alarms = []
     for each in a.alarms:
-        new_alarms.append(each.to_dete_obj())
+        new_alarms.append(each.get_dete_obj())
 
     b.reset_alarms(new_alarms)
     b.crop_and_save(save_dir, augment_parameter=[0.3,0.3,0.3,0.3], split_by_tag=True)

@@ -96,16 +96,17 @@ class DeteRes(ResBase, ABC):
                     x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
                     if 'prob' not in each_obj: each_obj['prob'] = -1
                     if 'id' not in each_obj: each_obj['id'] = -1
-                    self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
+                    self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']))
                 # robndbox
                 if 'robndbox' in each_obj:
                     bndbox = each_obj['robndbox']
                     cx, cy, w, h, angle = float(bndbox['cx']), float(bndbox['cy']), float(bndbox['w']), float(bndbox['h']), float(bndbox['angle'])
                     if 'prob' not in each_obj: each_obj['prob'] = -1
                     if 'id' not in each_obj: each_obj['id'] = -1
-                    self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=each_obj['prob'],assign_id=each_obj['id'])
+                    self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=float(each_obj['prob']),assign_id=int(each_obj['id']))
 
     # ------------------------------------------ common ----------------------------------------------------------------
+
     @property
     def alarms(self):
         """获取属性自动进行排序"""
@@ -248,7 +249,7 @@ class DeteRes(ResBase, ABC):
                 c1, c2 =(each_res.x1, each_res.y1), (each_res.x2, each_res.y2)
                 cv2.rectangle(img, (each_res.x1, each_res.y1), (each_res.x2, each_res.y2), color=each_color, thickness=tl)
             else:
-                new_each_res = each_res.to_dete_obj()
+                new_each_res = each_res.get_dete_obj()
                 c1, c2 = (new_each_res.x1, new_each_res.y1), (new_each_res.x2, new_each_res.y2)
                 pts = np.array(each_res.get_points(), np.int)
                 cv2.polylines(img, [pts], True, color=each_color, thickness=tl)
@@ -392,8 +393,6 @@ class DeteRes(ResBase, ABC):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    # todo 增加更多的魔法方法，简化逻辑
-
     def __contains__(self, item):
         """是否包含元素"""
 
@@ -437,10 +436,15 @@ class DeteRes(ResBase, ABC):
         """增加一个检测框"""
         self._alarms.append(one_dete_obj)
 
+    # fixme 支持斜框裁剪，
+
     def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
+
+        # fixme 斜框的剪切可以按照先转为正框再进行裁切，再在里面增加斜框边界的 xml
+
         img = Image.open(self.img_path)
         img_name = os.path.split(self.img_path)[1][:-4]
         tag_count_dict = {}
@@ -463,9 +467,7 @@ class DeteRes(ResBase, ABC):
             # 图片扩展
             if augment_parameter is not None:
                 bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
-                loc_str = "[{0}_{1}_{2}_{3}]".format(bndbox[0], bndbox[1], bndbox[2], bndbox[3])
-            else:
-                loc_str = "[{0}_{1}_{2}_{3}]".format(each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2)
+
             # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
             if split_by_tag is True:
                 each_save_dir = os.path.join(save_dir, each_obj.tag)
@@ -474,7 +476,9 @@ class DeteRes(ResBase, ABC):
             else:
                 each_save_dir = save_dir
 
-            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}_{2}_{3}_{4}.jpg'.format(img_name, each_obj.tag, tag_count_dict[each_obj.tag], loc_str, each_obj.conf))
+            # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
+            each_name_str = each_obj.get_name_str()
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
             each_crop = img.crop(bndbox)
             # 对截图的图片自定义操作, 可以指定缩放大小之类的
             if method is not None:

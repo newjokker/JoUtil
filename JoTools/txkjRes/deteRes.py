@@ -21,6 +21,7 @@ from JoTools.txkjRes.resTools import ResTools
 # todo 增加隐式的 try except 并记录报错信息
 # todo 很多功能还不支持斜框的操作，比如 nms 之类的
 
+
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
@@ -286,6 +287,39 @@ class DeteRes(ResBase, ABC):
                 res.append(each_res)
         self._alarms = res
 
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def del_by_tages(self, remove_tags):
+        """根据 tag 类型进行筛选"""
+        dal_alarms, old_alarms = [], []
+        remove_tag = set(remove_tags)
+        for each_dete_res in self._alarms:
+            if each_dete_res.tag in remove_tag:
+                dal_alarms.append(each_dete_res)
+            else:
+                old_alarms.append(each_dete_res)
+        self._alarms = old_alarms
+        return dal_alarms
+
+    def del_by_conf(self, conf, is_lt=True):
+        """删除置信度符合条件的 dete_obj, is_lt 删除小于置信度的"""
+        del_alarms, old_alarms = [], []
+        for each_dete_res in self._alarms:
+            if is_lt:
+                if float(each_dete_res.conf) < conf:
+                    del_alarms.append(each_dete_res)
+                else:
+                    old_alarms.append(each_dete_res)
+            else:
+                if float(each_dete_res.conf) > conf:
+                    del_alarms.append(each_dete_res)
+                else:
+                    old_alarms.append(each_dete_res)
+        self._alarms = old_alarms
+        return del_alarms
+
+    # ------------------------------------------------------------------------------------------------------------------
+
     def filter_by_area(self, area_th):
         """根据面积大小（像素个数）进行筛选"""
         new_alarms = []
@@ -328,9 +362,18 @@ class DeteRes(ResBase, ABC):
                 new_alarms.append(each_dete_res)
         self._alarms = new_alarms
 
-    def filter_by_mask(self, mask):
-        """使用多边形 mask 进行过滤，mask 支持任意对变形，设定重合比例, mask 一连串的点连接起来的"""
-        pass
+    def filter_by_mask(self, mask, cover_index_th=0.5, need_in=True):
+        """使用多边形 mask 进行过滤，mask 支持任意多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
+        new_alarms = []
+        for each_obj in self._alarms:
+            each_cover_index = ResTools.cal_cover_index(each_obj.get_points(), mask)
+            if each_cover_index > cover_index_th and need_in is True:
+                new_alarms.append(each_obj)
+            elif each_cover_index < cover_index_th and need_in is False:
+                new_alarms.append(each_obj)
+        self._alarms = new_alarms
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     def do_fzc_format(self):
         """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""

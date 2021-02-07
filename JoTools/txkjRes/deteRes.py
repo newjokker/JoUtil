@@ -34,6 +34,8 @@ class DeteRes(ResBase, ABC):
         self._log = log
         super().__init__(xml_path, assign_img_path, json_dict)
 
+    # ------------------------------------------ common ----------------------------------------------------------------
+
     def _parse_xml_info(self):
         """解析 xml 中存储的检测结果"""
         xml_info = parse_xml(self.xml_path)
@@ -106,17 +108,6 @@ class DeteRes(ResBase, ABC):
                     if 'prob' not in each_obj: each_obj['prob'] = -1
                     if 'id' not in each_obj: each_obj['id'] = -1
                     self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=float(each_obj['prob']),assign_id=int(each_obj['id']))
-
-    # ------------------------------------------ common ----------------------------------------------------------------
-
-    @property
-    def alarms(self):
-        """获取属性自动进行排序"""
-        return sorted(self._alarms, key=lambda x:x.id)
-
-    def parse_img_info(self):
-        """主动解析图像信息"""
-        self._parse_img_info()
 
     def save_to_xml(self, save_path, assign_alarms=None):
         """保存为 xml 文件"""
@@ -404,6 +395,11 @@ class DeteRes(ResBase, ABC):
         """返回一个深拷贝"""
         return copy.deepcopy(self)
 
+    @property
+    def alarms(self):
+        """获取属性自动进行排序"""
+        return sorted(self._alarms, key=lambda x:x.id)
+
     # ------------------------------------------------------------------------------------------------------------------
 
     def __contains__(self, item):
@@ -437,6 +433,17 @@ class DeteRes(ResBase, ABC):
     def __getitem__(self, index):
         """按照 index 取对应的对象"""
         return self._alarms[index]
+
+    def __setattr__(self, key, value):
+        object.__setattr__(self, key, value)
+
+        # set self.img_path --> do self._parse_img_info()
+        if key == 'img_path' and isinstance(value, str):
+            self._parse_img_info()
+        elif key == 'xml_path' and isinstance(value, str):
+            self._parse_xml_info()
+        elif key == 'json_dict' and isinstance(value, str):
+            self._parse_json_info()
 
     # ------------------------------------------ common test -----------------------------------------------------------
 

@@ -21,6 +21,8 @@ from JoTools.txkjRes.resTools import ResTools
 # todo 增加隐式的 try except 并记录报错信息
 # todo 很多功能还不支持斜框的操作，比如 nms 之类的
 
+# todo 除了正框和斜框之外，支持不规则的点的 obj
+
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -288,6 +290,17 @@ class DeteRes(ResBase, ABC):
                 res.append(each_res)
         self._alarms = res
 
+    def update_tags(self, update_dict):
+        """更新标签"""
+        # tag 不在不更新字典中的就不进行更新
+        for each_dete_res in self._alarms:
+            if each_dete_res.tag in update_dict:
+                each_dete_res.tag = update_dict[each_dete_res.tag]
+
+    def reset_alarms(self, assign_alarms):
+        """重置 alarms"""
+        self._alarms = assign_alarms
+
     # ------------------------------------------------------------------------------------------------------------------
 
     def del_by_tages(self, remove_tags):
@@ -376,7 +389,7 @@ class DeteRes(ResBase, ABC):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def do_fzc_format(self):
+    def get_fzc_format(self):
         """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""
         res_list = []
         index = 0
@@ -434,17 +447,15 @@ class DeteRes(ResBase, ABC):
 
     def add_obj_2(self, one_dete_obj):
         """增加一个检测框"""
-        self._alarms.append(one_dete_obj)
-
-    # fixme 支持斜框裁剪，
+        if isinstance(one_dete_obj, DeteObj) or isinstance(one_dete_obj, DeteAngleObj):
+            self._alarms.append(one_dete_obj)
+        else:
+            raise ValueError('one_dete_obj can only be DeteObj or DeteAngleObj')
 
     def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
-
-        # fixme 斜框的剪切可以按照先转为正框再进行裁切，再在里面增加斜框边界的 xml
-
         img = Image.open(self.img_path)
         img_name = os.path.split(self.img_path)[1][:-4]
         tag_count_dict = {}
@@ -515,7 +526,8 @@ class DeteRes(ResBase, ABC):
             else:
                 each_save_dir = save_dir
 
-            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}_{2}_{3}_{4}.jpg'.format(img_name, each_obj.tag,tag_count_dict[each_obj.tag], loc_str, each_obj.conf))
+            each_name_str = each_obj.get_name_str()
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
             cx, cy, w, h, angle = each_obj.cx, each_obj.cy, each_obj.w, each_obj.h, each_obj.angle
             # 范围扩展
             if augment_parameter is not None:
@@ -526,6 +538,8 @@ class DeteRes(ResBase, ABC):
             if method is not None: each_crop = method(each_crop)
             crop = Image.fromarray(each_crop)
             crop.save(each_save_path)
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
         """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""
@@ -555,25 +569,6 @@ class DeteRes(ResBase, ABC):
             if func(each_dete_res):
                 new_alarms.append(each_dete_res)
         self._alarms = new_alarms
-
-    def format_check(self):
-        """类型检查，规范类型"""
-        self.height = int(self.height)
-        self.width = int(self.width)
-        # object 类型整理
-        for each_alarm in self.alarms:
-            each_alarm.format_check()
-
-    def update_tags(self, update_dict):
-        """更新标签"""
-        # tag 不在不更新字典中的就不进行更新
-        for each_dete_res in self._alarms:
-            if each_dete_res.tag in update_dict:
-                each_dete_res.tag = update_dict[each_dete_res.tag]
-
-    def reset_alarms(self, assign_alarms):
-        """重置 alarms"""
-        self._alarms = assign_alarms
 
     def save_assign_range(self, assign_range, save_dir, save_name=None, iou_1=0.85):
         """保存指定范围，同时保存图片和 xml """
@@ -621,14 +616,6 @@ class DeteRes(ResBase, ABC):
         img = Image.open(self.img_path)
         crop = img.crop(assign_range)
         crop.save(jpg_save_path, quality=95)
-
-    def get_max_range(self):
-        """得到标签的最大范围"""
-        # 拿到每一个标签的位置, 计算所有位置的最大值和最小值
-        range_list = []
-        for each_dete_obj in self._alarms:
-            range_list.append(each_dete_obj.get_rectangle())
-        return ResTools.merge_range_list(range_list)
 
     @staticmethod
     def get_region_xml_from_cut_xml(xml_path, save_dir, img_dir):

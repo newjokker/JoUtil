@@ -10,4 +10,4 @@ a.add_obj()
 
 a.do_nms_in_assign_tags(['Lm', 'KG', 'K'], 0.1)
 
-a.do_fzc_format()
+a.get_fzc_format()

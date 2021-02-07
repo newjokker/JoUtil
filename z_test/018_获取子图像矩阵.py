@@ -15,7 +15,7 @@ json_path = r"C:\Users\14271\Desktop\del\img_xml\test.json"
 a = DeteRes(assign_img_path=img_path, xml_path=xml_path)
 
 
-for each in a.do_fzc_format():
+for each in a.get_fzc_format():
     print(each)
 
 each_img = a.get_sub_img_by_id(0)

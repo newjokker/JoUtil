@@ -88,7 +88,7 @@ class DeteAngleObj(object):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def to_name_str(self):
+    def get_name_str(self):
         """信息保存为文件名"""
         name_str = "[{0},{1},{2},{3},{4},{5},{6},{7}]".format(self.cx, self.cy, self.w, self.h, self.angle, "'" + self.tag + "'", self.conf, self.id)
         return name_str

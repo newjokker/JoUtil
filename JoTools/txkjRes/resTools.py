@@ -7,8 +7,8 @@
 import cv2
 import numpy as np
 from shapely.geometry import Polygon
-from .deteObj import DeteObj
-from .deteAngleObj import DeteAngleObj
+from JoTools.txkjRes.deteObj import DeteObj
+from JoTools.txkjRes.deteAngleObj import DeteAngleObj
 
 # todo 这边的输入参数最好不要是 dete_obj 之类的类，这样显得没那么通用？
 
@@ -145,10 +145,13 @@ class ResTools(object):
 
 if __name__ == "__main__":
 
-    triangle_1 = np.array([[200,100], [180,180], [220,180]])
-    triangle_2 = np.array([[200,100], [180,180], [220,180]])
+    triangle_1 = [[1650, 1145], [3222, 1584], [3088, 2066], [1515, 1627]]
+    triangle_2 = [[3036, 1451], [3301, 1451], [3301, 1773], [3036, 1773]]
     assign_iou = ResTools.polygon_iou(triangle_1, triangle_2)
     print(assign_iou)
+
+
+    # cv2.rectangle(r"", )
 
 
 

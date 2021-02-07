@@ -435,6 +435,7 @@ class DeteRes(ResBase, ABC):
         return self._alarms[index]
 
     def __setattr__(self, key, value):
+        """设置属性后执行对应"""
         object.__setattr__(self, key, value)
 
         # set self.img_path --> do self._parse_img_info()

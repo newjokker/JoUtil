@@ -18,23 +18,23 @@ from JoTools.txkjRes.resTools import ResTools
 
 # todo save_to_json, save_to_xml ，是否直接改为 to_json，to_xml
 # todo 添加 log 信息，
-# todo 增加隐式的 try except 并记录报错信息
-# todo 很多功能还不支持斜框的操作，比如 nms 之类的
-
 # todo 除了正框和斜框之外，支持不规则的点的 obj
+
+# todo 使用装饰器来写 log，方便的进行记录
 
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
+    # fixme 增加版本管理
+
     def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, log=None):
         # 子类新方法需要放在前面
         self._alarms = []
-        # todo 执行操作的时候自动记录操作状态和结果
         self._log = log
         super().__init__(xml_path, assign_img_path, json_dict)
 
-    # ------------------------------------------ common ----------------------------------------------------------------
+    # ------------------------------------------ transform -------------------------------------------------------------
 
     def _parse_xml_info(self):
         """解析 xml 中存储的检测结果"""
@@ -167,7 +167,7 @@ class DeteRes(ResBase, ABC):
         json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
         return json_dict
 
-    # ------------------------------------------------------------------------------------------------------------------
+    # --------------------------------------------- id -----------------------------------------------------------------
 
     def get_dete_obj_by_id(self, assign_id):
         """获取 id 对应的 deteObj 对象"""
@@ -292,7 +292,7 @@ class DeteRes(ResBase, ABC):
         """重置 alarms"""
         self._alarms = assign_alarms
 
-    # ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------- pop ------------------------------------------------------------
 
     def del_by_tages(self, remove_tags):
         """根据 tag 类型进行筛选"""
@@ -323,7 +323,7 @@ class DeteRes(ResBase, ABC):
         self._alarms = old_alarms
         return del_alarms
 
-    # ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------ filter ----------------------------------------------------------
 
     def filter_by_area(self, area_th):
         """根据面积大小（像素个数）进行筛选"""
@@ -400,7 +400,7 @@ class DeteRes(ResBase, ABC):
         """获取属性自动进行排序"""
         return sorted(self._alarms, key=lambda x:x.id)
 
-    # ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------- magic ----------------------------------------------------------
 
     def __contains__(self, item):
         """是否包含元素"""
@@ -446,7 +446,7 @@ class DeteRes(ResBase, ABC):
         elif key == 'json_dict' and isinstance(value, str):
             self._parse_json_info()
 
-    # ------------------------------------------ common test -----------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
 
     def offset(self, x, y):
         """横纵坐标中的偏移量"""
@@ -594,17 +594,25 @@ class DeteRes(ResBase, ABC):
             if each_iou_1 > iou_1:
                 # 对结果 xml 的范围进行调整
                 each_dete_obj.do_offset(offset_x, offset_y)
+                # 支持斜框和正框 fixme 未进行验证
+                if isinstance(each_dete_obj, DeteAngleObj):
+                    each_dete_obj_new = each_dete_obj.get_dete_obj().deep_copy()
+                elif isinstance(each_dete_obj, DeteObj):
+                    each_dete_obj_new = each_dete_obj.deep_copy()
+                else:
+                    raise ValueError("obj type in alrms error")
+
                 # 修正目标的范围
-                if each_dete_obj.x1 < 0:
-                    each_dete_obj.x1 = 0
-                if each_dete_obj.y1 < 0:
-                    each_dete_obj.y1 = 0
-                if each_dete_obj.x2 > width:
-                    each_dete_obj.x2 = width
-                if each_dete_obj.y2 > height:
-                    each_dete_obj.y2 = height
+                if each_dete_obj_new.x1 < 0:
+                    each_dete_obj_new.x1 = 0
+                if each_dete_obj_new.y1 < 0:
+                    each_dete_obj_new.y1 = 0
+                if each_dete_obj_new.x2 > width:
+                    each_dete_obj_new.x2 = width
+                if each_dete_obj_new.y2 > height:
+                    each_dete_obj_new.y2 = height
                 #
-                new_alarms.append(each_dete_obj)
+                new_alarms.append(each_dete_obj_new)
 
         # 保存 xml
         if save_name is None:
@@ -678,3 +686,14 @@ class DeteRes(ResBase, ABC):
                 each_obj = each_obj.to_dete_obj()
                 new_alarms.append(each_obj)
         self._alarms = new_alarms
+
+
+def do_log(func):
+    pass
+
+
+
+
+
+
+

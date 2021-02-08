@@ -2,6 +2,7 @@
 # -*- author: jokker -*-
 
 import cv2
+import copy
 import math
 import numpy as np
 from .deteObj import DeteObj
@@ -61,6 +62,10 @@ class DeteAngleObj(object):
         y2 = math.ceil(max(p0y, p1y, p2y, p3y))
         a = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=self.tag, conf=self.conf, assign_id=self.id)
         return a
+
+    def deep_copy(self):
+        """返回深拷贝对象"""
+        return copy.deepcopy(self)
 
     @staticmethod
     def _rotate_point(xc, yc, xp, yp, theta):

@@ -13,6 +13,7 @@ from ...utils.PickleUtil import PickleUtil
 from ...utils.DecoratorUtil import DecoratorUtil
 import progressbar
 
+
 class HashImageUtil(object):
 
     def __init__(self):

@@ -5,7 +5,7 @@ import sys
 import cv2
 import os
 from JoTools.txkjRes.deteAngleXml import parse_xml, save_to_xml
-from JoTools.txkjRes.deteAngleRes import DeteAngleRes
+from JoTools.txkjRes.todo.deteAngleRes import DeteAngleRes
 from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.operateDeteRes import OperateDeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil

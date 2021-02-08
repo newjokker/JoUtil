@@ -11,7 +11,6 @@ from JoTools.txkjRes.deteObj import DeteObj
 from JoTools.txkjRes.deteAngleObj import DeteAngleObj
 
 # todo 这边的输入参数最好不要是 dete_obj 之类的类，这样显得没那么通用？
-
 # todo 统一文件名，按照同样的逻辑对文件进行命名
 
 
@@ -99,7 +98,6 @@ class ResTools(object):
     def crop_angle_rect(img_path, rect):
         """输入的是弧度，需要转为角度"""
         # get the parameter of the small rectangle
-        print(rect)
         center, size, angle = rect[0], rect[1], rect[2]
         center, size = tuple(map(int, center)), tuple(map(int, size))
         # get row and col num in img

@@ -1,14 +1,10 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-import os
-import cv2
-import copy
 from abc import ABC
-from .resBase import ResBase
-from .deteObj import DeteObj
+from JoTools.txkjRes.resBase import ResBase
 from JoTools.utils.JsonUtil import JsonUtil
-from JoTools.txkjRes.classifyXml import parse_xml, save_to_xml
+from JoTools.txkjRes.todo.classifyXml import parse_xml, save_to_xml
 
 
 class ClassifyResBase(ResBase, ABC):

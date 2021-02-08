@@ -51,6 +51,10 @@ class DeteObj(object):
         self.x2 = int(self.x2)
         self.y2 = int(self.y2)
 
+    def deep_copy(self):
+        """返回深拷贝对象"""
+        return copy.deepcopy(self)
+
     # ------------------------------------------------------------------------------------------------------------------
 
     def __eq__(self, other):

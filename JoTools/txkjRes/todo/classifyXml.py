@@ -2,7 +2,7 @@
 # -*- author: jokker -*-
 
 
-from ..utils.XmlUtil import XmlUtil
+from JoTools.utils.XmlUtil import XmlUtil
 
 
 class ParseXml(object):

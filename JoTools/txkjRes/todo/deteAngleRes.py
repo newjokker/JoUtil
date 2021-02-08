@@ -11,9 +11,9 @@ from PIL import Image
 from JoTools.utils.JsonUtil import JsonUtil
 # from JoTools.txkj.parseXml import parse_xml, save_to_xml
 from JoTools.txkjRes.deteAngleXml import parse_xml, save_to_xml
-from .resBase import ResBase
-from .deteObj import DeteObj
-from .deteAngleObj import DeteAngleObj
+from JoTools.txkjRes.resBase import ResBase
+from JoTools.txkjRes.deteObj import DeteObj
+from JoTools.txkjRes.deteAngleObj import DeteAngleObj
 from JoTools.txkjRes.resTools import ResTools
 
 

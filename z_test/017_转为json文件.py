@@ -3,9 +3,6 @@
 
 
 from JoTools.txkjRes.deteRes import DeteRes
-from JoTools.txkjRes.classifyRes import ClassifyResBase
-from JoTools.utils.JsonUtil import JsonUtil
-import json
 
 img_path = r"C:\Users\14271\Desktop\del\img_xml\test.jpg"
 xml_path = r"C:\Users\14271\Desktop\del\img_xml\test.xml"

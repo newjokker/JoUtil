@@ -129,3 +129,8 @@ class DecoratorUtil(object):
             return result
 
         return wrapper
+
+    @staticmethod
+    def log(func):
+        pass
+

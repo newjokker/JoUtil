@@ -8,6 +8,7 @@ import numpy as np
 from .txkjRes.deteRes import DeteRes
 #from .txkjRes.deteAngleRes import DeteAngleRes
 from .txkjRes.deteAngleObj import DeteAngleObj
+from .txkjRes.deteObj import DeteObj
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkj.parseXml import parse_xml
 from .utils.NumberUtil import NumberUtil
@@ -404,8 +405,9 @@ class OperateDeteRes(object):
             # 现在的标签
             each_tag = each_img_dir[len(img_dir) + 1:]
             # 构造新的 deteObj 实例
-            a = DeteObj(tag=each_tag)
+            a = DeteObj()
             a.load_from_name_str(img_name)
+            a.tag = each_tag
 
             if region_img_name in dete_res_dict:
                 dete_res_dict[region_img_name].append(a)
@@ -442,10 +444,16 @@ class OperateDeteRes(object):
 
             print(index, each_xml_path)
             a = DeteRes(each_xml_path)
-            a.img_path = each_img_path
 
-            a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
-            index += 1
+            # 将旋转矩形转为正常矩形
+            #a.angle_obj_to_obj()
+
+            a.img_path = each_img_path
+            try:
+                a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
+                index += 1
+            except Exception as e:
+                print(e)
 
     # fixme 这个函数要重写，先要设计好，
 

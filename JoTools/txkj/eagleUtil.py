@@ -4,7 +4,8 @@
 
 
 import os
-from ..utils.JsonUtil import JsonUtil
+from JoTools.utils.JsonUtil import JsonUtil
+from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
 class EagleMetaData(object):
@@ -36,23 +37,9 @@ class EagleMetaData(object):
         """从 json 中获取属性"""
         json_info = JsonUtil.load_data_from_json_file(json_path)
         # 赋值属性
-        self.id = json_info["id"]
-        self.name = json_info["name"]
-        self.size = json_info["size"]
-        self.btime = json_info["btime"]
-        self.mtime = json_info["mtime"]
-        self.ext = json_info["ext"]         # 后缀
-        self.tags = json_info["tags"]          # 标签
-        self.folders = json_info["folders"]
-        self.is_deleted = json_info["isDeleted"]
-        self.url = json_info["url"]
-        self.annotation = json_info["annotation"]
-        self.modification_time = json_info["modificationTime"]
-        self.height = json_info["height"]
-        self.width = json_info["width"]
-        self.orientation = json_info["orientation"]
-        self.last_modified = json_info["lastModified"]
-        self.palettes = json_info["palettes"]                # 应该是色板，记录了图中最常出现的几种颜色和比例
+        for each_attr in self.attrs:
+            if each_attr in json_info:
+                setattr(self, each_attr, json_info[each_attr])
 
     def add_tags(self, tag):
         """增加标签"""
@@ -60,25 +47,15 @@ class EagleMetaData(object):
 
     def save_to_json_file(self, file_path):
         """保存属性为 json 文件"""
-        json_info = {
-                        "id": self.id,
-                        "name": self.name,
-                        "size":self.size,
-                        "btime":self.btime,
-                        "mtime":self.mtime,
-                        "ext":self.ext,      # 后缀
-                        "tags":self.tags,          # 标签
-                        "folders":self.folders,
-                        "is_deleted":self.is_deleted,
-                        "url":self.url,
-                        "annotation":self.annotation,
-                        "modification_time":self.modification_time,
-                        "height":self.height,
-                        "width":self.width,
-                        "orientation":self.orientation,
-                        "last_modified":self.last_modified,
-                        "palettes":self.palettes
-        }
+        json_info = {}
+
+        for each_attr in self.attrs:
+            # 存在属性
+            if hasattr(self, each_attr):
+                # 不是 None 默认值
+                if getattr(self, each_attr) is not None:
+                    json_info[each_attr] = getattr(self, each_attr)
+
         JsonUtil.save_data_to_json_file(json_info, file_path)
 
 
@@ -96,12 +73,23 @@ class EagleUtil(object):
 
 if __name__ == "__main__":
 
+    # todo 组合条件筛选某一种标签，然后将最后筛选后的结果赋一个标签
 
-    a = EagleUtil.read_meta_data(r"C:\data\edgle\FZC.library\images\KDH5EVWARA22B.info\metadata.json")
 
-    print(a)
+    img_dir = r"C:\data\edgle\FZC.library"
+    save_dir = r"C:\Users\14271\Desktop\del\img_json"
 
-    pass
+    for each_file in FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith('.json')):
+
+        a = EagleUtil.read_meta_data(each_file)
+
+
+        if len(a.tags) >= 1:
+            print(a.width, a.height, a.name ,a.tags, a.palettes)
+
+            new_save_path = os.path.join(save_dir, a.name+'.json')
+            a.save_to_json_file(new_save_path)
+
 
 
 

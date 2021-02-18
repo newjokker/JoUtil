@@ -129,7 +129,31 @@ class FileOperationUtil(object):
         """删除空文件夹"""
         pass
 
+    @staticmethod
+    def find_diff_file(file_list_1, file_list_2):
+        """根据文件名是否相同定义文件是否相同"""
+        file_name_dict_1, file_name_dict_2 = dict(), dict()
+        #
+        for each_file_path in file_list_1:
+            each_file_name = os.path.split(each_file_path)[1]
+            file_name_dict_1[each_file_name] = each_file_path
+        #
+        for each_file_path in file_list_2:
+            each_file_name = os.path.split(each_file_path)[1]
+            file_name_dict_2[each_file_name] = each_file_path
 
+        # 那些 a 不在 b 中 , b 不在 a 中的，都记下来
+        res = {"inanotb":[], "inbnota":[]}
+        #
+        for each_name_1 in file_name_dict_1:
+            if each_name_1 not in file_name_dict_2:
+                res["inanotb"].append(file_name_dict_1[each_name_1])
+        #
+        for each_name_2 in file_name_dict_2:
+            if each_name_2 not in file_name_dict_1:
+                res["inbnota"].append(file_name_dict_2[each_name_2])
+
+        return res
 
 if __name__ == '__main__':
 

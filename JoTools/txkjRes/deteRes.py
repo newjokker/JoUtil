@@ -16,17 +16,14 @@ from .deteAngleObj import DeteAngleObj
 from JoTools.txkjRes.resTools import ResTools
 
 
-# todo save_to_json, save_to_xml ，是否直接改为 to_json，to_xml
 # todo 添加 log 信息，
 # todo 除了正框和斜框之外，支持不规则的点的 obj
-
 # todo 使用装饰器来写 log，方便的进行记录
+# fixme 增加版本管理
 
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
-
-    # fixme 增加版本管理
 
     def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, log=None):
         # 子类新方法需要放在前面
@@ -60,13 +57,16 @@ class DeteRes(ResBase, ABC):
                 x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
                 if 'prob' not in each_obj: each_obj['prob'] = -1
                 if 'id' not in each_obj: each_obj['id'] = -1
+                if each_obj['id'] in ['None', None]: each_obj['id'] = -1
                 self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']))
             # robndbox
             if 'robndbox' in each_obj:
                 bndbox = each_obj['robndbox']
                 cx, cy, w, h, angle = float(bndbox['cx']), float(bndbox['cy']), float(bndbox['w']), float(bndbox['h']), float(bndbox['angle'])
                 if 'prob' not in each_obj: each_obj['prob'] = -1
-                if 'id' not in each_obj: each_obj['id'] = -1
+                if 'id' not in each_obj : each_obj['id'] = -1
+                # fixme 这块要好好修正一下，这边应为要改 bug 暂时这么写的
+                if each_obj['id'] in ['None', None] : each_obj['id'] = -1
                 self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'])
 
     def _parse_json_info(self):
@@ -498,6 +498,8 @@ class DeteRes(ResBase, ABC):
             # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
             each_name_str = each_obj.get_name_str()
             each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
+
+            # todo 对 bndbox 的范围进行检查
             each_crop = img.crop(bndbox)
             # 对截图的图片自定义操作, 可以指定缩放大小之类的
             if method is not None:
@@ -683,7 +685,7 @@ class DeteRes(ResBase, ABC):
             if isinstance(each_obj, DeteObj):
                 new_alarms.append(each_obj)
             elif isinstance(each_obj, DeteAngleObj):
-                each_obj = each_obj.to_dete_obj()
+                each_obj = each_obj.get_dete_obj()
                 new_alarms.append(each_obj)
         self._alarms = new_alarms
 

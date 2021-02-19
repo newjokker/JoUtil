@@ -17,61 +17,52 @@ class FileOperationUtil(object):
 
     @staticmethod
     def create_folder(folder_path):
-        """
-        如果文件夹不存在创建文件夹，如果文件夹存在选择是否清空文件夹
-        :param folder_path:
-        :return: 0: 已存在，未创建  1：不存在，已创建
-        """
-        if os.path.isdir(folder_path):
-            return 1
-        else:
-            os.makedirs(folder_path)
-            return 0
+        """如果文件夹不存在创建文件夹，如果文件夹存在选择是否清空文件夹"""
+        os.makedirs(folder_path, exist_ok=True)
 
     @staticmethod
     def bang_path(file_path):
-        """
-        将文件名给bang开，这样省的麻烦，只能是文件地址，文件夹不好 bang 开
-        :param file_path: 文件路径
-        :return: folder_path, file_name, file_extenction
-        """
+        """将文件名给bang开，这样省的麻烦，只能是文件地址，文件夹不好 bang 开"""
         if not os.path.isfile(file_path):
-            raise EOFError ("需要输入文件路径，而不是文件夹路径或者其他")
+            raise EOFError ("need correct file path")
 
-        #  (1) 得到文件夹路径
         folder_path = os.path.split(file_path)
-        # （2）得到文件名
         file_name = os.path.splitext(folder_path[1])[0]
-        # （3）得到后缀
         file_suffix = os.path.splitext(folder_path[1])[1]
-
         return folder_path[0], file_name, file_suffix
 
     @staticmethod
     def re_all_file(file_path, func=None):
-        """
-         返回文件夹路径下的所有文件路径（搜索文件夹中的文件夹）
-         传入方法对文件路径进行过滤
-        :param file_path:
-        :param func: 用于筛选路径的方法
-        :return:
-        """
+        """返回文件夹路径下的所有文件路径（搜索文件夹中的文件夹）"""
 
-        # 【1】判断输入参数
         if not os.path.isdir(file_path):
-            print(" 不是文件夹路径 ")
+            print("* not folder path")
             raise EOFError
 
         result = []
         for i, j, k in os.walk(file_path):
-            for each in k:
-                abs_path = i + os.sep + each
-                if func is None:  # is 判断是不是指向同一个东西
+            for each_file_name in k:
+                abs_path = i + os.sep + each_file_name
+                if func is None:
                     result.append(abs_path)
                 else:
-                    # 使用自定义方法对文件进行过滤
                     if func(abs_path):
-                        result.append(os.path.join(i, each))
+                        result.append(os.path.join(i, each_file_name))
+        return result
+
+    @staticmethod
+    def re_all_folder(folder_path):
+        """返回找到的所有文件夹的路径"""
+
+        if not os.path.isdir(folder_path):
+            print(" 不是文件夹路径 ")
+            raise EOFError
+
+        result = []
+        for i, j, k in os.walk(folder_path):
+            for each_dir_name in j:
+                abs_path = i + os.sep + each_dir_name
+                result.append(abs_path)
         return result
 
     @staticmethod
@@ -128,22 +119,24 @@ class FileOperationUtil(object):
 
     @staticmethod
     def get_father_path(str_temp):
-        """ 查找父文件夹，mac 和 windows 环境下都能运行
-        input:
-            str_temp: str
-        output:
-            str_temp 的父级文件夹，str
-        """
-        # fixme 有对应的函数的
+        """ 查找父文件夹，mac 和 windows 环境下都能运行"""
         # 去掉末尾的 '\' 和 '/'
-        str_temp = str_temp.rstrip(r'/')
-        str_temp = str_temp.rstrip(r'\\')
+        # str_temp = str_temp.rstrip(r'/')
+        # str_temp = str_temp.rstrip(r'\\')
+        str_temp = str_temp.rstrip(os.sep)
         return os.path.split(str_temp)[0]
 
     @staticmethod
-    def clear_empty_folder():
-        """删除空文件夹"""
-        pass
+    def clear_empty_folder(dir_path):
+        """删除空文件夹, 考虑文件夹中只有空文件夹的情况，出现的话需要再次跑一遍程序，遍历删除文件夹"""
+        del_num = 0
+        for each_folder_path in FileOperationUtil.re_all_folder(dir_path):
+            if not os.listdir(each_folder_path):
+                shutil.rmtree(each_folder_path)
+                del_num += 1
+                print("* del {0}".format(each_folder_path))
+                if del_num >= 1:
+                    FileOperationUtil.clear_empty_folder(dir_path)
 
     @staticmethod
     def find_diff_file(file_list_1, file_list_2, func=None):
@@ -174,31 +167,13 @@ class FileOperationUtil(object):
         return res
 
 
-# if __name__ == '__main__':
 #
-#     file_type_dict = {"_fzc_": [],
-#                       "_qx_": [],
-#                       "_other_": [],
-#                       "_zd_": []}
+# if __name__ == "__main__":
 #
-#     file_folder = r'C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\002_截为小图，查问题'
-#
-#     for i in FileOperationUtil.re_all_file(file_folder):
-#         for each_name in file_type_dict:
-#             if each_name in i:
-#                 file_type_dict[each_name].append(i)
-#                 continue
-#
-#     for each_name in file_type_dict:
-#         folder_path = os.path.join(file_folder, each_name.strip('_'))
-#         if not os.path.exists(folder_path):
-#             os.makedirs(folder_path)
-#         #
-#         FileOperationUtil.move_file_to_folder(file_type_dict[each_name], folder_path, is_clicp=True)
+#     # for each in FileOperationUtil.re_all_folder(r"C:\Users\14271\Desktop\del"):
+#     #     print(each)
 #
 #
-#     print("OK")
-
-
-
-
+#     FileOperationUtil.clear_empty_folder(r"C:\Users\14271\Desktop\del")
+#
+#

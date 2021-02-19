@@ -83,7 +83,8 @@ class MySqlUtil(object):
                 self.cursor.execute(sql_str)  # 执行
             self.db.commit()  # 提交数据，可以多次插入之后再去提交，每次插入之后提交速度会很慢
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
 
     def update_info_to_table(self):

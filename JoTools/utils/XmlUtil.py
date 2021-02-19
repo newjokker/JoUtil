@@ -32,7 +32,8 @@ class XmlUtil(object):
             cur_node.appendChild(child)
             # add node
             return child
-        except:
+        except Exception as e:
+            print(e)
             print("* error in add node")
             return None
 

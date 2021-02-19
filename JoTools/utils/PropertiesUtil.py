@@ -15,7 +15,8 @@ class Properties:
                 if line.find('=') > 0 and not line.startswith('#'):
                     strs = line.split('=')
                     self.properties[strs[0].strip()] = strs[1].strip()
-        except:
+        except Exception as e:
+            print(e)
             print("error in instantiation")
         else:
             fopen.close()

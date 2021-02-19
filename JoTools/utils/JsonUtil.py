@@ -12,7 +12,8 @@ class JsonUtil(object):
             with open(json_file_path, 'w') as json_file:
                 json.dump(data, json_file)
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
 
     @staticmethod

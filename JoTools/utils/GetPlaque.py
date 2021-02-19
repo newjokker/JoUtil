@@ -69,17 +69,17 @@ class GetPlaque(object):
             ban_all.append(ban_temp)
 
         # 返回规范后的矩阵
-        # return GetPlaque.get_plaque_index_data(point_mat, ban_all)
-        return ban_all
+        return GetPlaque.get_plaque_index_data(point_mat, ban_all)
+        # return ban_all
 
 
 if __name__ == "__main__":
 
-    a_length = 50
+    a_length = 100
 
     test_dect = np.zeros((a_length, a_length), np.bool)
 
-    for i in range(250):
+    for i in range(1500):
         test_dect[random.randint(0, a_length-1), random.randint(0, a_length-1)] = 1
 
     plt.matshow(GetPlaque.get_plaque(test_dect))

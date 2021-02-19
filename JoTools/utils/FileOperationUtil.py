@@ -104,9 +104,25 @@ class FileOperationUtil(object):
                 shutil.copyfile(each_file_path, new_file_path)
 
     @staticmethod
-    def merge_root_dir(root_dir_1, root_dir_2):
-        """对 root 文件夹进行合并，两个 root 文件夹及其包含的子文件夹，A(a,b,c), B(b,c,d) 那么将 A B 中的 b,c 文件夹中的内容进行合并，并复制 a, d """
-        pass
+    def merge_root_dir(root_dir_1, root_dir_2, is_clip=False):
+        """对 root 文件夹进行合并，两个 root 文件夹及其包含的子文件夹，A(a,b,c), B(b,c,d) 那么将 A B 中的 b,c 文件夹中的内容进行合并，并复制 a, d , is_clip 是否使用剪切的方式进行合并"""
+        for each_name in os.listdir(root_dir_2):
+            each_path = os.path.join(root_dir_2, each_name)
+            each_releate_path = os.path.join(root_dir_1, each_name)
+
+            if os.path.isdir(each_path):
+                if os.path.exists(each_releate_path):
+                    FileOperationUtil.merge_root_dir(each_releate_path, each_path)
+                else:
+                    shutil.move(each_path, each_releate_path)   # 递归
+            else:
+                if os.path.exists(each_releate_path):
+                    print("* {0} has exists".format(each_releate_path))
+                else:
+                    if is_clip is False:
+                        shutil.copy(each_path, each_releate_path)
+                    else:
+                        shutil.move(each_path, each_releate_path)
 
     # ------------------------------------ need repair -----------------------------------------------------------------
 
@@ -158,30 +174,30 @@ class FileOperationUtil(object):
         return res
 
 
-if __name__ == '__main__':
-
-    file_type_dict = {"_fzc_": [],
-                      "_qx_": [],
-                      "_other_": [],
-                      "_zd_": []}
-
-    file_folder = r'C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\002_截为小图，查问题'
-
-    for i in FileOperationUtil.re_all_file(file_folder):
-        for each_name in file_type_dict:
-            if each_name in i:
-                file_type_dict[each_name].append(i)
-                continue
-
-    for each_name in file_type_dict:
-        folder_path = os.path.join(file_folder, each_name.strip('_'))
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        #
-        FileOperationUtil.move_file_to_folder(file_type_dict[each_name], folder_path, is_clicp=True)
-
-
-    print("OK")
+# if __name__ == '__main__':
+#
+#     file_type_dict = {"_fzc_": [],
+#                       "_qx_": [],
+#                       "_other_": [],
+#                       "_zd_": []}
+#
+#     file_folder = r'C:\data\fzc_优化相关资料\dataset_fzc\015_防振锤准备使用faster训练_在原图上标注\002_截为小图，查问题'
+#
+#     for i in FileOperationUtil.re_all_file(file_folder):
+#         for each_name in file_type_dict:
+#             if each_name in i:
+#                 file_type_dict[each_name].append(i)
+#                 continue
+#
+#     for each_name in file_type_dict:
+#         folder_path = os.path.join(file_folder, each_name.strip('_'))
+#         if not os.path.exists(folder_path):
+#             os.makedirs(folder_path)
+#         #
+#         FileOperationUtil.move_file_to_folder(file_type_dict[each_name], folder_path, is_clicp=True)
+#
+#
+#     print("OK")
 
 
 

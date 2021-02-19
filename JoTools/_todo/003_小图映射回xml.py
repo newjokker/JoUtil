@@ -11,3 +11,6 @@ save_dir = r"C:\Users\14271\Desktop\fzc_train_new\xml_new"
 
 
 OperateDeteRes.get_xml_from_crop_img(crop_img_dir, region_img_dir, save_xml_dir=save_dir)
+
+
+

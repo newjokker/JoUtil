@@ -635,38 +635,6 @@ class DeteRes(ResBase, ABC):
         crop = img.crop(assign_range)
         crop.save(jpg_save_path, quality=95)
 
-    @staticmethod
-    def get_region_xml_from_cut_xml(xml_path, save_dir, img_dir):
-        """从裁剪后的 xml 得到之前的 xml，恢复文件名和 dete_obj 位置"""
-
-        # fixme 未完全测试，需要进行改进，将长宽信息存入矩阵中，
-        # fixme 需要获取原始图像的长宽，因为处理后的 xml 需要保留原始图像的长宽信息,或者直接读取图片得到长宽也行
-
-        if not os.path.exists(xml_path):
-            raise ValueError("xml path is not exists")
-
-        xml_name = os.path.split(xml_path)[1][:-4]
-        split_loc = xml_name.rfind("-+-")
-
-        if split_loc == -1:
-            raise ValueError("no loc info in xml name")
-
-        region_name = xml_name[:split_loc]
-        range_list = eval(','.join(xml_name[split_loc+3:].split('_')))
-        off_x, off_y = range_list[0], range_list[1]
-        # xml 位置恢复
-        img_path = os.path.join(img_dir, region_name + '.JPG')
-        img = Image.open(img_path)
-
-        #
-        a = DeteRes(xml_path)
-        a.height, a.width = img.height, img.width
-        for each_dete_obj  in a.alarms:
-            each_dete_obj.do_offset(off_x, off_y)
-        # 保存
-        save_path = os.path.join(save_dir, region_name+'.xml')
-        a.save_to_xml(save_path)
-
     def count_tags(self):
         """统计标签数"""
         tags_count = {}

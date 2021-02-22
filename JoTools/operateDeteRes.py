@@ -6,7 +6,6 @@ import random
 import collections
 import numpy as np
 from .txkjRes.deteRes import DeteRes
-#from .txkjRes.deteAngleRes import DeteAngleRes
 from .txkjRes.deteAngleObj import DeteAngleObj
 from .txkjRes.deteObj import DeteObj
 from .utils.FileOperationUtil import FileOperationUtil
@@ -15,6 +14,8 @@ from .utils.NumberUtil import NumberUtil
 import prettytable
 from JoTools.txkjRes.resTools import ResTools
 from JoTools.txkjRes.deteObj import DeteObj
+from JoTools.utils.StrUtil import StrUtil
+
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
 
@@ -429,6 +430,54 @@ class OperateDeteRes(object):
             a.refresh_obj_id()
             a.save_to_xml(xml_path)
 
+    @staticmethod
+    def get_xml_from_crop_xml(xml_dir, region_img_dir, save_xml_dir):
+        """对裁剪后再标注的小图 xml 转为大图对应的 xml 并对由同一个大图裁剪出的小图 xml 进行合并"""
+
+        # 从文件名中获取偏移位置
+        get_offset_from_name = lambda x: eval(x.split('-+-')[1].strip(".xml"))[:2]
+
+        # 按照原始文件名进行分组
+        xml_name_dict = {}
+        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x:str(x).endswith('.xml')):
+            each_xml_name = FileOperationUtil.bang_path(each_xml_path)[1]
+            # 去除非截图 xml
+            if "-+-" not in each_xml_name:
+                continue
+            #
+            region_xml_name = each_xml_name[:str(each_xml_name).rfind('-+-')]
+            #
+            if region_xml_name in xml_name_dict:
+                xml_name_dict[region_xml_name].append(each_xml_path)
+            else:
+                xml_name_dict[region_xml_name] = [each_xml_path]
+
+        # 对同一个组中的 xml 进行合并
+        for each_xml_name in xml_name_dict:
+            xml_path_list = xml_name_dict[each_xml_name]
+            xml_name = os.path.split(xml_path_list[0])[1]
+            save_path = os.path.join(save_xml_dir, each_xml_name + '.xml')
+            # 获取第一个要素
+            dete_res = DeteRes(xml_path=xml_path_list[0])
+            # 获取 xml 中记录的图像大小
+            img_path = os.path.join(region_img_dir, each_xml_name+'.jpg')
+            off_x, off_y = get_offset_from_name(xml_path_list[0])
+            dete_res.offset(off_x, off_y)
+            # 合并其他 xml 信息
+            if len(xml_path_list) > 1:
+                for each in xml_path_list[1:]:
+                    each_dete_res = DeteRes(xml_path=each)
+                    off_x, off_y = get_offset_from_name(each)
+                    each_dete_res.offset(off_x, off_y)
+                    dete_res += each_dete_res
+            # 完善 xml 中的信息
+            if os.path.exists(img_path):
+                dete_res.img_path = img_path
+                dete_res.file_name = os.path.split(img_path)[1]
+            else:
+                continue
+            dete_res.save_to_xml(save_path)
+
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
@@ -474,6 +523,8 @@ class OperateDeteRes(object):
 
             a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
             index += 1
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
     def get_class_count(xml_folder):

@@ -10,9 +10,9 @@ from JoTools.operateDeteRes import OperateDeteRes
 
 
 
-xml_dir = r"C:\Users\14271\Desktop\fzc_train_new\xml_new"
-img_dir = r"C:\Users\14271\Desktop\fzc_train_new\img"
-save_dir = r"C:\Users\14271\Desktop\fzc_train_new\crop"
+xml_dir = r"C:\Users\14271\Desktop\del\test"
+img_dir = r"C:\Users\14271\Desktop\del\test"
+save_dir = r"C:\Users\14271\Desktop\del\crop"
 
 
 OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True)

@@ -6,7 +6,6 @@ import copy
 import math
 import numpy as np
 from .deteObj import DeteObj
-# from JoTools.txkjRes.deteRes import DeteObj
 
 
 class DeteAngleObj(object):

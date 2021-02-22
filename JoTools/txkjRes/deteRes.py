@@ -17,7 +17,6 @@ from JoTools.txkjRes.resTools import ResTools
 
 
 # todo 添加 log 信息，
-# todo 除了正框和斜框之外，支持不规则的点的 obj
 # todo 使用装饰器来写 log，方便的进行记录
 # fixme 增加版本管理
 
@@ -124,12 +123,12 @@ class DeteRes(ResBase, ABC):
             # bndbox
             if isinstance(each_dete_obj, DeteObj):
                 each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id':str(each_dete_obj.id),
-                            'bndbox': {'xmin': str(each_dete_obj.x1), 'xmax': str(each_dete_obj.x2),
-                                       'ymin': str(each_dete_obj.y1), 'ymax': str(each_dete_obj.y2)}}
+                            'bndbox': {'xmin': str(int(each_dete_obj.x1)), 'xmax': str(int(each_dete_obj.x2)),
+                                       'ymin': str(int(each_dete_obj.y1)), 'ymax': str(int(each_dete_obj.y2))}}
                 xml_info['object'].append(each_obj)
             # robndbox
             elif isinstance(each_dete_obj, DeteAngleObj):
-                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id': str(each_dete_obj.id),
+                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id': str(int(each_dete_obj.id)),
                             'robndbox': {'cx': str(each_dete_obj.cx), 'cy': str(each_dete_obj.cy),
                                          'w': str(each_dete_obj.w), 'h': str(each_dete_obj.h),'angle': str(each_dete_obj.angle)}}
                 xml_info['object'].append(each_obj)

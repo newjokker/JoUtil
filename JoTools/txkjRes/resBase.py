@@ -17,15 +17,6 @@ class ResBase():
         self.img_path = assign_img_path # 对应的原图的路径
         self.xml_path = xml_path        # 可以从 xml 中读取检测结果
         self.json_dict = copy.deepcopy(json_dict)      # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
-        # 从 xml 中获取检测结果
-        if self.xml_path is not None:
-            self._parse_xml_info()
-        #
-        elif self.json_dict is not None:
-            self._parse_json_info()
-        # 解析 img 信息
-        if self.img_path is not None:
-            self._parse_img_info()
 
     @abstractmethod
     def save_to_xml(self, save_path, assign_alarms=None):

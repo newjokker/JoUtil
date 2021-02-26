@@ -30,6 +30,10 @@ class ParseXml(object):
             node_name = each_node.nodeName
             if node_name in ["name", "pose", "truncated", "difficult", "prob", "id"]:
                 object_info[node_name] = XmlUtil.get_info_from_node(each_node)['value']
+            # fixme 符合武汉那边给的规范
+            if node_name in ["code"]:
+                object_info["name"] = XmlUtil.get_info_from_node(each_node)['value']
+
             elif node_name == "bndbox":
                 bndbox_info = {}
                 for each_node_2 in each_node.childNodes:

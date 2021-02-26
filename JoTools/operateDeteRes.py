@@ -9,7 +9,8 @@ from .txkjRes.deteRes import DeteRes
 from .txkjRes.deteAngleObj import DeteAngleObj
 from .txkjRes.deteObj import DeteObj
 from .utils.FileOperationUtil import FileOperationUtil
-from .txkj.parseXml import parse_xml
+# from .txkj.parseXml import parse_xml
+from .txkjRes.deteXml import parse_xml
 from .utils.NumberUtil import NumberUtil
 import prettytable
 from JoTools.txkjRes.resTools import ResTools
@@ -18,8 +19,6 @@ from JoTools.utils.StrUtil import StrUtil
 
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
-
-
 
 class DeteAcc(object):
 
@@ -137,7 +136,7 @@ class DeteAcc(object):
             #
             if xml_path_c in customized_xml_path_set:
                 # 对比两个结果的差异
-                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s), DeteRes(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path)
+                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s).filter_by_tages(need_tag=['K']), DeteRes(xml_path_c).filter_by_tages(need_tag=['K']), assign_img_path=assign_img_path, save_path=save_img_path)
                 # 对比完了之后在 customized_xml_path_set 中删除这个对比过的 xml 路径
                 customized_xml_path_set.remove(xml_path_c)
             else:
@@ -171,16 +170,16 @@ class DeteAcc(object):
         # 获得字典
         for each_key in check_res:
             if str(each_key).startswith('extra_'):
-                new_key = each_key.lstrip('extra_')
+                new_key = each_key[len('extra_')]
                 extra_dict[new_key] = check_res[each_key]
             elif str(each_key).startswith('correct_'):
-                new_key = each_key.lstrip('correct_')
+                new_key = each_key[len('correct_')]
                 correct_dict[new_key] = check_res[each_key]
             elif str(each_key).startswith('miss_'):
-                new_key = each_key.lstrip('miss_')
+                new_key = each_key[len('miss_'):]
                 miss_dict[new_key] = check_res[each_key]
             elif str(each_key).startswith('mistake_'):
-                new_key = each_key.lstrip('mistake_')
+                new_key = each_key[len('mistake_'):]
                 mistake_dict[new_key] = check_res[each_key]
         # 计算准确率和召回率
         # 准确率，预测为正样本的有多少正样本 correct_a / (correct_a + mistake_x_a + extra_a)
@@ -189,7 +188,8 @@ class DeteAcc(object):
             tag_list = list(correct_dict.keys())
         #
         for each_tag in tag_list:
-            each_mistake_num = 0
+            each_mistake_num_to = 0
+            each_mistake_num_from = 0
             each_correct_num = 0
             each_extra_num = 0
             each_miss_num = 0
@@ -204,18 +204,20 @@ class DeteAcc(object):
             for each_mistake_tag in mistake_dict:
                 each_from, each_to = each_mistake_tag.split('-')
                 if each_to == each_tag:
-                    each_mistake_num += mistake_dict[each_mistake_tag]
+                    each_mistake_num_to += mistake_dict[each_mistake_tag]
+                if each_from == each_tag:
+                    each_mistake_num_from += mistake_dict[each_mistake_tag]
             # 计算准确率和召回率
-            if float(sum([each_correct_num, each_mistake_num, each_extra_num])) != 0:
-                each_acc = each_correct_num / float(sum([each_correct_num, each_mistake_num, each_extra_num]))
+            if float(sum([each_correct_num, each_mistake_num_to, each_extra_num])) != 0:
+                each_acc = each_correct_num / float(sum([each_correct_num, each_mistake_num_to, each_extra_num]))
             else:
                 each_acc = -1
             if float(sum([each_correct_num, each_miss_num])) != 0:
-                each_rec = each_correct_num / float(sum([each_correct_num, each_miss_num]))
+                each_rec = each_correct_num / float(sum([each_correct_num, each_miss_num, each_mistake_num_from]))
             else:
                 each_rec = -1
             #
-            res[each_tag] = {'acc':each_acc, 'rec':each_rec}
+            res[each_tag] = {'acc': each_acc, 'rec': each_rec}
         return res
 
     @staticmethod

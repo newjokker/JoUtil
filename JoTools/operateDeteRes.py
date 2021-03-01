@@ -170,10 +170,10 @@ class DeteAcc(object):
         # 获得字典
         for each_key in check_res:
             if str(each_key).startswith('extra_'):
-                new_key = each_key[len('extra_')]
+                new_key = each_key[len('extra_'):]
                 extra_dict[new_key] = check_res[each_key]
             elif str(each_key).startswith('correct_'):
-                new_key = each_key[len('correct_')]
+                new_key = each_key[len('correct_'):]
                 correct_dict[new_key] = check_res[each_key]
             elif str(each_key).startswith('miss_'):
                 new_key = each_key[len('miss_'):]

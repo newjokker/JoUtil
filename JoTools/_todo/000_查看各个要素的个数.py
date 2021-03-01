@@ -6,7 +6,7 @@ from JoTools.operateDeteRes import OperateDeteRes
 
 
 
-xml_dir = r"C:\Users\14271\Desktop\fzc_train_new\xml_new"
+xml_dir = r"C:\Users\jokker\Desktop\del\fzc\xml"
 
 a = OperateDeteRes.get_class_count(xml_dir)
 

@@ -6,6 +6,7 @@
 
 # fixme 运行了多少次，用一个文件进行记录，文件是包中的一个内容
 
+# fixme 代码变为 pyc 格式的运行看看行不行
 
 def self_delete(max_times):
     import os

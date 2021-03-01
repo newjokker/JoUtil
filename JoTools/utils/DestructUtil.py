@@ -5,6 +5,7 @@ import os
 import shutil
 from JoTools.utils.JsonUtil import JsonUtil
 
+# todo 可以将文件存放在系统 tmp 目录中，这样就不会再包中留下痕迹
 
 abs_path = os.path.abspath(__file__)
 abs_dir = os.path.dirname(abs_path)
@@ -45,6 +46,26 @@ class DestructUtil(object):
         JsonUtil.save_data_to_json_file(file_dict, file_path)
         # 返回还可以执行的次数
         return file_dict[assign_file_path][del_count] - file_dict[assign_file_path][now_count]
+
+    @staticmethod
+    def destruct_file_by_mix(assign_file_path):
+        """通过将文件进行打乱的方式销毁文件，操作是可逆的，可以根据编码进行恢复"""
+        pass
+
+    @staticmethod
+    def destruct_file_by_hide(assign_file_path):
+        """通过将文件改变文件名后隐藏，对文件进行 删除"""
+        pass
+
+    @staticmethod
+    def destruct_file_by_random(assign_file_path):
+        """对文件随机进行删除"""
+        pass
+
+
+    
+
+
 
 
 

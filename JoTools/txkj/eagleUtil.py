@@ -5,8 +5,25 @@
 import time
 import os
 import copy
+import random
+import shutil
+from PIL import Image
+from JoTools.utils.HashlibUtil import HashLibUtil
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.FileOperationUtil import FileOperationUtil
+
+# todo 其中的 ID 是如何生成的，是不是有一定的规范，还是说就是随机的，
+    # KDH5E VWAR A22B 13 位数字和大写字母组成，应该是随机的
+    # KDH5E VWB0 7AGW
+
+# todo 一组图片自动生成 eagle 的元数据
+
+# todo 将有标签的数据自动导入 edgal 信息中，读取 img 和 xml 自动在 edgal 中打标签
+
+# todo 最外面的源文件存放的是文件夹的等级信息，这个需要进行模仿
+
+# todo 完善主动生成 ID 的唯一性
+# todo 完善
 
 
 class EagleMetaData(object):
@@ -75,7 +92,8 @@ class EagleMTimes(object):
         if assign_id in self.time_dict:
             self.time_dict[assign_id] = new_time
         else:
-            raise ValueError("assign id not in time_dict")
+            self.time_dict[assign_id] = new_time
+            # raise ValueError("assign id not in time_dict")
 
     def save_to_json_file(self, save_path):
         """保存为 json 文件"""
@@ -103,6 +121,21 @@ class EagleTags(object):
         json_info = {"historyTags":list(self.historyTags), "starredTags":list(self.starredTags)}
         JsonUtil.save_data_to_json_file(json_info, json_path)
 
+
+class EagleFolderMetaData(object):
+
+    def __init__(self):
+        self.applicationVersion = "2.0.0"
+        self.folders = []
+        self.smartFolders = []
+        self.quickAccess = []
+        self.tagsGroups = []
+        self.modificationTime = int(time.time()*1000)
+
+    def save_to_json_file(self, json_path):
+        json_info = {"applicationVersion":self.applicationVersion, "folders":self.folders, "smartFolders":self.smartFolders,
+                     "quickAccess":self.quickAccess, "tagsGroups":self.tagsGroups, "modificationTime":self.modificationTime}
+        JsonUtil.save_data_to_json_file(json_info, json_path)
 
 class EagleUtil(object):
     """处理使用标图工具 eagle 的类"""
@@ -148,20 +181,120 @@ class EagleUtil(object):
 
 class EagleOperate(object):
 
-    # todo 一组图片自动生成 eagle 的元数据
-
-    # todo 将有标签的数据自动导入 edgal 信息中，读取 img 和 xml 自动在 edgal 中打标签
+    def __init__(self):
+        self.proj_dir = r""
+        self.id_set = {}
 
     @staticmethod
-    def merge_img_info(img_dir):
+    def get_tag_dict(img_dir):
         """合并图像信息，拿到每个图像对应的标签"""
+        tag_dict, md5_dict = {}, {}
+        for each_img_path in FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith((".jpg", ".JPG"))):
+            dir_name = os.path.dirname(each_img_path)
+            dir_name_2 = os.path.dirname(dir_name)
+            # get md5, tag
+            each_tag = dir_name[len(dir_name_2)+1:]
+            each_md5 = HashLibUtil.get_file_md5(each_img_path)
+            #
+            if each_md5 in md5_dict:
+                old_img_path = md5_dict[each_md5]
+                tag_dict[old_img_path].add(each_tag)
+            else:
+                md5_dict[each_md5] = each_img_path
+                tag_dict[each_img_path] = {each_tag}
+        return tag_dict
 
+    def get_id_name_dict(self):
+        """获取 id 和 name 对应的字典"""
+        name_dict = {}
+        image_dir = os.path.join(self.proj_dir, "images")
+        for each_json_path in FileOperationUtil.re_all_file(image_dir, lambda x:str(x).endswith("metadata.json")):
+            a = EagleMetaData()
+            a.load_atts_from_json(each_json_path)
+            name_dict[a.name] = a.id
+        return name_dict
+
+    @staticmethod
+    def get_modification_time():
+        return int(time.time()*1000)
+
+    def get_random_id(self):
+        """随机获取图片的 id"""
+        while True:
+            random_id = "KDH5" + str(random.randint(100000000, 1000000000))
+            if random_id not in self.id_set:
+                return random_id
+
+    def init_edgal_project(self, img_dir):
+        """初始化一个 edgal 工程"""
+
+        tag_json_path = os.path.join(self.proj_dir, "tags.json")
+        mtime_json_path = os.path.join(self.proj_dir, "mtime.json")
+        faster_metadata_json_path = os.path.join(self.proj_dir, "metadata.json")
+
+        tag = EagleTags()
+        mtime = EagleMTimes()
+        tag_dict = EagleOperate.get_tag_dict(img_dir)
+        faster_metadata = EagleFolderMetaData()
+
+        # 创建对应的文件夹
+        back_up_dir = os.path.join(self.proj_dir, "backup")
+        images_dir = os.path.join(self.proj_dir, "images")
+        os.makedirs(back_up_dir, exist_ok=True)
+        os.makedirs(images_dir, exist_ok=True)
+        # 完善 images 文件夹
+        for each_img_path in tag_dict:
+            a = EagleMetaData()
+            each_mo_time = EagleOperate.get_modification_time()
+            each_id = self.get_random_id()
+            #
+            for each_tag in tag_dict[each_img_path]:
+                a.add_tags(each_tag)
+                tag.add_tags(each_tag)
+            mtime.update_assign_id(each_id, each_mo_time)
+            #
+            img = Image.open(each_img_path)
+            a.modification_time = each_mo_time
+            a.id = each_id
+            a.name = FileOperationUtil.bang_path(each_img_path)[1]
+            a.width = img.width
+            a.height = img.height
+            a.mtime = each_mo_time
+            a.btime = each_mo_time
+            a.folders = []
+            a.ext = each_img_path[-3:]
+            a.size = os.path.getsize(each_img_path)
+            #
+            each_img_dir = os.path.join(self.proj_dir, "images", each_id + '.info')
+            save_img_path = os.path.join(each_img_dir, os.path.split(each_img_path)[1])
+            os.makedirs(each_img_dir, exist_ok=True)
+
+            shutil.copy(each_img_path, save_img_path)
+
+            each_meta_json_path =  os.path.join(each_img_dir, "metadata.json")
+            a.save_to_json_file(each_meta_json_path)
+
+        tag.save_to_json_file(tag_json_path)
+        mtime.save_to_json_file(mtime_json_path)
+        faster_metadata.save_to_json_file(faster_metadata_json_path)
 
 
 
 if __name__ == "__main__":
 
+    # todo 三步走 （1）计算文件的重复字典（2）文件去重导入 edgal （3）根据重复字典修改edgal文件中的元数据
+    # fixme 注意的是文件名需要是唯一的，不能重复，否则就不存在一一对应的关系
+
+
+    a = EagleOperate()
+    a.proj_dir = r"C:\Users\14271\Desktop\del\hehe_021.library"
+
+    # a.get_id_name_dict()
+
+
     img_dir = r"C:\Users\14271\Desktop\del\test"
+
+    a.init_edgal_project(img_dir)
 
 
 

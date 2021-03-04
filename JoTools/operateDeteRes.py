@@ -9,7 +9,6 @@ from .txkjRes.deteRes import DeteRes
 from .txkjRes.deteAngleObj import DeteAngleObj
 from .txkjRes.deteObj import DeteObj
 from .utils.FileOperationUtil import FileOperationUtil
-# from .txkj.parseXml import parse_xml
 from .txkjRes.deteXml import parse_xml
 from .utils.NumberUtil import NumberUtil
 import prettytable
@@ -136,7 +135,7 @@ class DeteAcc(object):
             #
             if xml_path_c in customized_xml_path_set:
                 # 对比两个结果的差异
-                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s).filter_by_tages(need_tag=['K']), DeteRes(xml_path_c).filter_by_tages(need_tag=['K']), assign_img_path=assign_img_path, save_path=save_img_path)
+                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s), DeteRes(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path)
                 # 对比完了之后在 customized_xml_path_set 中删除这个对比过的 xml 路径
                 customized_xml_path_set.remove(xml_path_c)
             else:

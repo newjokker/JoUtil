@@ -7,13 +7,13 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.RandomUtil import RandomUtil
 
-img_dir = r"C:\Users\jokker\Desktop\del\fzc\img"
-xml_dir = r"C:\Users\jokker\Desktop\del\fzc\xml"
-save_xml_dir = r"C:\Users\jokker\Desktop\del\fzc\res\xml"
-save_img_dir = r"C:\Users\jokker\Desktop\del\fzc\res\img"
+img_dir = r"D:\集中培育-11月样本\金具\保护金具\防振锤"
+xml_dir = r"D:\集中培育-11月样本\金具\保护金具\防振锤\xml"
+save_xml_dir = r"C:\Users\jokker\Desktop\破损防震锤\11"
+save_img_dir = r"C:\Users\jokker\Desktop\破损防震锤\11"
 
-need_tags = ['040303022']
-index_count = 10
+need_tags = ['040303021', '040303022']
+index_count = 1000000000
 
 # ----------------------------------------------------------------------------------------------------------------------
 

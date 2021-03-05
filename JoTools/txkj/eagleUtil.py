@@ -24,8 +24,6 @@ from JoTools.txkjRes.deteRes import DeteRes
 # todo edgal 中的图像和标注转为标准格式的（img, xml）
 # fixme 可以主动选择分析颜色，选中需要的图片，右击更多，重新分析颜色
 
-# todo 所有文件夹名字都作为标签
-
 
 class EagleMetaData(object):
     """Eagle 元数据"""
@@ -181,6 +179,27 @@ class EagleOperate(object):
         else:
             img.save(save_path)
 
+    @staticmethod
+    def json_to_xml(json_path, xml_dir):
+        """将 metadata json 文件转为 xml 文件"""
+        a = EagleMetaData()
+        a.load_atts_from_json(json_path)
+        # 读取 comment 中的信息，并直接转为 xml 信息
+        b = DeteRes()
+        for each_comment in a.comments:
+            print(each_comment)
+            x1 = int(each_comment["x"])
+            y1 = int(each_comment["y"])
+            x2 = int(each_comment["x"] + each_comment["width"])
+            y2 = int(each_comment["y"] + each_comment["height"])
+            tag = str(each_comment["annotation"])
+            b.add_obj(x1, y1, x2, y2, tag, conf=-1)
+        #
+        b.width = a.width
+        b.height = a.height
+        save_xml_path = os.path.join(xml_dir, a.name + '.xml')
+        b.save_to_xml(save_xml_path)
+
     def get_random_id(self):
         """随机获取图片的 id"""
         while True:
@@ -280,15 +299,36 @@ class EagleOperate(object):
         mtime.save_to_json_file(self.mtime_json_path)
         faster_metadata.save_to_json_file(self.faster_metadata_json_path)
 
+    def save_to_xml_img(self, save_dir):
+        """直接转为我们常用的数据集"""
+
+        # todo 如何解决文件名重复的问题，如何重建文件夹结构？
+
+        # Annotations, JPEGImages
+        xml_dir = os.path.join(save_dir, "Annotations")
+        img_dir = os.path.join(save_dir, "JPEGImages")
+        os.makedirs(xml_dir, exist_ok=True)
+        os.makedirs(img_dir, exist_ok=True)
+        #
+        for each_metadata_path in FileOperationUtil.re_all_file(self.images_dir, lambda x:str(x).endswith(".json")):
+            # 解析 json 文件
+            EagleOperate.json_to_xml(each_metadata_path, xml_dir)
+            # 复制 jpg 文件
+            each_img_path = FileOperationUtil.re_all_file(os.path.dirname(each_metadata_path), lambda x:str(x).endswith((".jpg", ".JPG")))[0]
+            each_save_img_path = os.path.join(img_dir, os.path.split(each_img_path)[1])
+            shutil.copy(each_img_path, each_save_img_path)
+
 
 if __name__ == "__main__":
 
-    # imgDir = r"C:\Users\14271\Desktop\del\test"
-    imgDir = r"D:\算法培育-6月样本"
+    imgDir = r"C:\Users\14271\Desktop\del\test"
+    # imgDir = r"D:\算法培育-6月样本"
 
     a = EagleOperate(r"C:\Users\14271\Desktop\del\test_new_tag.library", imgDir)
 
-    a.init_edgal_project(imgDir)
+    # a.init_edgal_project(imgDir)
+
+    a.save_to_xml_img(r"C:\Users\14271\Desktop\del\new_res")
 
 
 

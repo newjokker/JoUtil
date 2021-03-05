@@ -208,7 +208,7 @@ class DeteRes(ResBase, ABC):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=None):
+    def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=-1):
         """快速增加一个检测框要素"""
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf, assign_id=assign_id)
         self._alarms.append(one_dete_obj)

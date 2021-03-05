@@ -35,7 +35,7 @@ print(meta_data.name)
 
 # 增加 tags
 new_tag = "test_chis"
-meta_data.add_tags(new_tag)
+meta_data.add_tag(new_tag)
 assign_id = meta_data.id
 new_time = int(time.time() * 1000)
 meta_data.modification_time = new_time

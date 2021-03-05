@@ -156,6 +156,7 @@ class EagleOperate(object):
         self.id_set = set()
         self.tag_dict = {}
         self.md5_dict = {}
+        self.xml_dict = {}
         self.img_dir = img_dir
         #
         self.tag_json_path = os.path.join(self.proj_dir, "tags.json")
@@ -163,6 +164,10 @@ class EagleOperate(object):
         self.faster_metadata_json_path = os.path.join(self.proj_dir, "metadata.json")
         self.back_up_dir = os.path.join(self.proj_dir, "backup")
         self.images_dir = os.path.join(self.proj_dir, "images")
+        #
+        self.tag = None
+        self.mtime = None
+        self.faster_metadata = None
 
     @staticmethod
     def get_modification_time():
@@ -173,7 +178,7 @@ class EagleOperate(object):
         """获取并保存缩略图"""
         img = Image.open(img_path)
         if img.width > min_length and img.height > min_length:
-            scale = min(img.width/min_length, img.height/min_length)
+            scale = max(img.width/min_length, img.height/min_length)
             thumbnail = img.resize((int(img.width/scale), int(img.height/scale)))
             thumbnail.save(save_path)
         else:
@@ -210,23 +215,69 @@ class EagleOperate(object):
 
     def get_tag_dict(self, img_dir):
         """合并图像信息，拿到每个图像对应的标签"""
-        # tag_dict, md5_dict = {}, {}
         for img_index, each_img_path in enumerate(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith((".jpg", ".JPG")))):
             print(img_index, "get md5 info", each_img_path)
             dir_name = os.path.dirname(each_img_path)
             # get md5, tag
             each_tags = set(dir_name[len(self.img_dir)+1:].split(os.sep))
-            # dir_name_2 = os.path.dirname(dir_name)
-            # each_tags = dir_name[len(dir_name_2)+1:]
             each_md5 = HashLibUtil.get_file_md5(each_img_path)
+            each_xml = os.path.join(dir_name, "xml", os.path.split(each_img_path)[1][:-3] + 'xml')
             #
             if each_md5 in self.md5_dict:
                 old_img_path = self.md5_dict[each_md5]
                 self.tag_dict[old_img_path].update(each_tags)
+                self.xml_dict[old_img_path].append(each_xml)
             else:
                 self.md5_dict[each_md5] = each_img_path
                 self.tag_dict[each_img_path] = each_tags
-        # return tag_dict
+                self.xml_dict[each_img_path] = [each_xml]
+
+    def save_one_img_info(self, each_img_path):
+        """保存一张图片对应的信息"""
+        a = EagleMetaData()
+        each_mo_time = EagleOperate.get_modification_time()
+        each_id = self.get_random_id()
+        # ----------------------------------------------------------------------------------------------------------
+        # 添加 tag 信息
+        for each_tag in self.tag_dict[each_img_path]:
+            a.add_tag(each_tag)
+            self.tag.add_tags(each_tag)
+        # ----------------------------------------------------------------------------------------------------------
+        # 添加标注信息
+        each_dir, each_img_name, _ = FileOperationUtil.bang_path(each_img_path)
+        for each_xml_path in self.xml_dict[each_img_path]:
+            if os.path.exists(each_xml_path):
+                each_dete_res = DeteRes(xml_path=each_xml_path)
+                for each_dete_obj in each_dete_res.alarms:
+                    a.add_comment(each_dete_obj.x1, each_dete_obj.y1, each_dete_obj.x2, each_dete_obj.y2,
+                                  each_dete_obj.tag, self.get_random_id(), EagleOperate.get_modification_time())
+        # ----------------------------------------------------------------------------------------------------------
+        # 完善属性
+        self.mtime.update_assign_id(each_id, each_mo_time)
+        img = Image.open(each_img_path)
+        a.modification_time = each_mo_time
+        a.id = each_id
+        a.name = FileOperationUtil.bang_path(each_img_path)[1]
+        a.width = img.width
+        a.height = img.height
+        a.mtime = each_mo_time
+        a.btime = each_mo_time
+        a.folders = []
+        a.ext = each_img_path[-3:]
+        a.size = os.path.getsize(each_img_path)
+        # ----------------------------------------------------------------------------------------------------------
+        # 存储文件夹
+        each_img_dir = os.path.join(self.proj_dir, "images", each_id + '.info')
+        os.makedirs(each_img_dir, exist_ok=True)
+        #
+        each_save_name = FileOperationUtil.bang_path(each_img_path)[1]
+        save_img_path = os.path.join(each_img_dir, each_save_name + '.jpg')
+        save_img_thumbnail_path = os.path.join(each_img_dir, each_save_name + "_thumbnail.png")
+        # 拷贝文件，生成缩略图
+        shutil.copy(each_img_path, save_img_path)
+        EagleOperate.get_thumbnail_img(each_img_path, save_img_thumbnail_path)
+        each_meta_json_path = os.path.join(each_img_dir, "metadata.json")
+        a.save_to_json_file(each_meta_json_path)
 
     def get_id_name_dict(self):
         """获取 id 和 name 对应的字典"""
@@ -240,64 +291,27 @@ class EagleOperate(object):
 
     def init_edgal_project(self, img_dir):
         """初始化一个 edgal 工程"""
-        tag = EagleTags()
-        mtime = EagleMTimes()
+        self.tag = EagleTags()
+        self.mtime = EagleMTimes()
+        self.faster_metadata = EagleFolderMetaData()
+
         self.get_tag_dict(img_dir)
-        faster_metadata = EagleFolderMetaData()
         # 创建对应的文件夹
         os.makedirs(self.back_up_dir, exist_ok=True)
         os.makedirs(self.images_dir, exist_ok=True)
         # 完善 images 文件夹
         index = 0
         for each_img_path in self.tag_dict:
-            a = EagleMetaData()
-            each_mo_time = EagleOperate.get_modification_time()
-            each_id = self.get_random_id()
-            # ----------------------------------------------------------------------------
-            # 添加 tag 信息
-            for each_tag in self.tag_dict[each_img_path]:
-                a.add_tag(each_tag)
-                tag.add_tags(each_tag)
-            # ----------------------------------------------------------------------------
-            # 添加标注信息
-            each_dir, each_img_name, _ = FileOperationUtil.bang_path(each_img_path)
-            each_xml_path = os.path.join(each_dir, "xml", each_img_name + '.xml')
-            if os.path.exists(each_xml_path):
-                each_dete_res = DeteRes(xml_path=each_xml_path)
-                for each_dete_obj in each_dete_res.alarms:
-                    a.add_comment(each_dete_obj.x1, each_dete_obj.y1, each_dete_obj.x2, each_dete_obj.y2, each_dete_obj.tag, self.get_random_id(), EagleOperate.get_modification_time())
-            # ----------------------------------------------------------------------------
-            # 完善属性
-            mtime.update_assign_id(each_id, each_mo_time)
-            img = Image.open(each_img_path)
-            a.modification_time = each_mo_time
-            a.id = each_id
-            a.name = FileOperationUtil.bang_path(each_img_path)[1]
-            a.width = img.width
-            a.height = img.height
-            a.mtime = each_mo_time
-            a.btime = each_mo_time
-            a.folders = []
-            a.ext = each_img_path[-3:]
-            a.size = os.path.getsize(each_img_path)
-            #
-            each_img_dir = os.path.join(self.proj_dir, "images", each_id + '.info')
-            each_save_name = FileOperationUtil.bang_path(each_img_path)[1]
-            save_img_path = os.path.join(each_img_dir, each_save_name + '.jpg')
-            save_img_thumbnail_path = os.path.join(each_img_dir, each_save_name + "_thumbnail.png")
-            os.makedirs(each_img_dir, exist_ok=True)
-            # 拷贝文件，生成缩略图
-            index += 1
-            shutil.copy(each_img_path, save_img_path)
-            EagleOperate.get_thumbnail_img(each_img_path, save_img_thumbnail_path)
-            #
+            try:
+                self.save_one_img_info(each_img_path)
+            except Exception as e:
+                print(e)
             print("move :", index, each_img_path)
-            each_meta_json_path =  os.path.join(each_img_dir, "metadata.json")
-            a.save_to_json_file(each_meta_json_path)
+            index += 1
 
-        tag.save_to_json_file(self.tag_json_path)
-        mtime.save_to_json_file(self.mtime_json_path)
-        faster_metadata.save_to_json_file(self.faster_metadata_json_path)
+        self.tag.save_to_json_file(self.tag_json_path)
+        self.mtime.save_to_json_file(self.mtime_json_path)
+        self.faster_metadata.save_to_json_file(self.faster_metadata_json_path)
 
     def save_to_xml_img(self, save_dir):
         """直接转为我们常用的数据集"""
@@ -321,8 +335,14 @@ class EagleOperate(object):
 
 if __name__ == "__main__":
 
-    imgDir = r"D:\算法培育-7月样本"
-    eagle_library = r"D:\peiyu07.library"
+    # todo 有个 bug 只对 tag 进行了合并，但是没对 xml 进行合并，这个需要处理一下，写一个字典，img_path 对应的合并的几个 xml 即可
+    # todo 试一下是否可以直接用 md5 值作为 id，这样的话同样的图片，每一次运行 id 不是随机的而是固定的，这样会方便很多
+
+    # imgDir = r"D:\算法培育-7月样本"
+    # eagle_library = r"C:\Users\14271\Desktop\del\peiyu07.library"
+
+    imgDir = r"D:\集中培育-11月样本"
+    eagle_library = r"D:\peiyu_11.library"
     # eagle_library = r"D:\test_yb.library"
     # imgDir = r"C:\Users\14271\Desktop\del\del"
 

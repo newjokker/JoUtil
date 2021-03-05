@@ -211,7 +211,7 @@ class EagleOperate(object):
     def get_tag_dict(self, img_dir):
         """合并图像信息，拿到每个图像对应的标签"""
         # tag_dict, md5_dict = {}, {}
-        for img_index, each_img_path in enumerate(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith((".jpg", ".JPG")))[:500]):
+        for img_index, each_img_path in enumerate(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith((".jpg", ".JPG")))):
             print(img_index, "get md5 info", each_img_path)
             dir_name = os.path.dirname(each_img_path)
             # get md5, tag
@@ -321,14 +321,15 @@ class EagleOperate(object):
 
 if __name__ == "__main__":
 
-    imgDir = r"C:\Users\14271\Desktop\del\test"
-    # imgDir = r"D:\算法培育-6月样本"
+    imgDir = r"D:\算法培育-7月样本"
+    eagle_library = r"D:\peiyu07.library"
+    # eagle_library = r"D:\test_yb.library"
+    # imgDir = r"C:\Users\14271\Desktop\del\del"
 
-    a = EagleOperate(r"C:\Users\14271\Desktop\del\test_new_tag.library", imgDir)
+    a = EagleOperate(eagle_library, imgDir)
+    a.init_edgal_project(imgDir)
 
-    # a.init_edgal_project(imgDir)
-
-    a.save_to_xml_img(r"C:\Users\14271\Desktop\del\new_res")
+    # a.save_to_xml_img(r"C:\Users\14271\Desktop\del\new_res")
 
 
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-
 import time
 import os
 import copy
@@ -13,16 +12,12 @@ from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.txkjRes.deteRes import DeteRes
 
-# todo 将有标签的数据自动导入 edgal 信息中，读取 img 和 xml 自动在 edgal 中打标签
-# todo 最外面的源文件存放的是文件夹的等级信息，这个需要进行模仿
-# todo 顺便生成压缩文件（png格式）
 # todo xml 信息直接以 json_str 的格式存入图片中
 # todo 多个 edgal 项目进行合并
-# todo 将 edgal 图片按照一定的规则进行导出
 # todo 给一个项目地址，先完成项目的初始化，如果有文件的话先去读取指定的文件
 # todo 看看 edgal 里面是否可以标图，可以的话是怎么标注的，是不是写在源文件中的，尝试增加标注, eagel 中的标注和 labelImg 中的标注互联互通
-# todo edgal 中的图像和标注转为标准格式的（img, xml）
 # fixme 可以主动选择分析颜色，选中需要的图片，右击更多，重新分析颜色
+# todo 试一下是否可以直接用 md5 值作为 id，这样的话同样的图片，每一次运行 id 不是随机的而是固定的，这样会方便很多
 
 
 class EagleMetaData(object):
@@ -317,6 +312,7 @@ class EagleOperate(object):
         """直接转为我们常用的数据集"""
 
         # todo 如何解决文件名重复的问题，如何重建文件夹结构？
+        # todo 可以将 ID 直接作为文件名，或者 md5 值作为文件名，最好是 md5 值，要看图片对应的信息的话直接在 edgal 中看就行
 
         # Annotations, JPEGImages
         xml_dir = os.path.join(save_dir, "Annotations")
@@ -335,8 +331,6 @@ class EagleOperate(object):
 
 if __name__ == "__main__":
 
-    # todo 有个 bug 只对 tag 进行了合并，但是没对 xml 进行合并，这个需要处理一下，写一个字典，img_path 对应的合并的几个 xml 即可
-    # todo 试一下是否可以直接用 md5 值作为 id，这样的话同样的图片，每一次运行 id 不是随机的而是固定的，这样会方便很多
 
     # imgDir = r"D:\算法培育-7月样本"
     # eagle_library = r"C:\Users\14271\Desktop\del\peiyu07.library"

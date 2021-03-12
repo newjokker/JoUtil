@@ -15,7 +15,6 @@ from JoTools.txkjRes.deteRes import DeteRes
 # todo xml 信息直接以 json_str 的格式存入图片中
 # todo 多个 edgal 项目进行合并
 # todo 给一个项目地址，先完成项目的初始化，如果有文件的话先去读取指定的文件
-# todo 看看 edgal 里面是否可以标图，可以的话是怎么标注的，是不是写在源文件中的，尝试增加标注, eagel 中的标注和 labelImg 中的标注互联互通
 # fixme 可以主动选择分析颜色，选中需要的图片，右击更多，重新分析颜色
 # todo 试一下是否可以直接用 md5 值作为 id，这样的话同样的图片，每一次运行 id 不是随机的而是固定的，这样会方便很多
 
@@ -202,6 +201,9 @@ class EagleOperate(object):
 
     def get_random_id(self):
         """随机获取图片的 id"""
+
+        # fixme 后面的随机数字加上时间信息就不会有重复了，
+
         while True:
             random_id = "KDH5" + str(random.randint(100000000, 1000000000))
             if random_id not in self.id_set:
@@ -335,10 +337,11 @@ if __name__ == "__main__":
     # imgDir = r"D:\算法培育-7月样本"
     # eagle_library = r"C:\Users\14271\Desktop\del\peiyu07.library"
 
-    imgDir = r"D:\集中培育-11月样本"
-    eagle_library = r"D:\peiyu_11.library"
-    # eagle_library = r"D:\test_yb.library"
-    # imgDir = r"C:\Users\14271\Desktop\del\del"
+    # imgDir = r"D:\算法培育-6月样本"
+    # eagle_library = r"D:\peiyu06.library"
+
+    eagle_library = r"C:\Users\14271\Desktop\del\test_003.library"
+    imgDir = r"C:\Users\14271\Desktop\del\del"
 
     a = EagleOperate(eagle_library, imgDir)
     a.init_edgal_project(imgDir)

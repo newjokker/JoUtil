@@ -545,8 +545,10 @@ class DeteRes(ResBase, ABC):
             # 裁剪
             each_crop = ResTools.crop_angle_rect(self.img_path, ((cx, cy), (w, h), angle))
             if method is not None: each_crop = method(each_crop)
-            crop = Image.fromarray(each_crop)
-            crop.save(each_save_path)
+            # crop = Image.fromarray(each_crop)
+            # crop.save(each_save_path)
+
+            cv2.imencode('.jpg', each_crop)[1].tofile(each_save_path)
 
     # ------------------------------------------------------------------------------------------------------------------
 

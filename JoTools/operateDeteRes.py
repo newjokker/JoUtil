@@ -803,10 +803,10 @@ class OperateDeteRes(object):
                 continue
 
             print(index, each_xml_path)
-            a = DeteAngleRes(each_xml_path)
+            a = DeteRes(each_xml_path)
             a.img_path = each_img_path
 
-            a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
+            a.crop_angle_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
             index += 1
 
     # ------------------------------------------------------------------------------------------------------------------

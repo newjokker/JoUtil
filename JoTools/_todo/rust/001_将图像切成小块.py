@@ -4,15 +4,9 @@
 import numpy as np
 from PIL import Image
 import random
-import copy
-
-"""
-1. 对于图片边缘不能完全进行等分的情况如何处理？
-    * 可以先将图片从采样成能进行等分的情况，进行区块交换，然后再改变回来
-    * 重采样可能引入不确定误差，可以排除边缘的几个不能进行等分的像素
-"""
-
-# todo 支持京东论文中的 block 交换策略
+import os
+import cv2
+import matplotlib.pyplot as plt
 
 
 class SegmentAndRegroup(object):
@@ -28,6 +22,7 @@ class SegmentAndRegroup(object):
         self.assign_block_height = None  # 指定 block 的长度
         self.assign_block_width = None
         self.assign_block_size = False  # 使用指定大小的 block 进行分类
+        self.save_dir = None
 
     def get_segment_x_y(self):
         """获得横纵向裁剪的个数"""
@@ -38,30 +33,6 @@ class SegmentAndRegroup(object):
             #
             self.segment_x = int(self.img_array_origin.shape[1] / self.assign_block_width)
             self.segment_y = int(self.img_array_origin.shape[0] / self.assign_block_height)
-
-    def exchange_two_block(self, block_index_1, block_index_2):
-        """交换两个区块中的内容，使用二维坐标表示每个矩阵"""
-        # 找到两个 block 的范围
-        x_min_1, y_min_1 = self.assign_block_width * block_index_1[1], self.assign_block_height * block_index_1[0]
-        x_max_1, y_max_1 = x_min_1 + self.assign_block_width, y_min_1 + self.assign_block_height
-        x_min_2, y_min_2 = self.assign_block_width * block_index_2[1], self.assign_block_height * block_index_2[0]
-        x_max_2, y_max_2 = x_min_2 + self.assign_block_width, y_min_2 + self.assign_block_height
-        # 将两个 block 中的值进行交换
-
-        print('-'*100)
-
-        print(y_min_1, y_max_1, x_min_1, x_max_1)
-        print(y_min_2, y_max_2, x_min_2, x_max_2)
-
-        block_value_temp_1 = copy.deepcopy(self.img_array[y_min_1:y_max_1, x_min_1:x_max_1, :])
-        block_value_temp_2 = copy.deepcopy(self.img_array[y_min_2:y_max_2, x_min_2:x_max_2, :])
-
-        print(block_value_temp_1.shape)
-        print(block_value_temp_2.shape)
-
-        if block_value_temp_1.shape == (50,50,3) and block_value_temp_2.shape == (50,50,3):
-            self.img_array[y_min_1:y_max_1, x_min_1:x_max_1, :] = block_value_temp_2
-            self.img_array[y_min_2:y_max_2, x_min_2:x_max_2, :] = block_value_temp_1
 
     def get_array_from_img(self):
         """将图片的转为 array"""
@@ -91,24 +62,25 @@ class SegmentAndRegroup(object):
         img = Image.fromarray(self.img_array_origin)
         img.save(save_path)
 
-    def get_block_index_for_exchange(self):
-        """获取一对用于交换的 block 的index"""
-        # (1) 每次只跟相邻的 bolck 进行交换
-        # while True:
-            # x_1, y_1 = random.randint(0, self.segment_y-1), random.randint(0, self.segment_x-1)
-            # x_2, y_2 = x_1 + random.choice([-1, 0, 1]), y_1 + random.choice([-1, 0, 1])
-            # 判断得到的两个位置是否符合要求
-            # if min(x_1, y_1, x_2, y_2) >= 0 and max(x_1, x_2) < self.segment_y and max(y_1, y_2) < self.segment_x:
-            #     return (x_1, y_1), (x_2, y_2)
+    def change_random_block(self):
+        """随机交换两个 block，block 的位置是随机的"""
+        height, width, _ = self.img_array.shape
+        x1 = random.randint(0, int((height - self.assign_block_height)/50))
+        x2 = random.randint(0, int((height - self.assign_block_height)/50))
+        y1 = random.randint(0, int((width - self.assign_block_width)/50))
+        y2 = random.randint(0, int((width - self.assign_block_width)/50))
 
-        # (2) 任意两个 block 进行交换
-        # return (random.randint(0, self.segment_x-1), random.randint(0, self.segment_y-1)), \
-        #        (random.randint(0, self.segment_x-1), random.randint(0, self.segment_y-1))
+        x1,x2,y1,y2 = x1*50, x2*50, y1*50, y2*50
 
-        return (random.randint(0, self.segment_x-2), random.randint(0, self.segment_y-2)), \
-               (random.randint(0, self.segment_x-3), random.randint(0, self.segment_y-2))
+        block_1 = self.img_array[x1:x1+50, y1:y1+50, :]
+        self.img_array[x1:x1 + 50, y1:y1 + 50, :] = self.img_array[x2:x2+50, y2:y2+50, :]
+        self.img_array[x2:x2+50, y2:y2+50, :] = block_1
 
-        # (3) 看京东论文里面的 block 之间交换的策略
+    def get_mat_in_assign_block(self, block_xy):
+        """获取指定区块的矩阵"""
+        x_min_1, y_min_1 = self.assign_block_width * block_xy[1], self.assign_block_height * block_xy[0]
+        x_max_1, y_max_1 = x_min_1 + self.assign_block_width, y_min_1 + self.assign_block_height
+        return self.img_array[y_min_1:y_max_1, x_min_1:x_max_1, :]
 
     def do_process(self, save_path):
         """主流程"""
@@ -116,18 +88,25 @@ class SegmentAndRegroup(object):
         if self.get_array_from_img() is False:
             print("目前只能处理 rgb 图")
             return
-        # 根据需要打乱的次数打乱区块
-        for i in range(self.exchange_times):
-            block_index_1, block_index_2 = self.get_block_index_for_exchange()
-            print(block_index_1, block_index_2)
-            self.exchange_two_block(block_index_1, block_index_2)
-        # 保存矩阵到图片
-        self.save_array_to_img(save_path)
 
+        for i in range(100):
+            self.change_random_block()
+
+        # # 根据需要打乱的次数打乱区块
+        # for i in range(self.segment_x):
+        #     for j in range(self.segment_y):
+        #         print(i, j)
+        #         each_mat = self.get_mat_in_assign_block((j, i))
+        #         img = Image.fromarray(each_mat)
+        #         each_save_path = os.path.join(self.save_dir, "{0}_{1}.jpg".format(i, j))
+        #         img.save(each_save_path)
+
+        self.save_array_to_img(save_path)
 
 def segment_and_regroup(img_path, save_path, exchange_times=10, segment_x=7, segment_y=7, assign_block_size=False,
                         assign_block_width=None, assign_block_heignt=None):
     a = SegmentAndRegroup()
+    a.save_dir = r"C:\Users\14271\Desktop\del\crop"
     a.img_path = img_path
     a.segment_x = segment_x
     a.segment_y = segment_y
@@ -138,17 +117,34 @@ def segment_and_regroup(img_path, save_path, exchange_times=10, segment_x=7, seg
     a.assign_block_width = assign_block_width
     a.do_process(save_path)
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# H表示色彩/色度，取值范围 [0，179]，S表示饱和度，取值范围 [0，255]，V表示亮度，取值范围 [0，255]
+
+# frame = cv2.imread(r"C:\Users\14271\Desktop\del\ok.jpg")
+# hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+# h, s, v = hsv[:,:,0], hsv[:,:,1], hsv[:,:,2]
+#
+# # plt.figure()
+# # plt.imshow(h, cmap='gray')
+# # plt.figure()
+# # plt.imshow(v, cmap='gray')
+#
+# # todo 画出颜色直方图
+# hist = cv2.calcHist([hsv], [0], None, [50], [0,256])
+#
+# plt.plot(hist)
+#
+# plt.show()
+
+
+
+
 
 if __name__ == "__main__":
 
     JpgPath = r"C:\Users\14271\Desktop\del\rust.jpg"
     SavePath = r"C:\Users\14271\Desktop\del\rust_2.jpg"
     # segment_and_regroup(JpgPath, SavePath, 10, assign_block_size=True, assign_block_heignt=100, assign_block_width=100)
-    # segment_and_regroup(JpgPath, SavePath, int(20*20/2), segment_x=20, segment_y=20)
-    segment_and_regroup(JpgPath, SavePath, 200, assign_block_width=50, assign_block_heignt=50, assign_block_size=True)
-
-
-
-
-
-
+    segment_and_regroup(JpgPath, SavePath, 20, assign_block_heignt=80, assign_block_width=80, assign_block_size=True)

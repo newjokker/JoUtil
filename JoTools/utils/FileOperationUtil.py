@@ -39,31 +39,34 @@ class FileOperationUtil(object):
             print("* not folder path")
             raise EOFError
 
-        result = []
+        # result = []
         for i, j, k in os.walk(file_path):
             for each_file_name in k:
                 abs_path = i + os.sep + each_file_name
                 if func is None:
-                    result.append(abs_path)
+                    # result.append(abs_path)
+                    yield abs_path
                 else:
                     if func(abs_path):
-                        result.append(os.path.join(i, each_file_name))
-        return result
+                        # result.append(os.path.join(i, each_file_name))
+                        yield os.path.join(i, each_file_name)
+        # return result
 
     @staticmethod
     def re_all_folder(folder_path):
         """返回找到的所有文件夹的路径"""
-
+        # fixme 可以用生成器写，这样就不用等扫描完了再去操作了
         if not os.path.isdir(folder_path):
             print(" 不是文件夹路径 ")
             raise EOFError
 
-        result = []
+        # result = []
         for i, j, k in os.walk(folder_path):
             for each_dir_name in j:
                 abs_path = i + os.sep + each_dir_name
-                result.append(abs_path)
-        return result
+                # result.append(abs_path)
+                yield abs_path
+        # return result
 
     @staticmethod
     def get_file_describe_dict(file_path):

@@ -8,12 +8,12 @@ import random
 import numpy as np
 from abc import ABC
 from PIL import Image
-from JoTools.utils.JsonUtil import JsonUtil
-from JoTools.txkjRes.deteXml import parse_xml, save_to_xml
+from .utils.JsonUtil import JsonUtil
+from .txkjRes.deteXml import parse_xml, save_to_xml
 from .resBase import ResBase
 from .deteObj import DeteObj
 from .deteAngleObj import DeteAngleObj
-from JoTools.txkjRes.resTools import ResTools
+from .txkjRes.resTools import ResTools
 
 
 # todo 添加 log 信息，
@@ -459,7 +459,7 @@ class DeteRes(ResBase, ABC):
         else:
             raise ValueError('one_dete_obj can only be DeteObj or DeteAngleObj')
 
-    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
+    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
@@ -474,9 +474,14 @@ class DeteRes(ResBase, ABC):
             # 截图的区域
             bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
             # 排除掉不需要保存的 tag
+            if include_tag_list is not None:
+                if each_obj.tag not in include_tag_list:
+                    continue
+
             if not exclude_tag_list is None:
                 if each_obj.tag in exclude_tag_list:
                     continue
+
             # 计算这是当前 tag 的第几个图片
             if each_obj.tag not in tag_count_dict:
                 tag_count_dict[each_obj.tag] = 0
@@ -551,6 +556,13 @@ class DeteRes(ResBase, ABC):
             cv2.imencode('.jpg', each_crop)[1].tofile(each_save_path)
 
     # ------------------------------------------------------------------------------------------------------------------
+
+    def has_tag(self, assign_tag):
+        """是否存在指定的标签"""
+        for each_dete_obj in self._alarms:
+            if each_dete_obj.tag == assign_tag:
+                return True
+        return False
 
     def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
         """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""

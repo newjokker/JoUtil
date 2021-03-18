@@ -7,10 +7,10 @@ import copy
 import random
 import shutil
 from PIL import Image
-from JoTools.utils.HashlibUtil import HashLibUtil
-from JoTools.utils.JsonUtil import JsonUtil
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.txkjRes.deteRes import DeteRes
+from .utils.HashlibUtil import HashLibUtil
+from .utils.JsonUtil import JsonUtil
+from .utils.FileOperationUtil import FileOperationUtil
+from .txkjRes.deteRes import DeteRes
 
 # todo xml 信息直接以 json_str 的格式存入图片中
 # todo 多个 edgal 项目进行合并

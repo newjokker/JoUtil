@@ -12,9 +12,9 @@ from .utils.FileOperationUtil import FileOperationUtil
 from .txkjRes.deteXml import parse_xml
 from .utils.NumberUtil import NumberUtil
 import prettytable
-from JoTools.txkjRes.resTools import ResTools
-from JoTools.txkjRes.deteObj import DeteObj
-from JoTools.utils.StrUtil import StrUtil
+from .txkjRes.resTools import ResTools
+from .txkjRes.deteObj import DeteObj
+from .utils.StrUtil import StrUtil
 
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好

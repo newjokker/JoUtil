@@ -3,7 +3,7 @@
 
 import os
 import shutil
-from JoTools.utils.JsonUtil import JsonUtil
+from .JsonUtil import JsonUtil
 
 # todo 可以将文件存放在系统 tmp 目录中，这样就不会再包中留下痕迹
 

@@ -5,7 +5,7 @@
 from JoTools.operateDeteRes import OperateDeteRes
 
 
-xml_dir = r"D:\算法培育-7月样本\金具\保护金具\防振锤\xml"
+xml_dir = r"C:\data\fzc_优化相关资料\000_等待训练\Annotations"
 
 a = OperateDeteRes.get_class_count(xml_dir)
 

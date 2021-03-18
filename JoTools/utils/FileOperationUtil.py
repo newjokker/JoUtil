@@ -32,7 +32,7 @@ class FileOperationUtil(object):
         return folder_path[0], file_name, file_suffix
 
     @staticmethod
-    def re_all_file(file_path, func=None):
+    def re_all_file(file_path, func=None, endswitch=None):
         """返回文件夹路径下的所有文件路径（搜索文件夹中的文件夹）"""
 
         if not os.path.isdir(file_path):
@@ -42,6 +42,13 @@ class FileOperationUtil(object):
         # result = []
         for i, j, k in os.walk(file_path):
             for each_file_name in k:
+
+                # 过滤后缀不符合的路径
+                if endswitch is not None:
+                    _, end_str = os.path.splitext(each_file_name)
+                    if end_str not in endswitch:
+                        continue
+
                 abs_path = i + os.sep + each_file_name
                 if func is None:
                     # result.append(abs_path)

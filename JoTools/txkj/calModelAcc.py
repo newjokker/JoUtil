@@ -17,12 +17,12 @@ class CalModelAcc(object):
         self.img_path = r"C:\Users\14271\Desktop\result"                            # 检测结果文件夹
         #
         self.label_list = ["Fnormal", "fzc_broken"]                                 # xml 中的分类
-        # self.label_list = ["fzc"]                                 # xml 中的分类
-        self.iou_thershold = 0.4                                                   # 判定两矩形重合的 iou 阈值
+        # self.label_list = ["fzc"]                                                 # xml 中的分类
+        self.iou_thershold = 0.4                                                    # 判定两矩形重合的 iou 阈值
         self.metrics_list = ["miss", "extra", "correct", "mistake"]                 # 分类结果
         self.metric_name = ["漏检", "多检", "正确", "误检"]                          # 分类结果中文名
         self.copy_img = True                                                        # 是否将识别错误的图片进行保存
-        self.save_res_path = r"C:\Users\14271\Desktop\res"                          # 保存拷贝数据文件夹
+        self.save_res_path = r""                                                    # 保存拷贝数据文件夹
 
     def xml_read(self, xml_path):
         """读取 xml 信息"""

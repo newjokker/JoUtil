@@ -24,6 +24,8 @@ from ...utils.DecoratorUtil import DecoratorUtil
 # todo 可以对图片的整体进行调整，防止出现大片白色的区域，将图片调整为合适的区域（往中间压缩）
 # todo 可以加入一个纯白的图片，这样可以更好的展现白色，同理可以加一个纯黑的颜色，这样对于特定的图片起到美化的效果
 
+# todo 将字用背景颜色代替
+
 """
 * 实现步奏
 * --------------------------------------
@@ -68,13 +70,14 @@ class WordImage(object):
     def get_mat_from_assign_img(self):
         """从指定的图片中获取对应的矩阵"""
         img = Image.open(self.img_path)
-        gray = img.convert('L')
-        gray = gray.resize(self.new_size)
+        # gray = img.convert('L')
+        gray = img.resize(self.new_size)
         bw = np.asarray(gray).copy()
         self.img_mat = bw
 
     def get_random_word_mat_by_dark_index(self, pic_dark_index):
         """获取对应的随机字符图片的路径"""
+        # fixme 将文字加上颜色
         # 没有需要的字的时候，找到最近的字符
         if pic_dark_index in self.__analysis_dict:
             find_index = pic_dark_index
@@ -110,17 +113,19 @@ class WordImage(object):
 
         dark_index_mat = ((255 - self.img_mat) / (255 / (self.__analysis_max - self.__analysis_min)) + 8).astype(
             np.uint8)
-        line_index, col_index = dark_index_mat.shape
-        new_mat = np.zeros((line_index * 25, col_index * 25), dtype=np.uint8)
+        line_index, col_index, _ = dark_index_mat.shape
+        new_mat = np.zeros((line_index * 25, col_index * 25, 3), dtype=np.uint8)
         #
         pb = progressbar.ProgressBar(line_index).start()
         for i in range(line_index):
             # print(round(float(i) / (float(line_index)), 3))
             pb.update(i+1)
             for j in range(col_index):
-                each_dark_index = dark_index_mat[i, j]
+                each_dark_index = int(np.mean(dark_index_mat[i, j, :]))
                 each_pic_mat = self.get_random_word_mat_by_dark_index(each_dark_index)
-                new_mat[i * 25: (i + 1) * 25, j * 25: (j + 1) * 25] = each_pic_mat
+                color_mat = np.ones((each_pic_mat.shape[0], each_pic_mat.shape[1], 3))*255
+                color_mat[each_pic_mat<120, :] = self.img_mat[i, j, :3]
+                new_mat[i * 25: (i + 1) * 25, j * 25: (j + 1) * 25, :] = color_mat
         pb.finish()
         print(" * saving")
         img = Image.fromarray(new_mat)
@@ -181,23 +186,23 @@ class WordImage(object):
         PickleUtil.save_data_to_pickle_file(word_dark_index_dict, pkl_save_path)
 
 
-# if __name__ == '__main__':
-#
-#     # -------------------------------------------------------------------------------------
-#     ratio = 2                                                   # 图像缩小的比例
-#     img_path = r"C:\Users\14271\Desktop\test.png"
-#     save_path = r'C:\Users\14271\Desktop\beer2.jpg'
-#     # -------------------------------------------------------------------------------------
-#
-#     img = Image.open(img_path)
-#     width, height = img.size
-#     new_width, new_height = int(width/ratio), int(height/ratio)
-#
-#     a = WordImage(img_path, new_size = (new_width, new_height))
-#     a.analysis_pkl_path = r'.\data\del.pkl'
-#     a.save_path = save_path
-#     a.do_process()
-#
-#     # todo 分为三个部分，（1）汉字转为对应的图库中的图片（2）对拥有的图库进行分析，参数可视化（3）指定图片得到对应的汉字图
-#     # todo 使用全部汉字得到的图片结果反而不好，找到原因，并分析时候需要进行修改
-#     # todo 对各个灰度做统计，得到对应的数字的个数
+if __name__ == '__main__':
+
+    # -------------------------------------------------------------------------------------
+    ratio = 1                                                   # 图像缩小的比例
+    img_path = r"C:\Users\14271\Desktop\del\test.jpg"
+    save_path = r"C:\Users\14271\Desktop\del\test_new.jpg"
+    # -------------------------------------------------------------------------------------
+
+    img = Image.open(img_path)
+    width, height = img.size
+    new_width, new_height = int(width/ratio), int(height/ratio)
+
+    a = WordImage(img_path, new_size = (new_width, new_height))
+    a.analysis_pkl_path = r'.\data\del.pkl'
+    a.save_path = save_path
+    a.do_process()
+
+    # todo 分为三个部分，（1）汉字转为对应的图库中的图片（2）对拥有的图库进行分析，参数可视化（3）指定图片得到对应的汉字图
+    # todo 使用全部汉字得到的图片结果反而不好，找到原因，并分析时候需要进行修改
+    # todo 对各个灰度做统计，得到对应的数字的个数

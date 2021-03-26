@@ -77,7 +77,6 @@ class WordImage(object):
 
     def get_random_word_mat_by_dark_index(self, pic_dark_index):
         """获取对应的随机字符图片的路径"""
-        # fixme 将文字加上颜色
         # 没有需要的字的时候，找到最近的字符
         if pic_dark_index in self.__analysis_dict:
             find_index = pic_dark_index
@@ -124,7 +123,7 @@ class WordImage(object):
                 each_dark_index = int(np.mean(dark_index_mat[i, j, :]))
                 each_pic_mat = self.get_random_word_mat_by_dark_index(each_dark_index)
                 color_mat = np.ones((each_pic_mat.shape[0], each_pic_mat.shape[1], 3))*255
-                color_mat[each_pic_mat<120, :] = self.img_mat[i, j, :3]
+                color_mat[each_pic_mat<175, :] = self.img_mat[i, j, :3]
                 new_mat[i * 25: (i + 1) * 25, j * 25: (j + 1) * 25, :] = color_mat
         pb.finish()
         print(" * saving")

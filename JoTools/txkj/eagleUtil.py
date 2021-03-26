@@ -7,16 +7,12 @@ import copy
 import random
 import shutil
 from PIL import Image
-from .utils.HashlibUtil import HashLibUtil
-from .utils.JsonUtil import JsonUtil
-from .utils.FileOperationUtil import FileOperationUtil
-from .txkjRes.deteRes import DeteRes
+from ..utils.HashlibUtil import HashLibUtil
+from ..utils.JsonUtil import JsonUtil
+from ..utils.FileOperationUtil import FileOperationUtil
+from ..txkjRes.deteRes import DeteRes
 
-# todo xml 信息直接以 json_str 的格式存入图片中
-# todo 多个 edgal 项目进行合并
-# todo 给一个项目地址，先完成项目的初始化，如果有文件的话先去读取指定的文件
 # fixme 可以主动选择分析颜色，选中需要的图片，右击更多，重新分析颜色
-# todo 试一下是否可以直接用 md5 值作为 id，这样的话同样的图片，每一次运行 id 不是随机的而是固定的，这样会方便很多
 
 
 class EagleMetaData(object):
@@ -202,15 +198,19 @@ class EagleOperate(object):
     def get_random_id(self):
         """随机获取图片的 id"""
 
-        # fixme 后面的随机数字加上时间信息就不会有重复了，
-
         while True:
             random_id = "KDH5" + str(random.randint(100000000, 1000000000))
             if random_id not in self.id_set:
                 self.id_set.add(random_id)
                 return random_id
 
-    def get_tag_dict(self, img_dir):
+        # while True:
+        #     random_id = "Jo" + str(int(time.time() * 1000))[2:]     # 前面两位，后面 11 位
+        #     if random_id not in self.id_set:
+        #         self.id_set.add(random_id)
+        #         return random_id
+
+    def get_tag_dict(self, img_dir, xml_format='wh'):
         """合并图像信息，拿到每个图像对应的标签"""
         for img_index, each_img_path in enumerate(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith((".jpg", ".JPG")))):
             print(img_index, "get md5 info", each_img_path)
@@ -218,7 +218,13 @@ class EagleOperate(object):
             # get md5, tag
             each_tags = set(dir_name[len(self.img_dir)+1:].split(os.sep))
             each_md5 = HashLibUtil.get_file_md5(each_img_path)
-            each_xml = os.path.join(dir_name, "xml", os.path.split(each_img_path)[1][:-3] + 'xml')
+
+            if xml_format == 'wh':
+                each_xml = os.path.join(dir_name, "xml", os.path.split(each_img_path)[1][:-3] + 'xml')
+            else:
+                # 非武汉数据默认 xml 和 img 放在一个文件夹中
+                each_xml = os.path.join(dir_name, os.path.split(each_img_path)[1][:-3] + 'xml')
+
             #
             if each_md5 in self.md5_dict:
                 old_img_path = self.md5_dict[each_md5]
@@ -292,7 +298,7 @@ class EagleOperate(object):
         self.mtime = EagleMTimes()
         self.faster_metadata = EagleFolderMetaData()
 
-        self.get_tag_dict(img_dir)
+        self.get_tag_dict(img_dir, 'normal')
         # 创建对应的文件夹
         os.makedirs(self.back_up_dir, exist_ok=True)
         os.makedirs(self.images_dir, exist_ok=True)
@@ -312,10 +318,6 @@ class EagleOperate(object):
 
     def save_to_xml_img(self, save_dir):
         """直接转为我们常用的数据集"""
-
-        # todo 如何解决文件名重复的问题，如何重建文件夹结构？
-        # todo 可以将 ID 直接作为文件名，或者 md5 值作为文件名，最好是 md5 值，要看图片对应的信息的话直接在 edgal 中看就行
-
         # Annotations, JPEGImages
         xml_dir = os.path.join(save_dir, "Annotations")
         img_dir = os.path.join(save_dir, "JPEGImages")
@@ -340,8 +342,8 @@ if __name__ == "__main__":
     # imgDir = r"D:\算法培育-6月样本"
     # eagle_library = r"D:\peiyu06.library"
 
-    eagle_library = r"C:\Users\14271\Desktop\del\test_003.library"
-    imgDir = r"C:\Users\14271\Desktop\del\del"
+    eagle_library = r"C:\Users\14271\Desktop\del\test_fzc.library"
+    imgDir = r"C:\Users\14271\Desktop\test_data\img"
 
     a = EagleOperate(eagle_library, imgDir)
     a.init_edgal_project(imgDir)

@@ -8,12 +8,12 @@ import random
 import numpy as np
 from abc import ABC
 from PIL import Image
-from .utils.JsonUtil import JsonUtil
-from .txkjRes.deteXml import parse_xml, save_to_xml
+from ..utils.JsonUtil import JsonUtil
+from ..txkjRes.deteXml import parse_xml, save_to_xml
 from .resBase import ResBase
 from .deteObj import DeteObj
 from .deteAngleObj import DeteAngleObj
-from .txkjRes.resTools import ResTools
+from ..txkjRes.resTools import ResTools
 
 
 # todo 添加 log 信息，

@@ -196,7 +196,10 @@ class DeteRes(ResBase, ABC):
         if assign_dete_res is None:
             raise ValueError("assign id not exist")
 
-        img = Image.open(self.img_path)
+        # 如果没有读取 img
+        if self.img is None:
+            self.img = Image.open(self.img_path)
+
         if augment_parameter is None:
             crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
         else:

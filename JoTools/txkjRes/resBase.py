@@ -18,6 +18,9 @@ class ResBase():
         self.xml_path = xml_path        # 可以从 xml 中读取检测结果
         self.json_dict = copy.deepcopy(json_dict)      # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
 
+        # todo 增加一个图片对象，将一张图片的信息存放到内存中
+        self.img = None
+
     @abstractmethod
     def save_to_xml(self, save_path, assign_alarms=None):
         """保存为 xml"""
@@ -41,9 +44,15 @@ class ResBase():
     @abstractmethod
     def _parse_img_info(self):
         """获取图像信息"""
-        if self.img_path is not None:
-            img = Image.open(self.img_path)
-            self.width, self.height = img.size
-            self.folder = os.path.split(self.img_path)[0]
-            self.file_name = os.path.split(self.img_path)[1]
+
+        if self.img is None:
+            if self.img_path is not None:
+                self.img = Image.open(self.img_path)
+            else:
+                return False
+
+        self.width, self.height = self.img.size
+        self.folder = os.path.split(self.img_path)[0]
+        self.file_name = os.path.split(self.img_path)[1]
+        return True
 

@@ -14,6 +14,10 @@ from ..txkjRes.deteRes import DeteRes
 
 # fixme 可以主动选择分析颜色，选中需要的图片，右击更多，重新分析颜色
 
+use_xml_tag = True
+use_folder_tag = True
+
+
 
 class EagleMetaData(object):
     """Eagle 元数据"""
@@ -259,6 +263,9 @@ class EagleOperate(object):
                 for each_dete_obj in each_dete_res.alarms:
                     a.add_comment(each_dete_obj.x1, each_dete_obj.y1, each_dete_obj.x2, each_dete_obj.y2,
                                   each_dete_obj.tag, self.get_random_id(), EagleOperate.get_modification_time())
+                    # fixme 增加 obj 的标签
+                    a.add_tag(each_dete_obj.tag)
+                    self.tag.add_tags(each_dete_obj.tag)
         # ----------------------------------------------------------------------------------------------------------
         # 完善属性
         self.mtime.update_assign_id(each_id, each_mo_time)

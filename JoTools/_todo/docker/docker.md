@@ -113,29 +113,46 @@
 
 * 
 
-
-
-
 ### 如何与调度代码配合
-
-
 
 ---
 
 ### docker 操作流程
 
-* 后台运行一个 docker 镜像，得到一个容器
+#### tar | images | container 
+
+
+* tar --> image 
+    * images : docker load image_id
+    * container : docker import container_id  
+
+* images|container --> tar
+    * images : docker save image_id
+    * container : docker export container_id 
+
+* container --> tar
+    * docker export 1e560fca3906 > ubuntu.tar
+
+* images --> container
     * docker run -itd image_id /bin/bash
+
+* container --> images
+    * docker commit afcaf46e8305 centos-vim
+
+* del container | images
+    * 删除镜像时需要从先删除从镜像实例化的所有container，删除container要用 rm 而不是 stop 
+    * images : docker rmi image_id
+    * container : docker rm container_id 
+    * container : docker stop container_id
+    * del all container : docker rm $(docker ps -aq)
+        * -a : all
+        * -q : Only display container IDs
+
+
+
 
 * 进入这个容器进行操作
     * docker exec id -it /bin/bash
-
-* 保存容器为新的镜像
-    * docker commit afcaf46e8305 centos-vim
-
-* 
-
-
 
 
 

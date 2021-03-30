@@ -5,11 +5,13 @@ import copy
 import os
 from PIL import Image
 from abc import ABCMeta, abstractmethod
+from ..utils.DecoratorUtil import DecoratorUtil
 
 
 class ResBase():
 
     def __init__(self, xml_path=None, assign_img_path=None, json_dict=None):
+        self.img = None
         self.height = -1                # 检测图像的高
         self.width = -1                 # 检测图像的宽
         self.folder = ""                # 图像存在的文件夹
@@ -19,7 +21,6 @@ class ResBase():
         self.json_dict = copy.deepcopy(json_dict)      # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
 
         # todo 增加一个图片对象，将一张图片的信息存放到内存中
-        self.img = None
 
     @abstractmethod
     def save_to_xml(self, save_path, assign_alarms=None):
@@ -41,6 +42,7 @@ class ResBase():
         """解析 json 信息"""
         pass
 
+    @DecoratorUtil.time_this
     @abstractmethod
     def _parse_img_info(self):
         """获取图像信息"""

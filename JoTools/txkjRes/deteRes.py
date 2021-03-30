@@ -14,7 +14,7 @@ from .resBase import ResBase
 from .deteObj import DeteObj
 from .deteAngleObj import DeteAngleObj
 from ..txkjRes.resTools import ResTools
-
+# from ..utils.DecoratorUtil import DecoratorUtil
 
 # todo 添加 log 信息，
 # todo 使用装饰器来写 log，方便的进行记录
@@ -189,6 +189,14 @@ class DeteRes(ResBase, ABC):
             each_dete_obj.id = index
             index += 1
 
+    def get_crop_name_by_ID(self, assign_id):
+        """根据文件的ID得到文件裁剪后的名字"""
+        img_name = os.path.split(self.img_path)[1]
+        dete_obj = self.get_dete_obj_by_id(assign_id)
+        name_str = dete_obj.get_name_str()
+        crop_name = '{0}-+-{1}.jpg'.format(img_name, name_str)
+        return crop_name
+
     def get_sub_img_by_id(self, assign_id, augment_parameter=None):
         """根据指定 id 得到小图的矩阵数据"""
         assign_dete_res = self.get_dete_obj_by_id(assign_id=assign_id)
@@ -206,7 +214,7 @@ class DeteRes(ResBase, ABC):
             crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
             crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
 
-        img_crop = img.crop(crop_range)
+        img_crop = self.img.crop(crop_range)
         return np.array(img_crop)
 
     # ------------------------------------------------------------------------------------------------------------------

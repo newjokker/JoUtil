@@ -5,7 +5,7 @@ import copy
 import os
 from PIL import Image
 from abc import ABCMeta, abstractmethod
-from ..utils.DecoratorUtil import DecoratorUtil
+# from ..utils.DecoratorUtil import DecoratorUtil
 
 
 class ResBase():
@@ -42,7 +42,7 @@ class ResBase():
         """解析 json 信息"""
         pass
 
-    @DecoratorUtil.time_this
+    # @DecoratorUtil.time_this
     @abstractmethod
     def _parse_img_info(self):
         """获取图像信息"""

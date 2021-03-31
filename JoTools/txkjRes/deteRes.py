@@ -16,8 +16,6 @@ from .deteAngleObj import DeteAngleObj
 from ..txkjRes.resTools import ResTools
 # from ..utils.DecoratorUtil import DecoratorUtil
 
-# todo 添加 log 信息，
-# todo 使用装饰器来写 log，方便的进行记录
 # fixme 增加版本管理
 
 
@@ -29,6 +27,50 @@ class DeteRes(ResBase, ABC):
         self._alarms = []
         self._log = log
         super().__init__(xml_path, assign_img_path, json_dict)
+
+    def __contains__(self, item):
+        """是否包含元素"""
+
+        if not(isinstance(item, DeteAngleObj) or isinstance(item, DeteObj)):
+             raise TypeError("item should 被 DeteAngleObj or DeteObj")
+
+        for each_dete_obj in self._alarms:
+            if item == each_dete_obj:
+                return True
+
+        return False
+
+    def __add__(self, other):
+        """DeteRes之间进行相加"""
+
+        if not isinstance(other, DeteRes):
+            raise TypeError("should be DeteRes")
+
+        for each_dete_obj in other.alarms:
+            # 不包含这个元素的时候进行添加
+            if each_dete_obj not in self:
+                self._alarms.append(each_dete_obj)
+        return self
+
+    def __len__(self):
+        """返回要素的个数"""
+        return len(self._alarms)
+
+    def __getitem__(self, index):
+        """按照 index 取对应的对象"""
+        return self._alarms[index]
+
+    def __setattr__(self, key, value):
+        """设置属性后执行对应"""
+        object.__setattr__(self, key, value)
+
+        # set self.img_path --> do self._parse_img_info()
+        if key == 'img_path' and isinstance(value, str):
+            self._parse_img_info()
+        elif key == 'xml_path' and isinstance(value, str):
+            self._parse_xml_info()
+        elif key == 'json_dict' and isinstance(value, dict):
+            self._parse_json_info()
 
     # ------------------------------------------ transform -------------------------------------------------------------
 
@@ -170,6 +212,7 @@ class DeteRes(ResBase, ABC):
 
     def get_dete_obj_by_id(self, assign_id):
         """获取 id 对应的 deteObj 对象"""
+        # fixme 这边的效率可以进行优化，这操作在对象比较多的情况下比较消耗计算资源
         for each_dete_obj in self._alarms:
             if int(each_dete_obj.id) == int(assign_id):
                 return each_dete_obj
@@ -409,52 +452,6 @@ class DeteRes(ResBase, ABC):
     def alarms(self):
         """获取属性自动进行排序"""
         return sorted(self._alarms, key=lambda x:x.id)
-
-    # ------------------------------------------------- magic ----------------------------------------------------------
-
-    def __contains__(self, item):
-        """是否包含元素"""
-
-        if not(isinstance(item, DeteAngleObj) or isinstance(item, DeteObj)):
-             raise TypeError("item should 被 DeteAngleObj or DeteObj")
-
-        for each_dete_obj in self._alarms:
-            if item == each_dete_obj:
-                return True
-
-        return False
-
-    def __add__(self, other):
-        """DeteRes之间进行相加"""
-
-        if not isinstance(other, DeteRes):
-            raise TypeError("should be DeteRes")
-
-        for each_dete_obj in other.alarms:
-            # 不包含这个元素的时候进行添加
-            if each_dete_obj not in self:
-                self._alarms.append(each_dete_obj)
-        return self
-
-    def __len__(self):
-        """返回要素的个数"""
-        return len(self._alarms)
-
-    def __getitem__(self, index):
-        """按照 index 取对应的对象"""
-        return self._alarms[index]
-
-    def __setattr__(self, key, value):
-        """设置属性后执行对应"""
-        object.__setattr__(self, key, value)
-
-        # set self.img_path --> do self._parse_img_info()
-        if key == 'img_path' and isinstance(value, str):
-            self._parse_img_info()
-        elif key == 'xml_path' and isinstance(value, str):
-            self._parse_xml_info()
-        elif key == 'json_dict' and isinstance(value, str):
-            self._parse_json_info()
 
     # ------------------------------------------------------------------------------------------------------------------
 

@@ -4,6 +4,7 @@
 import os
 import cv2
 import copy
+import time
 import random
 import numpy as np
 from abc import ABC
@@ -211,19 +212,27 @@ class DeteRes(ResBase, ABC):
     # --------------------------------------------- id -----------------------------------------------------------------
 
     def get_dete_obj_by_id(self, assign_id):
-        """获取 id 对应的 deteObj 对象"""
+        """获取第一个 id 对应的 deteObj 对象"""
         # fixme 这边的效率可以进行优化，这操作在对象比较多的情况下比较消耗计算资源
         for each_dete_obj in self._alarms:
             if int(each_dete_obj.id) == int(assign_id):
                 return each_dete_obj
         return None
 
+    def get_dete_obj_list_by_id(self, assign_id):
+        """获取所有 id 对应的 deteObj 对象"""
+        res = []
+        for each_dete_obj in self._alarms:
+            if int(each_dete_obj.id) == int(assign_id):
+                res.append(each_dete_obj)
+        return res
+
     def get_id_list(self):
         """获取要素 id list，有时候会过滤掉一些 id 这时候按照 id 寻找就会有问题"""
-        id_list = []
+        id_set = set()
         for each_dete_obj in self._alarms:
-            id_list.append(each_dete_obj.id)
-        return id_list
+            id_set.add(each_dete_obj.id)
+        return list(id_set)
 
     def refresh_obj_id(self):
         """跟新要素的 id，重新排列"""
@@ -242,9 +251,13 @@ class DeteRes(ResBase, ABC):
 
     def get_sub_img_by_id(self, assign_id, augment_parameter=None):
         """根据指定 id 得到小图的矩阵数据"""
-        assign_dete_res = self.get_dete_obj_by_id(assign_id=assign_id)
+        assign_dete_obj = self.get_dete_obj_by_id(assign_id=assign_id)
+        return self.get_sub_img_by_dete_obj(assign_dete_obj, augment_parameter)
 
-        if assign_dete_res is None:
+    def get_sub_img_by_dete_obj(self, assign_dete_obj, augment_parameter=None):
+        """根据指定的 deteObj """
+
+        if assign_dete_obj is None:
             raise ValueError("assign id not exist")
 
         # 如果没有读取 img
@@ -252,9 +265,9 @@ class DeteRes(ResBase, ABC):
             self.img = Image.open(self.img_path)
 
         if augment_parameter is None:
-            crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
+            crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
         else:
-            crop_range = [assign_dete_res.x1, assign_dete_res.y1, assign_dete_res.x2, assign_dete_res.y2]
+            crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
             crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
 
         img_crop = self.img.crop(crop_range)
@@ -444,6 +457,28 @@ class DeteRes(ResBase, ABC):
             index += 1
         return res_list
 
+    def get_result_construction(self):
+        """返回规范的检测结果字典"""
+
+        result = {
+                  'filename': self.img_path,
+                  'start_time': 0,
+                  'end_time': time.time(),
+                  'width': self.width,
+                  'height': self.height,
+                  'alarms': []
+                  }
+
+        each_info = {}
+        for each_dete_obj in self.alarms:
+            each_info['position'] = [each_dete_obj.x1, each_dete_obj.y1, each_dete_obj.x2-each_dete_obj.x1, each_dete_obj.y2-each_dete_obj.y1]
+            each_info['class'] = each_dete_obj.tag
+            each_info['possibility'] = each_dete_obj.conf
+            result['alarms'].append(copy.deepcopy(each_info))
+
+        result['count'] = len(result['alarms'])
+        return result
+
     def deep_copy(self):
         """返回一个深拷贝"""
         return copy.deepcopy(self)
@@ -463,7 +498,8 @@ class DeteRes(ResBase, ABC):
     def add_obj_2(self, one_dete_obj):
         """增加一个检测框"""
         if isinstance(one_dete_obj, DeteObj) or isinstance(one_dete_obj, DeteAngleObj):
-            self._alarms.append(one_dete_obj)
+            one_dete_obj_new = copy.deepcopy(one_dete_obj)
+            self._alarms.append(one_dete_obj_new)
         else:
             raise ValueError('one_dete_obj can only be DeteObj or DeteAngleObj')
 

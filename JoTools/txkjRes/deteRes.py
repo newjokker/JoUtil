@@ -305,20 +305,33 @@ class DeteRes(ResBase, ABC):
             tl = line_thickness or int(round(0.001 * max(img.shape[0:2])))      # line thickness
             tf = max(tl - 2, 1)                                                 # font thickness
 
-            if isinstance(each_res, DeteObj):
-                c1, c2 =(each_res.x1, each_res.y1), (each_res.x2, each_res.y2)
-                cv2.rectangle(img, (each_res.x1, each_res.y1), (each_res.x2, each_res.y2), color=each_color, thickness=tl)
-            else:
-                new_each_res = each_res.get_dete_obj()
-                c1, c2 = (new_each_res.x1, new_each_res.y1), (new_each_res.x2, new_each_res.y2)
-                pts = np.array(each_res.get_points(), np.int)
-                cv2.polylines(img, [pts], True, color=each_color, thickness=tl)
             #
             s_size = cv2.getTextSize(str('{:.0%}'.format(float(each_res.conf))), 0, fontScale=float(tl) / 3, thickness=tf)[0]
             t_size = cv2.getTextSize(each_res.tag, 0, fontScale=float(tl) / 3, thickness=tf)[0]
-            c2 = c1[0] + t_size[0] + s_size[0] + 15, c1[1] - t_size[1] - 3
-            cv2.rectangle(img, c1, c2, each_color, -1)  # filled
-            cv2.putText(img, '{}: {:.0%}'.format(str(each_res.tag), float(each_res.conf)), (c1[0], c1[1] - 2), 0, float(tl) / 3, [0, 0, 0], thickness=tf, lineType=cv2.FONT_HERSHEY_SIMPLEX)
+
+
+            if isinstance(each_res, DeteObj):
+                c1, c2 =(each_res.x1, each_res.y1), (each_res.x2, each_res.y2)
+                c2 = c1[0] + t_size[0] + s_size[0] + 15, c1[1] - t_size[1] - 3
+                cv2.rectangle(img, (each_res.x1, each_res.y1), (each_res.x2, each_res.y2), color=each_color, thickness=tl)
+                cv2.rectangle(img, c1, c2, each_color, -1)  # filled
+                cv2.putText(img, '{}: {:.0%}'.format(str(each_res.tag), float(each_res.conf)), (c1[0], c1[1] - 2), 0, float(tl) / 3, [0, 0, 0], thickness=tf, lineType=cv2.FONT_HERSHEY_SIMPLEX)
+
+            else:
+                # 找到左上角的点
+                pt_sorted_by_left = sorted(each_res.get_points(), key=lambda x:x[0])
+                c1 = pt_sorted_by_left[0]
+                c1 = (int(c1[0]), int(c1[1]))
+                c2 = c1[0] + t_size[0] + s_size[0] + 15, c1[1] - t_size[1] - 3
+                pts = np.array(each_res.get_points(), np.int)
+                cv2.polylines(img, [pts], True, color=each_color, thickness=tl)
+                #
+                cv2.rectangle(img, c1, c2, each_color, -1)  # filled
+                cv2.putText(img, '{}: {:.0%}'.format(str(each_res.tag), float(each_res.conf)), (c1[0], c1[1] - 2), 0, float(tl) / 3, [0, 0, 0], thickness=tf, lineType=cv2.FONT_HERSHEY_SIMPLEX)
+
+                # todo 得到小矩形的范围，再画上即可
+                # cv2.fillPoly(img, [pts], color=[0,0,255])
+
 
         # 保存图片，解决保存中文乱码问题
         cv2.imencode('.jpg', img)[1].tofile(save_path)

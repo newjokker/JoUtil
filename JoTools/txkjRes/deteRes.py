@@ -22,6 +22,11 @@ from ..txkjRes.resTools import ResTools
 
 # fixme DeteRes 转为 jsonStr 的时候，将图片也转为对应的 jsonstr
 
+# todo 提供斜框截图，已经在斜框裁剪那边实现，直接拿过来完善一下即可
+
+# todo 输出结果没有写上 id
+
+
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
@@ -451,7 +456,11 @@ class DeteRes(ResBase, ABC):
         """使用多边形 mask 进行过滤，mask 支持任意凸多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
         new_alarms = []
         for each_obj in self._alarms:
+
             each_cover_index = ResTools.cal_cover_index(each_obj.get_points(), mask)
+
+            print('each_cover_index : ', each_cover_index)
+
             if each_cover_index > cover_index_th and need_in is True:
                 new_alarms.append(each_obj)
             elif each_cover_index < cover_index_th and need_in is False:

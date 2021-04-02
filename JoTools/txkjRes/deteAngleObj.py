@@ -45,6 +45,7 @@ class DeteAngleObj(object):
         p1x,p1y = self._rotate_point(cx, cy, cx + w / 2, cy - h / 2, -angle)
         p2x,p2y = self._rotate_point(cx, cy, cx + w / 2, cy + h / 2, -angle)
         p3x,p3y = self._rotate_point(cx, cy, cx - w / 2, cy + h / 2, -angle)
+        # todo 看看这四个点是不是按照顺序的
         return [[p0x,p0y], [p1x,p1y], [p2x,p2y], [p3x,p3y]]
 
     def get_dete_obj(self):

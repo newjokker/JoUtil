@@ -17,8 +17,10 @@ from .deteAngleObj import DeteAngleObj
 from ..txkjRes.resTools import ResTools
 # from ..utils.DecoratorUtil import DecoratorUtil
 
-# fixme 增加版本管理
+# fixme 使用共享内存的方式对读取图像进行加速，我看了下 pillow 读取图像的速度特别快，一秒能读取几百张，所以这个步骤是否有必要
+# fixme 使用 radis 内存数据库，存储数据看看速度
 
+# fixme DeteRes 转为 jsonStr 的时候，将图片也转为对应的 jsonstr
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -213,7 +215,6 @@ class DeteRes(ResBase, ABC):
 
     def get_dete_obj_by_id(self, assign_id):
         """获取第一个 id 对应的 deteObj 对象"""
-        # fixme 这边的效率可以进行优化，这操作在对象比较多的情况下比较消耗计算资源
         for each_dete_obj in self._alarms:
             if int(each_dete_obj.id) == int(assign_id):
                 return each_dete_obj
@@ -434,7 +435,7 @@ class DeteRes(ResBase, ABC):
         self._alarms = new_alarms
 
     def filter_by_mask(self, mask, cover_index_th=0.5, need_in=True):
-        """使用多边形 mask 进行过滤，mask 支持任意多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
+        """使用多边形 mask 进行过滤，mask 支持任意凸多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
         new_alarms = []
         for each_obj in self._alarms:
             each_cover_index = ResTools.cal_cover_index(each_obj.get_points(), mask)
@@ -449,12 +450,13 @@ class DeteRes(ResBase, ABC):
     def get_fzc_format(self):
         """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""
         res_list = []
-        index = 0
         # 遍历得到多有的
         for each_res in self._alarms:
             # res_list.append([each_res.tag, index, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
-            res_list.append([each_res.tag, each_res.id, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
-            index += 1
+            if isinstance(each_res, DeteObj):
+                res_list.append([each_res.tag, each_res.id, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
+            elif isinstance(each_res, DeteAngleObj):
+                res_list.append([each_res.tag, each_res.id, each_res.cx, each_res.cy, each_res.w, each_res.h, each_res.angle, each_res.conf])
         return res_list
 
     def get_result_construction(self):

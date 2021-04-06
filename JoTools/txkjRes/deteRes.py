@@ -255,12 +255,12 @@ class DeteRes(ResBase, ABC):
         crop_name = '{0}-+-{1}.jpg'.format(img_name, name_str)
         return crop_name
 
-    def get_sub_img_by_id(self, assign_id, augment_parameter=None):
+    def get_sub_img_by_id(self, assign_id, augment_parameter=None, RGB=True, assign_shape_min=False):
         """根据指定 id 得到小图的矩阵数据"""
         assign_dete_obj = self.get_dete_obj_by_id(assign_id=assign_id)
-        return self.get_sub_img_by_dete_obj(assign_dete_obj, augment_parameter)
+        return self.get_sub_img_by_dete_obj(assign_dete_obj, augment_parameter, RGB=RGB, assign_shape_min=assign_shape_min)
 
-    def get_sub_img_by_dete_obj(self, assign_dete_obj, augment_parameter=None):
+    def get_sub_img_by_dete_obj(self, assign_dete_obj, augment_parameter=None, RGB=True, assign_shape_min=False):
         """根据指定的 deteObj """
 
         if assign_dete_obj is None:
@@ -277,7 +277,18 @@ class DeteRes(ResBase, ABC):
             crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
 
         img_crop = self.img.crop(crop_range)
-        return np.array(img_crop)
+        # change size
+        if assign_shape_min:
+            w, h = img_crop.width, img_crop.height
+            ratio = assign_shape_min/min(w, h)
+            img_crop = img_crop.resize((int(ratio*w), int(ratio*h)))
+        # Image --> array
+        im_array = np.array(img_crop)
+        # change chanel order
+        if RGB:
+            return im_array
+        else:
+            return cv2.cvtColor(im_array, cv2.COLOR_BGR2RGB)
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -456,11 +467,8 @@ class DeteRes(ResBase, ABC):
         """使用多边形 mask 进行过滤，mask 支持任意凸多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
         new_alarms = []
         for each_obj in self._alarms:
-
             each_cover_index = ResTools.cal_cover_index(each_obj.get_points(), mask)
-
-            print('each_cover_index : ', each_cover_index)
-
+            # print("each_cover_index : ", each_cover_index)
             if each_cover_index > cover_index_th and need_in is True:
                 new_alarms.append(each_obj)
             elif each_cover_index < cover_index_th and need_in is False:

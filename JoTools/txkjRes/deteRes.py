@@ -24,8 +24,6 @@ from ..txkjRes.resTools import ResTools
 
 # todo 提供斜框截图，已经在斜框裁剪那边实现，直接拿过来完善一下即可
 
-# todo 输出结果没有写上 id
-
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -216,6 +214,16 @@ class DeteRes(ResBase, ABC):
         json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
         return json_dict
 
+    def save_to_txt(self, txt_path):
+        """label img 中会将标注信息转为 txt 进行保存"""
+        # todo 会生成两个文件 （1）classes.txt 存放类别信息 （2）文件名.txt 存放标注信息，tag mx my w h , mx my 为中心点坐标
+        pass
+
+    def parse_txt_info(self, classes_path, record_path):
+        """解析 txt 信息"""
+        # todo txt 信息中不包含图像的大小，波段数等信息，保存和读取 txt 标注的信息比较鸡肋
+        pass
+
     # --------------------------------------------- id -----------------------------------------------------------------
 
     def get_dete_obj_by_id(self, assign_id):
@@ -270,18 +278,32 @@ class DeteRes(ResBase, ABC):
         if self.img is None:
             self.img = Image.open(self.img_path)
 
-        if augment_parameter is None:
-            crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
+        if isinstance(assign_dete_obj, DeteObj):
+            if augment_parameter is None:
+                crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
+            else:
+                crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
+                crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
+            img_crop = self.img.crop(crop_range)
+        elif isinstance(assign_dete_obj, DeteAngleObj):
+            if augment_parameter is None:
+                crop_array = ResTools.crop_angle_rect(self.img_path, ((assign_dete_obj.cx, assign_dete_obj.cy), (assign_dete_obj.w, assign_dete_obj.h), assign_dete_obj.angle))
+            else:
+                w = assign_dete_obj.w * (1+augment_parameter[0])
+                h = assign_dete_obj.h * (1+augment_parameter[1])
+                crop_array = ResTools.crop_angle_rect(self.img_path, ((assign_dete_obj.cx, assign_dete_obj.cy), (w, h), assign_dete_obj.angle))
+            # BGR -> RGB
+            crop_array = cv2.cvtColor(crop_array, cv2.COLOR_BGR2RGB)
+            img_crop = Image.fromarray(crop_array)
         else:
-            crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
-            crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
+            raise ValueError("not support assign_dete_obj's type : ".format(type(assign_dete_obj)))
 
-        img_crop = self.img.crop(crop_range)
         # change size
         if assign_shape_min:
             w, h = img_crop.width, img_crop.height
             ratio = assign_shape_min/min(w, h)
             img_crop = img_crop.resize((int(ratio*w), int(ratio*h)))
+
         # Image --> array
         im_array = np.array(img_crop)
         # change chanel order
@@ -488,6 +510,11 @@ class DeteRes(ResBase, ABC):
             elif isinstance(each_res, DeteAngleObj):
                 res_list.append([each_res.tag, each_res.id, each_res.cx, each_res.cy, each_res.w, each_res.h, each_res.angle, each_res.conf])
         return res_list
+
+    def print_as_fzc_format(self):
+        """按照防振锤的格式打印出来"""
+        for each in self.get_fzc_format():
+            print(each)
 
     def get_result_construction(self):
         """返回规范的检测结果字典"""

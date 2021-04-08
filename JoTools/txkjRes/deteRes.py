@@ -65,8 +65,7 @@ class DeteRes(ResBase, ABC):
     def __setattr__(self, key, value):
         """设置属性后执行对应"""
         object.__setattr__(self, key, value)
-
-        # set self.img_path --> do self._parse_img_info()
+        #
         if key == 'img_path' and isinstance(value, str):
             self._parse_img_info()
         elif key == 'xml_path' and isinstance(value, str):

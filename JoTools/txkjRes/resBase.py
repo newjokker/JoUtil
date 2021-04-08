@@ -75,16 +75,16 @@ class ResBase():
     def _parse_img_info_from_redis(self):
         """从 redis 获取图像信息"""
         if (self.redis_conn is not None) and (self.img_redis_key is not None):
-            self.img = pickle.loads(self.redis_conn.get(self.img_redis_key))
-            self._parse_img_info()
+            img_byte = self.redis_conn.get(self.img_redis_key)
+            if img_byte:
+                self.img = pickle.loads(img_byte)
+                self._parse_img_info()
 
     def set_img_to_redis(self, assign_img_key=None):
         """将图片存入 redis"""
-        # fixme 是否需要在这里面去操作，造理来说应该在外面操作，但是这边有这个函数就能更新 redis 中的图像信息
         if (self.img is not None) and (self.redis_conn is not None):
             if assign_img_key is not None:
                 self.img_redis_key = assign_img_key
-
             self.redis_conn.set(assign_img_key, pickle.dumps(self.img))
 
 

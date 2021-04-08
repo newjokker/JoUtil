@@ -4,6 +4,7 @@
 import copy
 import os
 import pickle
+import redis
 from PIL import Image
 from abc import ABCMeta, abstractmethod
 # from ..utils.DecoratorUtil import DecoratorUtil
@@ -20,9 +21,9 @@ class ResBase():
         self.img_path = assign_img_path # 对应的原图的路径
         self.xml_path = xml_path        # 可以从 xml 中读取检测结果
         self.json_dict = copy.deepcopy(json_dict)      # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
-        self._redis_conn_info = redis_conn_info
-        self.img_redis_key = img_redis_key
         self.redis_conn = None
+        self.redis_conn_info = redis_conn_info
+        self.img_redis_key = img_redis_key
         # todo 增加一个图片对象，将一张图片的信息存放到内存中
 
     @abstractmethod
@@ -52,19 +53,23 @@ class ResBase():
 
         if self.img is None:
             if self.img_path is not None:
-                self.img = Image.open(self.img_path)
+                if os.path.exists(self.img_path):
+                    self.img = Image.open(self.img_path)
+                else:
+                    return False
             else:
                 return False
 
         self.width, self.height = self.img.size
-        self.folder = os.path.split(self.img_path)[0]
-        self.file_name = os.path.split(self.img_path)[1]
+        if self.img_path:
+            self.folder = os.path.split(self.img_path)[0]
+            self.file_name = os.path.split(self.img_path)[1]
         return True
 
     def _connect_redis(self):
         """连接 redis"""
-        if self._redis_conn_info is not None:
-            host, port = self._redis_conn_info
+        if self.redis_conn_info is not None:
+            host, port = self.redis_conn_info
             self.redis_conn = redis.StrictRedis(host=host, port=port, db=0)
 
     def _parse_img_info_from_redis(self):

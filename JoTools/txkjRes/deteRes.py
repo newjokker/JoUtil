@@ -24,11 +24,11 @@ from ..txkjRes.resTools import ResTools
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
-    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, log=None, img_redis_loc=None):
+    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, log=None, redis_conn_info=None, img_redis_key=None):
         # 子类新方法需要放在前面
         self._alarms = []
         self._log = log
-        super().__init__(xml_path, assign_img_path, json_dict)
+        super().__init__(xml_path, assign_img_path, json_dict, redis_conn_info=redis_conn_info, img_redis_key=img_redis_key)
 
     def __contains__(self, item):
         """是否包含元素"""
@@ -73,6 +73,10 @@ class DeteRes(ResBase, ABC):
             self._parse_xml_info()
         elif key == 'json_dict' and isinstance(value, dict):
             self._parse_json_info()
+        elif key == 'redis_conn_info' and (isinstance(value, tuple) or isinstance(value, list)):
+            self._connect_redis()
+        elif key == 'img_redis_key' and isinstance(value, str):
+            self._parse_img_info_from_redis()
 
     # ------------------------------------------ transform -------------------------------------------------------------
 
@@ -88,6 +92,9 @@ class DeteRes(ResBase, ABC):
         #
         if 'filename' in xml_info:
             self.file_name = xml_info['filename']
+        #
+        if 'path' in xml_info:
+            self.img_path = xml_info['path']
 
         if 'folder' in xml_info:
             self.folder = xml_info['folder']
@@ -558,12 +565,25 @@ class DeteRes(ResBase, ABC):
         else:
             raise ValueError('one_dete_obj can only be DeteObj or DeteAngleObj')
 
-    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None):
+    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
-        img = Image.open(self.img_path)
-        img_name = os.path.split(self.img_path)[1][:-4]
+        #
+        if self.img is None:
+            if self.img_path is None:
+                raise ValueError("self.img self.img_path is None")
+            else:
+                self.img = Image.open(self.img_path)
+        #
+        if assign_img_name is not None:
+            img_name = assign_img_name
+        else:
+            if self.img_path is not None :
+                img_name = os.path.split(self.img_path)[1][:-4]
+            else:
+                raise ValueError("need self.img_path or assign_img_name")
+
         tag_count_dict = {}
         #
         for each_obj in self._alarms:
@@ -603,7 +623,7 @@ class DeteRes(ResBase, ABC):
             each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
 
             # todo 对 bndbox 的范围进行检查
-            each_crop = img.crop(bndbox)
+            each_crop = self.img.crop(bndbox)
             # 对截图的图片自定义操作, 可以指定缩放大小之类的
             if method is not None:
                 each_crop = method(each_crop)

@@ -3,6 +3,7 @@
 
 import copy
 import os
+import pickle
 from PIL import Image
 from abc import ABCMeta, abstractmethod
 # from ..utils.DecoratorUtil import DecoratorUtil
@@ -10,7 +11,7 @@ from abc import ABCMeta, abstractmethod
 
 class ResBase():
 
-    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None):
+    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, redis_conn_info=None, img_redis_key=None):
         self.img = None
         self.height = -1                # 检测图像的高
         self.width = -1                 # 检测图像的宽
@@ -19,7 +20,9 @@ class ResBase():
         self.img_path = assign_img_path # 对应的原图的路径
         self.xml_path = xml_path        # 可以从 xml 中读取检测结果
         self.json_dict = copy.deepcopy(json_dict)      # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
-
+        self._redis_conn_info = redis_conn_info
+        self.img_redis_key = img_redis_key
+        self.redis_conn = None
         # todo 增加一个图片对象，将一张图片的信息存放到内存中
 
     @abstractmethod
@@ -57,4 +60,26 @@ class ResBase():
         self.folder = os.path.split(self.img_path)[0]
         self.file_name = os.path.split(self.img_path)[1]
         return True
+
+    def _connect_redis(self):
+        """连接 redis"""
+        if self._redis_conn_info is not None:
+            host, port = self._redis_conn_info
+            self.redis_conn = redis.StrictRedis(host=host, port=port, db=0)
+
+    def _parse_img_info_from_redis(self):
+        """从 redis 获取图像信息"""
+        if (self.redis_conn is not None) and (self.img_redis_key is not None):
+            self.img = pickle.loads(self.redis_conn.get(self.img_redis_key))
+            self._parse_img_info()
+
+    def set_img_to_redis(self, assign_img_key=None):
+        """将图片存入 redis"""
+        # fixme 是否需要在这里面去操作，造理来说应该在外面操作，但是这边有这个函数就能更新 redis 中的图像信息
+        if (self.img is not None) and (self.redis_conn is not None):
+            if assign_img_key is not None:
+                self.img_redis_key = assign_img_key
+
+            self.redis_conn.set(assign_img_key, pickle.dumps(self.img))
+
 

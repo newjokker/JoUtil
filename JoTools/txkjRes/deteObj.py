@@ -15,6 +15,18 @@ class DeteObj(object):
         self.y2 = y2
         self.id=assign_id
 
+    def __eq__(self, other):
+        """等于"""
+
+        # 类型不同返回 false
+        if not isinstance(other, DeteObj):
+            return False
+
+        if self.x1 == other.x1 and self.x2 == other.x2 and self.y1 == other.y1 and self.y2 == other.y2 and self.tag == other.tag:
+            return True
+        else:
+            return False
+
     def do_offset(self, offset_x, offset_y):
         """对结果进行偏移"""
         self.x1 += offset_x
@@ -54,22 +66,6 @@ class DeteObj(object):
     def deep_copy(self):
         """返回深拷贝对象"""
         return copy.deepcopy(self)
-
-    # ------------------------------------------------------------------------------------------------------------------
-
-    def __eq__(self, other):
-        """等于"""
-
-        # 类型不同返回 false
-        if not isinstance(other, DeteObj):
-            return False
-
-        if self.x1 == other.x1 and self.x2 == other.x2 and self.y1 == other.y1 and self.y2 == other.y2 and self.tag == other.tag:
-            return True
-        else:
-            return False
-
-    # ------------------------------------------------------------------------------------------------------------------
 
     def get_name_str(self):
         """信息保存为文件名"""

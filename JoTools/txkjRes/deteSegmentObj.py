@@ -1,14 +1,13 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-import cv2
-import copy
-import math
-import numpy as np
-from .deteObj import DeteObj
+
+# todo
+# todo
 
 
-class DeteAngleObj(object):
+
+class DeteSegmentObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
 
     def __init__(self, cx=None, cy=None, w=None, h=None, angle=None, tag="", conf=-1, assign_id=-1):
@@ -98,13 +97,10 @@ class DeteAngleObj(object):
         """从文件名获取信息"""
         self.cx, self.cy, self.w, self.h, self.angle, self.tag, self.conf, self.id = eval(name_str)
 
-
 if __name__ == "__main__":
 
-    a = DeteAngleObj(10,10,30,30,2.32,'ok_good')
-    b = a.to_name_str()
+    a = DeteObj(10,10,30,30,'ok_good')
+    b = a.get_name_str()
     print(b)
     a.load_from_name_str(b)
     print(a.get_format_list())
-
-

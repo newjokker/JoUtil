@@ -20,15 +20,11 @@ from ..txkjRes.resTools import ResTools
 # fixme 使用共享内存的方式对读取图像进行加速，我看了下 pillow 读取图像的速度特别快，一秒能读取几百张，所以这个步骤是否有必要
 # fixme 使用 radis 内存数据库，存储数据看看速度
 
-# fixme DeteRes 转为 jsonStr 的时候，将图片也转为对应的 jsonstr
-
-# todo 提供斜框截图，已经在斜框裁剪那边实现，直接拿过来完善一下即可
-
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
-    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, log=None):
+    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, log=None, img_redis_loc=None):
         # 子类新方法需要放在前面
         self._alarms = []
         self._log = log
@@ -255,7 +251,7 @@ class DeteRes(ResBase, ABC):
             each_dete_obj.id = index
             index += 1
 
-    def get_crop_name_by_ID(self, assign_id):
+    def get_crop_name_by_id(self, assign_id):
         """根据文件的ID得到文件裁剪后的名字"""
         img_name = os.path.split(self.img_path)[1]
         dete_obj = self.get_dete_obj_by_id(assign_id)

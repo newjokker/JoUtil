@@ -10,7 +10,7 @@ from PIL import Image
 img_path = r"C:\Users\14271\Desktop\del\res.jpg"
 
 
-r = redis.StrictRedis(host='192.168.3.185', port=6379, db=0)
+r = redis.StrictRedis(host='192.168.3.185', port=6379)
 
 # # 设置关键词
 # r.set('jokker', 'hello')

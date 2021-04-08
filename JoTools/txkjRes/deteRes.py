@@ -21,6 +21,9 @@ from ..txkjRes.resTools import ResTools
 # fixme 使用 radis 内存数据库，存储数据看看速度
 
 
+# fixme 因为从数据库中获取 img 的次数很少，所以不用将连接保存在类的属性中，将这部分的内容删除
+
+
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
@@ -314,6 +317,10 @@ class DeteRes(ResBase, ABC):
         else:
             return cv2.cvtColor(im_array, cv2.COLOR_BGR2RGB)
 
+    def get_img_array(self):
+        """获取self.img对应的矩阵信息"""
+        return np.array(self.img)
+
     # ------------------------------------------------------------------------------------------------------------------
 
     def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=-1):
@@ -542,6 +549,7 @@ class DeteRes(ResBase, ABC):
 
     def deep_copy(self):
         """返回一个深拷贝"""
+        # fixme 对于 socket 对象是不能进行深拷贝的
         return copy.deepcopy(self)
 
     @property
@@ -568,6 +576,9 @@ class DeteRes(ResBase, ABC):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
+
+        # todo 从数据库中获取 图像信息
+
         #
         if self.img is None:
             if self.img_path is None:

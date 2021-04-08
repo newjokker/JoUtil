@@ -17,7 +17,6 @@ for each_dete_res in dete_res:
     a.add_obj_2(each_dete_res)
 
 
-
 # a.img = Image.open(r"C:\Users\14271\Desktop\del\del\110kV德七Ⅰ回_0塔头 (1).jpg")
 # a.set_img_to_redis('123')
 #
@@ -25,4 +24,10 @@ for each_dete_res in dete_res:
 # a.img_redis_key='123'
 
 
+# a.crop_and_save(r"C:\Users\14271\Desktop\del\res", assign_img_name="jokker_new")
+
+c = a.deep_copy()
+
 a.crop_and_save(r"C:\Users\14271\Desktop\del\res", assign_img_name="jokker_new")
+print('-'*30)
+c.crop_and_save(r"C:\Users\14271\Desktop\del\res", assign_img_name="jokker_new")

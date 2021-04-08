@@ -68,23 +68,31 @@ class ResBase():
 
     def _connect_redis(self):
         """连接 redis"""
-        if self.redis_conn_info is not None:
-            host, port = self.redis_conn_info
-            self.redis_conn = redis.StrictRedis(host=host, port=port, db=0)
+        # if self.redis_conn_info is not None:
+        #     host, port = self.redis_conn_info
+        #     self.redis_conn = redis.StrictRedis(host=host, port=port, db=0)
 
     def _parse_img_info_from_redis(self):
         """从 redis 获取图像信息"""
-        if (self.redis_conn is not None) and (self.img_redis_key is not None):
-            img_byte = self.redis_conn.get(self.img_redis_key)
-            if img_byte:
-                self.img = pickle.loads(img_byte)
-                self._parse_img_info()
+        # if (self.redis_conn is not None) and (self.img_redis_key is not None):
+        #     img_byte = self.redis_conn.get(self.img_redis_key)
+        #     if img_byte:
+        #         self.img = pickle.loads(img_byte)
+        #         self._parse_img_info()
 
     def set_img_to_redis(self, assign_img_key=None):
         """将图片存入 redis"""
-        if (self.img is not None) and (self.redis_conn is not None):
-            if assign_img_key is not None:
-                self.img_redis_key = assign_img_key
-            self.redis_conn.set(assign_img_key, pickle.dumps(self.img))
+        # if (self.img is not None) and (self.redis_conn is not None):
+        #     if assign_img_key is not None:
+        #         self.img_redis_key = assign_img_key
+        #     self.redis_conn.set(assign_img_key, pickle.dumps(self.img))
+
+    def get_img_from_resdis(self, host, port, img_key):
+        """从 redis 字典中获取 img 信息"""
+        redis_conn = redis.StrictRedis(host=host, port=port)
+        img_byte = redis_conn.get(img_key)
+        if img_byte:
+            self.img = pickle.loads(img_byte)
+            self._parse_img_info()
 
 

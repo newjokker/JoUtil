@@ -75,6 +75,7 @@ class DeteRes(ResBase, ABC):
             self._parse_xml_info()
         elif key == 'json_dict' and isinstance(value, dict):
             self._parse_json_info()
+        # fixme 下面的两个后面进行删除
         elif key == 'redis_conn_info' and (isinstance(value, tuple) or isinstance(value, list)):
             self._connect_redis()
         elif key == 'img_redis_key' and isinstance(value, str):

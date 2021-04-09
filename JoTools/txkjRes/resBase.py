@@ -94,5 +94,6 @@ class ResBase():
         if img_byte:
             self.img = pickle.loads(img_byte)
             self._parse_img_info()
+        redis_conn.close()
 
 

@@ -9,18 +9,15 @@ import random
 import numpy as np
 from abc import ABC
 from PIL import Image
-from ..utils.JsonUtil import JsonUtil
-from ..txkjRes.deteXml import parse_xml, save_to_xml
 from .resBase import ResBase
 from .deteObj import DeteObj
 from .deteAngleObj import DeteAngleObj
 from ..txkjRes.resTools import ResTools
-# from ..utils.DecoratorUtil import DecoratorUtil
+from ..utils.JsonUtil import JsonUtil
+from ..txkjRes.deteXml import parse_xml, save_to_xml
 
 # fixme 使用共享内存的方式对读取图像进行加速，我看了下 pillow 读取图像的速度特别快，一秒能读取几百张，所以这个步骤是否有必要
 # fixme 使用 radis 内存数据库，存储数据看看速度
-
-
 # fixme 因为从数据库中获取 img 的次数很少，所以不用将连接保存在类的属性中，将这部分的内容删除
 
 
@@ -75,11 +72,6 @@ class DeteRes(ResBase, ABC):
             self._parse_xml_info()
         elif key == 'json_dict' and isinstance(value, dict):
             self._parse_json_info()
-        # fixme 下面的两个后面进行删除
-        elif key == 'redis_conn_info' and (isinstance(value, tuple) or isinstance(value, list)):
-            self._connect_redis()
-        elif key == 'img_redis_key' and isinstance(value, str):
-            self._parse_img_info_from_redis()
 
     # ------------------------------------------ transform -------------------------------------------------------------
 
@@ -340,7 +332,12 @@ class DeteRes(ResBase, ABC):
         if color_dict is None:
             color_dict = {}
         #
-        img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+        if self.img_path is not None:
+            img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+        elif self.img is not None:
+            img = np.array(self.img)
+        else:
+            raise ValueError('need self.img or self.img_path')
         #
         for each_res in self._alarms:
             #
@@ -352,11 +349,9 @@ class DeteRes(ResBase, ABC):
 
             tl = line_thickness or int(round(0.001 * max(img.shape[0:2])))      # line thickness
             tf = max(tl - 2, 1)                                                 # font thickness
-
             #
             s_size = cv2.getTextSize(str('{:.0%}'.format(float(each_res.conf))), 0, fontScale=float(tl) / 3, thickness=tf)[0]
             t_size = cv2.getTextSize(each_res.tag, 0, fontScale=float(tl) / 3, thickness=tf)[0]
-
 
             if isinstance(each_res, DeteObj):
                 c1, c2 =(each_res.x1, each_res.y1), (each_res.x2, each_res.y2)
@@ -364,7 +359,6 @@ class DeteRes(ResBase, ABC):
                 cv2.rectangle(img, (each_res.x1, each_res.y1), (each_res.x2, each_res.y2), color=each_color, thickness=tl)
                 cv2.rectangle(img, c1, c2, each_color, -1)  # filled
                 cv2.putText(img, '{}: {:.0%}'.format(str(each_res.tag), float(each_res.conf)), (c1[0], c1[1] - 2), 0, float(tl) / 3, [0, 0, 0], thickness=tf, lineType=cv2.FONT_HERSHEY_SIMPLEX)
-
             else:
                 # 找到左上角的点
                 pt_sorted_by_left = sorted(each_res.get_points(), key=lambda x:x[0])
@@ -379,7 +373,6 @@ class DeteRes(ResBase, ABC):
 
                 # todo 得到小矩形的范围，再画上即可
                 # cv2.fillPoly(img, [pts], color=[0,0,255])
-
 
         # 保存图片，解决保存中文乱码问题
         cv2.imencode('.jpg', img)[1].tofile(save_path)
@@ -528,7 +521,6 @@ class DeteRes(ResBase, ABC):
 
     def get_result_construction(self):
         """返回规范的检测结果字典"""
-
         result = {
                   'filename': self.img_path,
                   'start_time': 0,
@@ -799,14 +791,4 @@ class DeteRes(ResBase, ABC):
                 each_obj = each_obj.get_dete_obj()
                 new_alarms.append(each_obj)
         self._alarms = new_alarms
-
-
-def do_log(func):
-    pass
-
-
-
-
-
-
 

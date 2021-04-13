@@ -1,12 +1,19 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
+"""
+* pip install opencv-python : 安装 cv2
+* conda install shapely : 安装 shapely, pip 安装比较容易报错
+"""
+
+
+
 from setuptools import setup, find_packages
 
 setup(
 
     name='JoUtil',                                                                          # 打包起来的包的文件名
-    version='0.2.5-A',                                                                        # 版本
+    version='0.2.5-B',                                                                        # 版本
     description='a tools for TXKJ algo',                                                    # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
@@ -18,7 +25,9 @@ setup(
 
     # 打包的python文件夹
     packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes',
-              'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war'
+              'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war',
+
+              'Jotools/shapely', 'Jotools/shapely/algorithms', 'Jotools/shapely/geometry', 'Jotools/shapely/speedups', 'Jotools/shapely/vectorized'
               ],
     # packages=find_packages('JoTools'),          # 包含所有 JoTools 中的包
     package_data={

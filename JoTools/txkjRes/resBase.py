@@ -1,30 +1,28 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-import copy
 import os
-import pickle
 import redis
+import copy
+import pickle
 from PIL import Image
 from abc import ABCMeta, abstractmethod
-# from ..utils.DecoratorUtil import DecoratorUtil
 
 
 class ResBase():
 
     def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, redis_conn_info=None, img_redis_key=None):
         self.img = None
-        self.height = -1                # 检测图像的高
-        self.width = -1                 # 检测图像的宽
-        self.folder = ""                # 图像存在的文件夹
-        self.file_name = ""             # 检测图像文件名
-        self.img_path = assign_img_path # 对应的原图的路径
-        self.xml_path = xml_path        # 可以从 xml 中读取检测结果
-        self.json_dict = copy.deepcopy(json_dict)      # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
+        self.height = -1                                    # 检测图像的高
+        self.width = -1                                     # 检测图像的宽
+        self.folder = ""                                    # 图像存在的文件夹
+        self.file_name = ""                                 # 检测图像文件名
+        self.img_path = assign_img_path                     # 对应的原图的路径
+        self.xml_path = xml_path                            # 可以从 xml 中读取检测结果
+        self.json_dict = copy.deepcopy(json_dict)           # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
         self.redis_conn = None
         self.redis_conn_info = redis_conn_info
         self.img_redis_key = img_redis_key
-        # todo 增加一个图片对象，将一张图片的信息存放到内存中
 
     @abstractmethod
     def save_to_xml(self, save_path, assign_alarms=None):

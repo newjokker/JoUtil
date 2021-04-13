@@ -1,9 +1,6 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-
-"""相关的工具"""
-
 import cv2
 import numpy as np
 from shapely.geometry import Polygon

@@ -704,7 +704,7 @@ class DeteRes(ResBase, ABC):
     def filter_by_area_ratio(self, ar=0.0006):
         """根据面积比例进行删选"""
         # get area
-        th_area = float(sel.width * self.height) * ar
+        th_area = float(self.width * self.height) * ar
         self.filter_by_area(area_th=th_area)
 
     def filter_by_func(self, func):

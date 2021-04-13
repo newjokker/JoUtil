@@ -382,8 +382,7 @@ class OperateDeteRes(object):
                 continue
 
             # 保存文件
-            # a = DeteRes(assign_img_path=region_img_path)
-            a = DeteAngleRes(assign_img_path=region_img_path)
+            a = DeteRes(assign_img_path=region_img_path)
             a.reset_alarms(dete_res_dict[each_img_name])
             xml_path = os.path.join(save_xml_dir, "{0}.xml".format(each_img_name))
             a.save_to_xml(xml_path)

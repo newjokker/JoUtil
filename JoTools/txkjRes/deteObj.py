@@ -1,6 +1,7 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
+import copy
 
 class DeteObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""

@@ -417,15 +417,15 @@ class DeteRes(ResBase, ABC):
 
     def del_by_tages(self, remove_tags):
         """根据 tag 类型进行筛选"""
-        dal_alarms, old_alarms = [], []
+        del_alarms, old_alarms = [], []
         remove_tag = set(remove_tags)
         for each_dete_res in self._alarms:
             if each_dete_res.tag in remove_tag:
-                dal_alarms.append(each_dete_res)
+                del_alarms.append(each_dete_res)
             else:
                 old_alarms.append(each_dete_res)
         self._alarms = old_alarms
-        return dal_alarms
+        return del_alarms
 
     def del_by_conf(self, conf, is_lt=True):
         """删除置信度符合条件的 dete_obj, is_lt 删除小于置信度的"""
@@ -441,6 +441,17 @@ class DeteRes(ResBase, ABC):
                     del_alarms.append(each_dete_res)
                 else:
                     old_alarms.append(each_dete_res)
+        self._alarms = old_alarms
+        return del_alarms
+
+    def del_by_id(self, assign_id):
+        """删除指定 id 的 deteObj"""
+        del_alarms, old_alarms = [], []
+        for each_dete_res in self._alarms:
+            if each_dete_res.id == assign_id:
+                del_alarms.append(each_dete_res)
+            else:
+                old_alarms.append(each_dete_res)
         self._alarms = old_alarms
         return del_alarms
 

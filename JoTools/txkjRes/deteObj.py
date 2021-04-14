@@ -6,7 +6,7 @@ import copy
 class DeteObj(object):
     """检测结果的一个检测对象，就是一个矩形框对应的信息"""
 
-    def __init__(self, x1=None, y1=None, x2=None, y2=None, tag="", conf=-1, assign_id=-1):
+    def __init__(self, x1=None, y1=None, x2=None, y2=None, tag="", conf=-1, assign_id=-1, describe:str=''):
         """(x1,y1), (x2,y2) 左下角右上角"""
         self.conf = conf
         self.tag = tag
@@ -14,7 +14,9 @@ class DeteObj(object):
         self.x2 = x2
         self.y1 = y1
         self.y2 = y2
-        self.id=assign_id
+        self.id = assign_id
+        # 描述信息，用于接纳非标准信息
+        self.des = describe
 
     def __eq__(self, other):
         """等于"""

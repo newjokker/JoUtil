@@ -414,9 +414,12 @@ class DeteRes(ResBase, ABC):
             if each_dete_res.tag in update_dict:
                 each_dete_res.tag = update_dict[each_dete_res.tag]
 
-    def reset_alarms(self, assign_alarms):
+    def reset_alarms(self, assign_alarms=None):
         """重置 alarms"""
-        self._alarms = assign_alarms
+        if assign_alarms is None:
+            self._alarms = []
+        else:
+            self._alarms = assign_alarms
 
     # ------------------------------------------------- pop ------------------------------------------------------------
 

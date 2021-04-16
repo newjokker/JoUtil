@@ -11,6 +11,9 @@ from ..txkjRes.deteAngleObj import DeteAngleObj
 # todo 统一文件名，按照同样的逻辑对文件进行命名
 
 
+# todo cal_iou 函数需要进行合并，全部改为新的样式
+
+
 class ResTools(object):
     """Res 需要的函数"""
 
@@ -55,58 +58,23 @@ class ResTools(object):
         if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
             return 0.0
 
-        if isinstance(dete_obj_1, DeteObj) and isinstance(dete_obj_2, DeteObj):
-            # 计算两个正框之间的 iou
-            dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
-            dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
-            overlap_area = dx * dy
-            union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1) +
-                          (dete_obj_2.x2 - dete_obj_2.x1 + 1) * (dete_obj_2.y2 - dete_obj_2.y1 + 1) - overlap_area)
-            return overlap_area * 1. / union_area
-        else:
-            # 计算两个多边形之间的 iou
-            poly_points_list_1 = dete_obj_1.get_points()
-            poly_points_list_2 = dete_obj_2.get_points()
-            iou = ResTools.polygon_iou(poly_points_list_1, poly_points_list_2)
-            return iou
+        # 计算两个多边形之间的 iou
+        poly_points_list_1 = dete_obj_1.get_points()
+        poly_points_list_2 = dete_obj_2.get_points()
+        iou = ResTools.polygon_iou(poly_points_list_1, poly_points_list_2)
+        return iou
 
     @staticmethod
-    def cal_iou_1(dete_obj_1, dete_obj_2, ignore_tag=False):
+    def cal_iou_1(dete_obj_1, dete_obj_2, ignore_tag=True):
         """计算两个矩形框的相交面积，占其中一个矩形框面积的比例 ， """
         if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
             return 0
 
-        if isinstance(dete_obj_1, DeteObj) and isinstance(dete_obj_2, DeteObj):
-            # 两个正框
-            dx = max(min(dete_obj_1.x2, dete_obj_2.x2) - max(dete_obj_1.x1, dete_obj_2.x1) + 1, 0)
-            dy = max(min(dete_obj_1.y2, dete_obj_2.y2) - max(dete_obj_1.y1, dete_obj_2.y1) + 1, 0)
-            overlap_area = dx * dy
-            union_area = ((dete_obj_1.x2 - dete_obj_1.x1 + 1) * (dete_obj_1.y2 - dete_obj_1.y1 + 1))
-            return overlap_area * 1. / union_area
-        else:
-            # 非正框之间
-            # 计算两个多边形之间的 iou
-            poly_points_list_1 = dete_obj_1.get_points()
-            poly_points_list_2 = dete_obj_2.get_points()
-            cover_index = ResTools.cal_cover_index(poly_points_list_1, poly_points_list_2)
-            return cover_index
-
-    @staticmethod
-    def crop_angle_rect(img_path, rect):
-        """输入的是弧度，需要转为角度"""
-        # get the parameter of the small rectangle
-        center, size, angle = rect[0], rect[1], rect[2]
-        center, size = tuple(map(int, center)), tuple(map(int, size))
-        # get row and col num in img
-        img = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
-        height, width = img.shape[0], img.shape[1]
-        # calculate the rotation matrix
-        M = cv2.getRotationMatrix2D(center, (180*angle)/3.14, 1)
-        # rotate the original image
-        img_rot = cv2.warpAffine(img, M, (width, height))
-        # now rotated rectangle becomes vertical and we crop it
-        img_crop = cv2.getRectSubPix(img_rot, size, center)
-        return img_crop
+        # 计算两个多边形之间的 iou
+        poly_points_list_1 = dete_obj_1.get_points()
+        poly_points_list_2 = dete_obj_2.get_points()
+        cover_index = ResTools.polygon_iou_1(poly_points_list_1, poly_points_list_2)
+        return cover_index
 
     @staticmethod
     def polygon_iou(poly_points_list_1, poly_points_list_2):
@@ -124,7 +92,7 @@ class ResTools(object):
         return iou
 
     @staticmethod
-    def cal_cover_index(poly_points_list_1, poly_mask_points_list_2):
+    def polygon_iou_1(poly_points_list_1, poly_mask_points_list_2):
         """计算一个多边形被另外一个多边形覆盖的比例，覆盖比"""
         poly1 = Polygon(poly_points_list_1).convex_hull  # 凸多边形
         poly2 = Polygon(poly_mask_points_list_2).convex_hull  # 凸多边形
@@ -135,6 +103,23 @@ class ResTools(object):
         #
         cover_index = area_3/area_1
         return cover_index
+
+    @staticmethod
+    def crop_angle_rect(img, rect):
+        """输入的是弧度，需要转为角度"""
+        # get the parameter of the small rectangle
+        center, size, angle = rect[0], rect[1], rect[2]
+        center, size = tuple(map(int, center)), tuple(map(int, size))
+        # get row and col num in img
+        # img = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
+        height, width = img.shape[0], img.shape[1]
+        # calculate the rotation matrix
+        M = cv2.getRotationMatrix2D(center, (180*angle)/3.14, 1)
+        # rotate the original image
+        img_rot = cv2.warpAffine(img, M, (width, height))
+        # now rotated rectangle becomes vertical and we crop it
+        img_crop = cv2.getRectSubPix(img_rot, size, center)
+        return img_crop
 
 
 

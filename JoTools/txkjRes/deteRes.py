@@ -22,6 +22,7 @@ from ..txkjRes.deteXml import parse_xml, save_to_xml
 
 # todo 本质上 filter 和 del 是同一个作用，对这两个进行合并
 
+
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
@@ -274,10 +275,10 @@ class DeteRes(ResBase, ABC):
     def get_sub_img_by_dete_obj(self, assign_dete_obj, augment_parameter=None, RGB=True, assign_shape_min=False):
         """根据指定的 deteObj """
 
-        if assign_dete_obj is None:
-            raise ValueError("assign id not exist")
-
         # 如果没有读取 img
+        if (not self.img) and (not self.img_path):
+            raise ValueError ("need img_path or img")
+
         if self.img is None:
             self.img = Image.open(self.img_path)
 
@@ -290,13 +291,12 @@ class DeteRes(ResBase, ABC):
             img_crop = self.img.crop(crop_range)
         elif isinstance(assign_dete_obj, DeteAngleObj):
             if augment_parameter is None:
-                crop_array = ResTools.crop_angle_rect(self.img_path, ((assign_dete_obj.cx, assign_dete_obj.cy), (assign_dete_obj.w, assign_dete_obj.h), assign_dete_obj.angle))
+                crop_array = ResTools.crop_angle_rect(np.array(self.img), ((assign_dete_obj.cx, assign_dete_obj.cy), (assign_dete_obj.w, assign_dete_obj.h), assign_dete_obj.angle))
             else:
                 w = assign_dete_obj.w * (1+augment_parameter[0])
                 h = assign_dete_obj.h * (1+augment_parameter[1])
-                crop_array = ResTools.crop_angle_rect(self.img_path, ((assign_dete_obj.cx, assign_dete_obj.cy), (w, h), assign_dete_obj.angle))
+                crop_array = ResTools.crop_angle_rect(np.array(self.img), ((assign_dete_obj.cx, assign_dete_obj.cy), (w, h), assign_dete_obj.angle))
             # BGR -> RGB
-            crop_array = cv2.cvtColor(crop_array, cv2.COLOR_BGR2RGB)
             img_crop = Image.fromarray(crop_array)
         else:
             raise ValueError("not support assign_dete_obj's type : ".format(type(assign_dete_obj)))
@@ -326,10 +326,18 @@ class DeteRes(ResBase, ABC):
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf, assign_id=assign_id, describe=describe)
         self._alarms.append(one_dete_obj)
 
-    def add_angle_obj(self, cx, cy, w, h, angle, tag, conf, assign_id=None, describe=''):
+    def add_angle_obj(self, cx, cy, w, h, angle, tag, conf, assign_id=-1, describe=''):
         """增加一个角度矩形对象"""
         one_dete_obj = DeteAngleObj(cx=cx, cy=cy, w=w, h=h, angle=angle, tag=tag, conf=conf, assign_id=assign_id, describe=describe)
         self._alarms.append(one_dete_obj)
+
+    def add_obj_2(self, one_dete_obj):
+        """增加一个检测框"""
+        if isinstance(one_dete_obj, DeteObj) or isinstance(one_dete_obj, DeteAngleObj):
+            one_dete_obj_new = copy.deepcopy(one_dete_obj)
+            self._alarms.append(one_dete_obj_new)
+        else:
+            raise ValueError('one_dete_obj can only be DeteObj or DeteAngleObj')
 
     def draw_dete_res(self, save_path, line_thickness=2, color_dict=None):
         """在图像上画出检测的结果"""
@@ -337,14 +345,17 @@ class DeteRes(ResBase, ABC):
         if color_dict is None:
             color_dict = {}
         #
-        if self.img_path is not None:
-            img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
-        elif self.img is not None:
+        if self.img is not None:
             img = np.array(self.img)
+        elif self.img_path:
+            img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
         else:
             raise ValueError('need self.img or self.img_path')
         #
         for each_res in self._alarms:
+            #
+            if isinstance(each_res.tag, int) or isinstance(each_res, float):
+                raise ValueError("tag should not be int or float")
             #
             if each_res.tag in color_dict:
                 each_color = color_dict[each_res.tag]
@@ -497,6 +508,10 @@ class DeteRes(ResBase, ABC):
 
     def filter_by_conf(self, conf_th, assign_tag_list=None):
         """根据置信度进行筛选，指定标签就能对不同标签使用不同的置信度"""
+
+        if not(isinstance(conf_th, int) and isinstance(conf_th, float)):
+            raise ValueError("conf_th should be int or float")
+
         new_alarms = []
         for each_dete_res in self._alarms:
             if assign_tag_list is not None:
@@ -511,7 +526,7 @@ class DeteRes(ResBase, ABC):
         """使用多边形 mask 进行过滤，mask 支持任意凸多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
         new_alarms = []
         for each_obj in self._alarms:
-            each_cover_index = ResTools.cal_cover_index(each_obj.get_points(), mask)
+            each_cover_index = ResTools.polygon_iou_1(each_obj.get_points(), mask)
             # print("each_cover_index : ", each_cover_index)
             if each_cover_index > cover_index_th and need_in is True:
                 new_alarms.append(each_obj)
@@ -575,14 +590,6 @@ class DeteRes(ResBase, ABC):
         """横纵坐标中的偏移量"""
         for each_dete_obj in self._alarms:
             each_dete_obj.do_offset(x, y)
-
-    def add_obj_2(self, one_dete_obj):
-        """增加一个检测框"""
-        if isinstance(one_dete_obj, DeteObj) or isinstance(one_dete_obj, DeteAngleObj):
-            one_dete_obj_new = copy.deepcopy(one_dete_obj)
-            self._alarms.append(one_dete_obj_new)
-        else:
-            raise ValueError('one_dete_obj can only be DeteObj or DeteAngleObj')
 
     def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数

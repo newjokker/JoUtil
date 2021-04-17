@@ -237,14 +237,6 @@ class DeteRes(ResBase, ABC):
                 return each_dete_obj
         return None
 
-    def get_dete_obj_list_by_id(self, assign_id):
-        """获取所有 id 对应的 deteObj 对象"""
-        res = []
-        for each_dete_obj in self._alarms:
-            if int(each_dete_obj.id) == int(assign_id):
-                res.append(each_dete_obj)
-        return res
-
     def get_id_list(self):
         """获取要素 id list，有时候会过滤掉一些 id 这时候按照 id 寻找就会有问题"""
         id_set = set()
@@ -318,6 +310,28 @@ class DeteRes(ResBase, ABC):
     def get_img_array(self):
         """获取self.img对应的矩阵信息"""
         return np.array(self.img)
+
+    def get_dete_obj_list_by_id(self, assign_id, is_deep_copy=False):
+        """获取所有 id 对应的 deteObj 对象，可以指定是否执行深拷贝"""
+        res = []
+        for each_dete_obj in self._alarms:
+            if int(each_dete_obj.id) == int(assign_id):
+                if is_deep_copy:
+                    res.append(each_dete_obj.deep_copy())
+                else:
+                    res.append(each_dete_obj)
+        return res
+
+    def get_dete_obj_list_by_func(self, func, is_deep_copy=False):
+        """根据指定的方法获取需要的 dete_obj，可以指定是否执行深拷贝 """
+        res = []
+        for each_dete_obj in self._alarms:
+            if func(each_dete_obj):
+                if is_deep_copy:
+                    res.append(each_dete_obj.deep_copy())
+                else:
+                    res.append(each_dete_obj)
+        return res
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -479,9 +493,9 @@ class DeteRes(ResBase, ABC):
     def filter_by_area(self, area_th):
         """根据面积大小（像素个数）进行筛选"""
         new_alarms = []
-        for each_dete_res in self._alarms:
-            if each_dete_res.get_area() >= area_th:
-                new_alarms.append(each_dete_res)
+        for each_dete_tag in self._alarms:
+            if each_dete_tag.get_area() >= area_th:
+                new_alarms.append(each_dete_tag)
         self._alarms = new_alarms
 
     def filter_by_tages(self, need_tag=None, remove_tag=None):
@@ -496,14 +510,14 @@ class DeteRes(ResBase, ABC):
 
         if need_tag is not None:
             need_tag = set(need_tag)
-            for each_dete_res in self._alarms:
-                if each_dete_res.tag in need_tag:
-                    new_alarms.append(each_dete_res)
+            for each_dete_tag in self._alarms:
+                if each_dete_tag.tag in need_tag:
+                    new_alarms.append(each_dete_tag)
         else:
             remove_tag = set(remove_tag)
-            for each_dete_res in self._alarms:
-                if each_dete_res.tag not in remove_tag:
-                    new_alarms.append(each_dete_res)
+            for each_dete_tag in self._alarms:
+                if each_dete_tag.tag not in remove_tag:
+                    new_alarms.append(each_dete_tag)
         self._alarms = new_alarms
 
     def filter_by_conf(self, conf_th, assign_tag_list=None):
@@ -513,13 +527,13 @@ class DeteRes(ResBase, ABC):
             raise ValueError("conf_th should be int or float")
 
         new_alarms = []
-        for each_dete_res in self._alarms:
+        for each_dete_obj in self._alarms:
             if assign_tag_list is not None:
-                if each_dete_res.tag not in assign_tag_list:
-                    new_alarms.append(each_dete_res)
+                if each_dete_obj.tag not in assign_tag_list:
+                    new_alarms.append(each_dete_obj)
                     continue
-            if each_dete_res.conf >= conf_th:
-                new_alarms.append(each_dete_res)
+            if each_dete_obj.conf >= conf_th:
+                new_alarms.append(each_dete_obj)
         self._alarms = new_alarms
 
     def filter_by_mask(self, mask, cover_index_th=0.5, need_in=True):
@@ -532,6 +546,14 @@ class DeteRes(ResBase, ABC):
                 new_alarms.append(each_obj)
             elif each_cover_index < cover_index_th and need_in is False:
                 new_alarms.append(each_obj)
+        self._alarms = new_alarms
+
+    def filter_by_func(self, func):
+        """使用指定函数对 DeteObj 进行过滤"""
+        new_alarms = []
+        for each_dete_obj in self._alarms:
+            if func(each_dete_obj):
+                new_alarms.append(each_dete_obj)
         self._alarms = new_alarms
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -732,14 +754,6 @@ class DeteRes(ResBase, ABC):
         # get area
         th_area = float(self.width * self.height) * ar
         self.filter_by_area(area_th=th_area)
-
-    def filter_by_func(self, func):
-        """根据指定方法进行筛选"""
-        new_alarms = []
-        for each_dete_res in self._alarms:
-            if func(each_dete_res):
-                new_alarms.append(each_dete_res)
-        self._alarms = new_alarms
 
     def save_assign_range(self, assign_range, save_dir, save_name=None, iou_1=0.85):
         """保存指定范围，同时保存图片和 xml """

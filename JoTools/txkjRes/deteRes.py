@@ -305,11 +305,20 @@ class DeteRes(ResBase, ABC):
         if RGB:
             return im_array
         else:
-            return cv2.cvtColor(im_array, cv2.COLOR_BGR2RGB)
+            return cv2.cvtColor(im_array, cv2.COLOR_RGB2BGR)
 
-    def get_img_array(self):
+    def get_img_array(self, RGB=True):
         """获取self.img对应的矩阵信息"""
-        return np.array(self.img)
+        if (not self.img) and self.img_path:
+            if os.path.exists(self.img_path):
+                self.img = Image.open(self.img_path)
+            else:
+                raise ValueError("need self.img or self.img_path")
+
+        if RGB:
+            return np.array(self.img)
+        else:
+            return cv2.cvtColor(np.array(self.img), cv2.COLOR_RGB2BGR)
 
     def get_dete_obj_list_by_id(self, assign_id, is_deep_copy=False):
         """获取所有 id 对应的 deteObj 对象，可以指定是否执行深拷贝"""
@@ -335,12 +344,12 @@ class DeteRes(ResBase, ABC):
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def add_obj(self, x1, y1, x2, y2, tag, conf, assign_id=-1, describe=''):
+    def add_obj(self, x1, y1, x2, y2, tag, conf=-1, assign_id=-1, describe=''):
         """快速增加一个检测框要素"""
         one_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag=tag, conf=conf, assign_id=assign_id, describe=describe)
         self._alarms.append(one_dete_obj)
 
-    def add_angle_obj(self, cx, cy, w, h, angle, tag, conf, assign_id=-1, describe=''):
+    def add_angle_obj(self, cx, cy, w, h, angle, tag, conf=-1, assign_id=-1, describe=''):
         """增加一个角度矩形对象"""
         one_dete_obj = DeteAngleObj(cx=cx, cy=cy, w=w, h=h, angle=angle, tag=tag, conf=conf, assign_id=assign_id, describe=describe)
         self._alarms.append(one_dete_obj)
@@ -559,11 +568,10 @@ class DeteRes(ResBase, ABC):
     # ------------------------------------------------------------------------------------------------------------------
 
     def get_fzc_format(self):
-        """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)]"""
+        """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)], des"""
         res_list = []
         # 遍历得到多有的
         for each_obj in self._alarms:
-            # res_list.append([each_res.tag, index, each_res.x1, each_res.y1, each_res.x2, each_res.y2, str(each_res.conf)])
             if isinstance(each_obj, DeteObj):
                 res_list.append([each_obj.tag, each_obj.id, each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2, str(each_obj.conf), each_obj.des])
             elif isinstance(each_obj, DeteAngleObj):

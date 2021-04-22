@@ -626,8 +626,6 @@ class DeteRes(ResBase, ABC):
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
 
-        # todo 从数据库中获取 图像信息
-
         #
         if self.img is None:
             if self.img_path is None:

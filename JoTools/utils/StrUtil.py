@@ -2,6 +2,7 @@
 # -*- author: jokker -*-
 
 import re
+import numpy as np
 
 """
 正则表达式的使用：
@@ -48,8 +49,24 @@ class StrUtil(object):
 
 if __name__ == "__main__":
 
-    print(StrUtil.split("123456789", ['45']))
+    a = np.array([[1,2,3], [4,5,6], [7,8,9]])
 
-    print(StrUtil.match("123456", r"\d{7}"))
 
-    print(StrUtil.translate('123', '12', 'ab'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -370,6 +370,7 @@ class DeteRes(ResBase, ABC):
         #
         if self.img is not None:
             img = np.array(self.img)
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         elif self.img_path:
             img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
         else:

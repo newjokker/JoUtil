@@ -32,11 +32,11 @@ class VideoUtilCV(object):
     @staticmethod
     def get_img_from_vedio(vedio_path, save_dir, sep=30, start_index=0):
         """将图像分出每一个帧"""
+        vedio_name = os.path.splitext(os.path.split(vedio_path)[1])[0]
         i, index = 0, start_index
         while True:
             i += sep
             index += 1
-            print(index)
             vc = cv2.VideoCapture(vedio_path)
             vc.set(cv2.CAP_PROP_POS_FRAMES, i)
             img = vc.read()
@@ -45,9 +45,9 @@ class VideoUtilCV(object):
                 break
 
             try:
-                cv2.imwrite(os.path.join(save_dir, '{0}.jpg'.format(str(index).rjust(3, '0'))), img[1])  # 将数据写到本地
-            except:
-                print("error : {0}".format(img))
+                cv2.imwrite(os.path.join(save_dir, '{0}_{1}.jpg'.format(vedio_name, str(index).rjust(3, '0'))), img[1])  # 将数据写到本地
+            except Exception as e:
+                print("error : {0} {1}".format(e, img))
 
     @staticmethod
     def write_vedio(img_path_list, out_path, assign_fps=20, assign_size=None):

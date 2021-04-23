@@ -16,11 +16,8 @@ from ..txkjRes.resTools import ResTools
 from ..utils.JsonUtil import JsonUtil
 from ..txkjRes.deteXml import parse_xml, save_to_xml
 
-# fixme 使用共享内存的方式对读取图像进行加速，我看了下 pillow 读取图像的速度特别快，一秒能读取几百张，所以这个步骤是否有必要
-# fixme 使用 radis 内存数据库，存储数据看看速度
-# fixme 因为从数据库中获取 img 的次数很少，所以不用将连接保存在类的属性中，将这部分的内容删除
-
 # todo 本质上 filter 和 del 是同一个作用，对这两个进行合并
+# todo 有返回值的函数名第一个单词是动词
 
 
 class DeteRes(ResBase, ABC):
@@ -331,18 +328,7 @@ class DeteRes(ResBase, ABC):
                     res.append(each_dete_obj)
         return res
 
-    def get_dete_obj_list_by_func(self, func, is_deep_copy=False):
-        """根据指定的方法获取需要的 dete_obj，可以指定是否执行深拷贝 """
-        res = []
-        for each_dete_obj in self._alarms:
-            if func(each_dete_obj):
-                if is_deep_copy:
-                    res.append(each_dete_obj.deep_copy())
-                else:
-                    res.append(each_dete_obj)
-        return res
-
-    # ------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------ get -------------------------------------------------------------
 
     def add_obj(self, x1, y1, x2, y2, tag, conf=-1, assign_id=-1, describe=''):
         """快速增加一个检测框要素"""
@@ -456,61 +442,22 @@ class DeteRes(ResBase, ABC):
         else:
             self._alarms = assign_alarms
 
-    # ------------------------------------------------- pop ------------------------------------------------------------
-
-    def del_by_tages(self, remove_tags):
-        """根据 tag 类型进行筛选"""
-        del_alarms, old_alarms = [], []
-        remove_tag = set(remove_tags)
-        for each_dete_res in self._alarms:
-            if each_dete_res.tag in remove_tag:
-                del_alarms.append(each_dete_res)
-            else:
-                old_alarms.append(each_dete_res)
-        self._alarms = old_alarms
-        return del_alarms
-
-    def del_by_conf(self, conf, is_lt=True):
-        """删除置信度符合条件的 dete_obj, is_lt 删除小于置信度的"""
-        del_alarms, old_alarms = [], []
-        for each_dete_res in self._alarms:
-            if is_lt:
-                if float(each_dete_res.conf) < conf:
-                    del_alarms.append(each_dete_res)
-                else:
-                    old_alarms.append(each_dete_res)
-            else:
-                if float(each_dete_res.conf) > conf:
-                    del_alarms.append(each_dete_res)
-                else:
-                    old_alarms.append(each_dete_res)
-        self._alarms = old_alarms
-        return del_alarms
-
-    def del_by_id(self, assign_id):
-        """删除指定 id 的 deteObj"""
-        del_alarms, old_alarms = [], []
-        for each_dete_res in self._alarms:
-            if each_dete_res.id == assign_id:
-                del_alarms.append(each_dete_res)
-            else:
-                old_alarms.append(each_dete_res)
-        self._alarms = old_alarms
-        return del_alarms
-
     # ------------------------------------------------ filter ----------------------------------------------------------
 
     def filter_by_area(self, area_th):
         """根据面积大小（像素个数）进行筛选"""
-        new_alarms = []
+        new_alarms, del_alarms = [], []
         for each_dete_tag in self._alarms:
             if each_dete_tag.get_area() >= area_th:
                 new_alarms.append(each_dete_tag)
+            else:
+                del_alarms.append(each_dete_tag)
         self._alarms = new_alarms
+        return del_alarms
 
     def filter_by_tages(self, need_tag=None, remove_tag=None):
         """根据 tag 类型进行筛选"""
-        new_alarms = []
+        new_alarms, del_alarms = [], []
 
         if (need_tag is not None and remove_tag is not None) or (need_tag is None and remove_tag is None):
             raise ValueError(" need tag and remove tag cant be None or not None in the same time")
@@ -523,12 +470,17 @@ class DeteRes(ResBase, ABC):
             for each_dete_tag in self._alarms:
                 if each_dete_tag.tag in need_tag:
                     new_alarms.append(each_dete_tag)
+                else:
+                    del_alarms.append(each_dete_tag)
         else:
             remove_tag = set(remove_tag)
             for each_dete_tag in self._alarms:
                 if each_dete_tag.tag not in remove_tag:
                     new_alarms.append(each_dete_tag)
+                else:
+                    del_alarms.append(each_dete_tag)
         self._alarms = new_alarms
+        return del_alarms
 
     def filter_by_conf(self, conf_th, assign_tag_list=None):
         """根据置信度进行筛选，指定标签就能对不同标签使用不同的置信度"""
@@ -536,35 +488,70 @@ class DeteRes(ResBase, ABC):
         if not(isinstance(conf_th, int) and isinstance(conf_th, float)):
             raise ValueError("conf_th should be int or float")
 
-        new_alarms = []
+        new_alarms, del_alarms = [], []
         for each_dete_obj in self._alarms:
             if assign_tag_list is not None:
                 if each_dete_obj.tag not in assign_tag_list:
                     new_alarms.append(each_dete_obj)
                     continue
+                else:
+                    del_alarms.append(each_dete_obj)
             if each_dete_obj.conf >= conf_th:
                 new_alarms.append(each_dete_obj)
+            else:
+                del_alarms.append(each_dete_obj)
         self._alarms = new_alarms
+        return del_alarms
 
     def filter_by_mask(self, mask, cover_index_th=0.5, need_in=True):
         """使用多边形 mask 进行过滤，mask 支持任意凸多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
-        new_alarms = []
-        for each_obj in self._alarms:
-            each_cover_index = ResTools.polygon_iou_1(each_obj.get_points(), mask)
+        new_alarms, del_alarms = [], []
+        for each_dete_obj in self._alarms:
+            each_cover_index = ResTools.polygon_iou_1(each_dete_obj.get_points(), mask)
             # print("each_cover_index : ", each_cover_index)
             if each_cover_index > cover_index_th and need_in is True:
-                new_alarms.append(each_obj)
+                new_alarms.append(each_dete_obj)
             elif each_cover_index < cover_index_th and need_in is False:
-                new_alarms.append(each_obj)
+                new_alarms.append(each_dete_obj)
+            else:
+                del_alarms.append(each_dete_obj)
         self._alarms = new_alarms
+        return del_alarms
+
+    # ----------------------------------------------- del --------------------------------------------------------------
+
+    def del_dete_obj(self, assign_dete_obj, del_all=False):
+        """删除指定的一个 deteObj"""
+        for each_dete_obj in self._alarms:
+            if each_dete_obj == assign_dete_obj:
+                del each_dete_obj
+                # break or not
+                if not del_all:
+                    return
+
+    # ----------------------------------------------- func -------------------------------------------------------------
+
+    def get_dete_obj_list_by_func(self, func, is_deep_copy=False):
+        """根据指定的方法获取需要的 dete_obj，可以指定是否执行深拷贝 """
+        res = []
+        for each_dete_obj in self._alarms:
+            if func(each_dete_obj):
+                if is_deep_copy:
+                    res.append(each_dete_obj.deep_copy())
+                else:
+                    res.append(each_dete_obj)
+        return res
 
     def filter_by_func(self, func):
         """使用指定函数对 DeteObj 进行过滤"""
-        new_alarms = []
+        new_alarms, del_alarms = [], []
         for each_dete_obj in self._alarms:
             if func(each_dete_obj):
                 new_alarms.append(each_dete_obj)
+            else:
+                del_alarms.append(each_dete_obj)
         self._alarms = new_alarms
+        return del_alarms
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -627,7 +614,6 @@ class DeteRes(ResBase, ABC):
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
 
-        #
         if self.img is None:
             if self.img_path is None:
                 raise ValueError("self.img self.img_path is None")
@@ -764,6 +750,7 @@ class DeteRes(ResBase, ABC):
 
     def save_assign_range(self, assign_range, save_dir, save_name=None, iou_1=0.85):
         """保存指定范围，同时保存图片和 xml """
+
         x1, y1, x2, y2 = int(assign_range[0]),int(assign_range[1]),int(assign_range[2]),int(assign_range[3])
         assign_dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag='None', conf=-1)
 
@@ -778,7 +765,7 @@ class DeteRes(ResBase, ABC):
             if each_iou_1 > iou_1:
                 # 对结果 xml 的范围进行调整
                 each_dete_obj.do_offset(offset_x, offset_y)
-                # 支持斜框和正框 fixme 未进行验证
+                # 支持斜框和正框
                 if isinstance(each_dete_obj, DeteAngleObj):
                     each_dete_obj_new = each_dete_obj.get_dete_obj().deep_copy()
                 elif isinstance(each_dete_obj, DeteObj):
@@ -807,8 +794,8 @@ class DeteRes(ResBase, ABC):
         img_save_dir = os.path.join(save_dir, 'JPEGImages')
         xml_save_path = os.path.join(xml_save_dir, save_name + '.xml')
         jpg_save_path = os.path.join(img_save_dir, save_name + '.jpg')
-        if not os.path.exists(xml_save_dir):os.makedirs(xml_save_dir)
-        if not os.path.exists(img_save_dir):os.makedirs(img_save_dir)
+        os.makedirs(xml_save_dir, exist_ok=True)
+        os.makedirs(img_save_dir, exist_ok=True)
         #
         self.save_to_xml(xml_save_path, new_alarms)
 

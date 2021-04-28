@@ -19,6 +19,13 @@ from ..txkjRes.deteXml import parse_xml, save_to_xml
 # todo 本质上 filter 和 del 是同一个作用，对这两个进行合并
 # todo 有返回值的函数名第一个单词是动词
 
+# todo 增加对武汉数据的支持
+# todo 完善映射代码，看
+# todo 映射代码确保能支持读取的 xml 为空的情况
+# todo 确保模型输出的 xml 不是空的，要有基本的要素
+
+
+
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -328,6 +335,17 @@ class DeteRes(ResBase, ABC):
                     res.append(each_dete_obj)
         return res
 
+    def get_dete_obj_list_by_tag(self, need_tags, is_deep_copy=False):
+        """获取所有 id 对应的 deteObj 对象，可以指定是否执行深拷贝"""
+        res = []
+        for each_dete_obj in self._alarms:
+            if each_dete_obj.tag in need_tags:
+                if is_deep_copy:
+                    res.append(each_dete_obj.deep_copy())
+                else:
+                    res.append(each_dete_obj)
+        return res
+
     # ------------------------------------------------ get -------------------------------------------------------------
 
     def add_obj(self, x1, y1, x2, y2, tag, conf=-1, assign_id=-1, describe=''):
@@ -455,7 +473,7 @@ class DeteRes(ResBase, ABC):
         self._alarms = new_alarms
         return del_alarms
 
-    def filter_by_tages(self, need_tag=None, remove_tag=None):
+    def filter_by_tags(self, need_tag=None, remove_tag=None):
         """根据 tag 类型进行筛选"""
         new_alarms, del_alarms = [], []
 
@@ -732,11 +750,11 @@ class DeteRes(ResBase, ABC):
         # 备份 alarms
         all_alarms = copy.deepcopy(self._alarms)
         # 拿到非指定 alarms
-        self.filter_by_tages(remove_tag=tag_list)
+        self.filter_by_tags(remove_tag=tag_list)
         other_alarms = copy.deepcopy(self._alarms)
         # 拿到指定 alarms 进行 nms
         self.reset_alarms(all_alarms)
-        self.filter_by_tages(need_tag=tag_list)
+        self.filter_by_tags(need_tag=tag_list)
         self.do_nms(threshold, ignore_tag=True)
         # 添加其他类型
         for each_dete_obj in other_alarms:

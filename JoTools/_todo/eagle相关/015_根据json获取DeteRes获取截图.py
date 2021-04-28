@@ -61,7 +61,7 @@ for dir_index, img_dir in enumerate(img_dir_list):
                 # print(each_xml_path)
                 # print(each_save_img_path)
 
-                b.filter_by_tages(need_tag=['040303021', '040303022', '040303000', '040303011', '040303031', '040303041'])
+                b.filter_by_tags(need_tag=['040303021', '040303022', '040303000', '040303011', '040303031', '040303041'])
                 b.save_to_xml(each_xml_path)
                 shutil.copy(b.img_path, each_save_img_path)
 

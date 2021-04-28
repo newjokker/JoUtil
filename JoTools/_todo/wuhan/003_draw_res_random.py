@@ -38,7 +38,7 @@ for each_img_path in img_path_list:
     need_tag = ['040501031', '040501032', '040501033']
 
 
-    a.filter_by_tages(need_tag= need_tag)
+    a.filter_by_tags(need_tag= need_tag)
     color_dict = {i: [0, 0, 255] for i in need_tag}
 
     if len(a.alarms) > 0:

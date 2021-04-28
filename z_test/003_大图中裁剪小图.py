@@ -8,10 +8,10 @@ from JoTools.operateDeteRes import OperateDeteRes
 
 
 
-xml_dir = r"C:\Users\14271\Desktop\del\img_xml"
-img_dir = r"C:\Users\14271\Desktop\del\img_xml"
-save_dir = r"C:\Users\14271\Desktop\del\crop"
+xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\Annotations_big_small\xml"
+img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\JPEGImages"
+save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\Annotations_big_small\crop"
 
 
-OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, exclude_tag_list=['correct_K', 'correct_K_Lm', 'correct_Xnormal'], augment_parameter=[0.3,0.3,0.3,0.3])
+OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True)
 

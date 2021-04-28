@@ -592,7 +592,7 @@ class DeteRes(ResBase, ABC):
     def get_result_construction(self):
         """返回规范的检测结果字典"""
         result = {
-                  'filename': self.img_path,
+                  'filename': self.file_name,
                   'start_time': 0,
                   'end_time': time.time(),
                   'width': self.width,

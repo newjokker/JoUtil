@@ -3,7 +3,7 @@
 
 import cv2
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 from ..txkjRes.deteObj import DeteObj
 from ..txkjRes.deteAngleObj import DeteAngleObj
 
@@ -120,6 +120,16 @@ class ResTools(object):
         img_crop = cv2.getRectSubPix(img_rot, size, center)
         return img_crop
 
+    @staticmethod
+    def point_in_poly(point, ploy_points_list):
+        """点是否在多边形中"""
+        p1 = Point(point[0], point[1])
+        poly1 = Polygon(ploy_points_list).convex_hull
+        #
+        if poly1.contains(p1):
+            return True
+        else:
+            return False
 
 
 if __name__ == "__main__":

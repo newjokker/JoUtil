@@ -6,6 +6,7 @@ import pickle
 from PIL import Image
 
 # fixme DENIED Redis is running in protected mode because protected mode is enabled --> https://blog.csdn.net/Agly_Clarlie/article/details/52251746
+# fixme 185 服务器上开启 redis 服务： ./src/redis-server redis.conf
 
 img_path = r"C:\Users\14271\Desktop\del\res.jpg"
 

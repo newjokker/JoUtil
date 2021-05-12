@@ -25,8 +25,6 @@ from ..txkjRes.deteXml import parse_xml, save_to_xml
 # todo 确保模型输出的 xml 不是空的，要有基本的要素
 
 
-
-
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
@@ -446,6 +444,44 @@ class DeteRes(ResBase, ABC):
                 res.append(each_res)
         self._alarms = res
 
+    def do_nms_center_point(self, ignore_tag=False):
+        """中心点 nms，一个要素的中心点要是在另一个里面，去掉这个要素"""
+        dete_obj_list = copy.deepcopy(self._alarms)
+        dete_obj_list = sorted(dete_obj_list, key=lambda x:x.conf, reverse=True)
+        if len(dete_obj_list) > 0:
+            res = [dete_obj_list.pop(0)]
+        else:
+            self._alarms = []
+            return
+        # 循环，直到 dete_res_list 中的数据被处理完
+        while len(dete_obj_list) > 0:
+            each_res = dete_obj_list.pop(0)
+            is_add = True
+            for each in res:
+                # 计算每两个框之间的 iou，要是 nms 大于阈值，同时标签一致，去除置信度比较小的标签
+                if ResTools.point_in_poly(each_res.get_center_point(), each.get_points()):
+                    is_add = False
+                    break
+            # 如果判断需要添加到结果中
+            if is_add is True:
+                res.append(each_res)
+        self._alarms = res
+
+    def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
+        """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""
+        # 备份 alarms
+        all_alarms = copy.deepcopy(self._alarms)
+        # 拿到非指定 alarms
+        self.filter_by_tags(remove_tag=tag_list)
+        other_alarms = copy.deepcopy(self._alarms)
+        # 拿到指定 alarms 进行 nms
+        self.reset_alarms(all_alarms)
+        self.filter_by_tags(need_tag=tag_list)
+        self.do_nms(threshold, ignore_tag=True)
+        # 添加其他类型
+        for each_dete_obj in other_alarms:
+            self._alarms.append(each_dete_obj)
+
     def update_tags(self, update_dict):
         """更新标签"""
         # tag 不在不更新字典中的就不进行更新
@@ -472,6 +508,12 @@ class DeteRes(ResBase, ABC):
                 del_alarms.append(each_dete_tag)
         self._alarms = new_alarms
         return del_alarms
+
+    def filter_by_area_ratio(self, ar=0.0006):
+        """根据面积比例进行删选"""
+        # get area
+        th_area = float(self.width * self.height) * ar
+        self.filter_by_area(area_th=th_area)
 
     def filter_by_tags(self, need_tag=None, remove_tag=None):
         """根据 tag 类型进行筛选"""
@@ -536,6 +578,17 @@ class DeteRes(ResBase, ABC):
         self._alarms = new_alarms
         return del_alarms
 
+    def filter_by_func(self, func):
+        """使用指定函数对 DeteObj 进行过滤"""
+        new_alarms, del_alarms = [], []
+        for each_dete_obj in self._alarms:
+            if func(each_dete_obj):
+                new_alarms.append(each_dete_obj)
+            else:
+                del_alarms.append(each_dete_obj)
+        self._alarms = new_alarms
+        return del_alarms
+
     # ----------------------------------------------- del --------------------------------------------------------------
 
     def del_dete_obj(self, assign_dete_obj, del_all=False):
@@ -559,17 +612,6 @@ class DeteRes(ResBase, ABC):
                 else:
                     res.append(each_dete_obj)
         return res
-
-    def filter_by_func(self, func):
-        """使用指定函数对 DeteObj 进行过滤"""
-        new_alarms, del_alarms = [], []
-        for each_dete_obj in self._alarms:
-            if func(each_dete_obj):
-                new_alarms.append(each_dete_obj)
-            else:
-                del_alarms.append(each_dete_obj)
-        self._alarms = new_alarms
-        return del_alarms
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -745,27 +787,6 @@ class DeteRes(ResBase, ABC):
                 return True
         return False
 
-    def do_nms_in_assign_tags(self, tag_list, threshold=0.1):
-        """在指定的 tags 之间进行 nms，其他类型的 tag 不受影响"""
-        # 备份 alarms
-        all_alarms = copy.deepcopy(self._alarms)
-        # 拿到非指定 alarms
-        self.filter_by_tags(remove_tag=tag_list)
-        other_alarms = copy.deepcopy(self._alarms)
-        # 拿到指定 alarms 进行 nms
-        self.reset_alarms(all_alarms)
-        self.filter_by_tags(need_tag=tag_list)
-        self.do_nms(threshold, ignore_tag=True)
-        # 添加其他类型
-        for each_dete_obj in other_alarms:
-            self._alarms.append(each_dete_obj)
-
-    def filter_by_area_ratio(self, ar=0.0006):
-        """根据面积比例进行删选"""
-        # get area
-        th_area = float(self.width * self.height) * ar
-        self.filter_by_area(area_th=th_area)
-
     def save_assign_range(self, assign_range, save_dir, save_name=None, iou_1=0.85):
         """保存指定范围，同时保存图片和 xml """
 
@@ -843,4 +864,7 @@ class DeteRes(ResBase, ABC):
                 each_obj = each_obj.get_dete_obj()
                 new_alarms.append(each_obj)
         self._alarms = new_alarms
+
+
+
 

@@ -86,6 +86,14 @@ if __name__ == "__main__":
     #
     # exit()
 
+    file_list = []
+    file_list.append(list(FileOperationUtil.re_all_file(r"C:\data\fzc_优化相关资料\000_等待训练", lambda x:str(x).endswith(('.jpg', '.JPG')))))
+
+    a = HashLibUtil.duplicate_checking(file_list)
+
+    for each in a:
+        print(each)
+
 
     # filePath1 = r'C:\Users\Administrator\Desktop\for6.xml'
     # filePath2 = r'C:\Users\Administrator\Desktop\for6 - 副本.xml'

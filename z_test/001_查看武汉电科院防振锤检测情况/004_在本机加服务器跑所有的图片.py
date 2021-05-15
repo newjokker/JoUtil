@@ -77,6 +77,8 @@ if __name__ == "__main__":
     # save_dir = r"./result"
     # img_dir = input("输入要测试的文件夹地址: ")
     img_dir = r"D:\电科院2020算法培育.library\images"
+
+    xml_dir = r"C:\Users\14271\Desktop\all_data_fzc\fzc_step_2_demo"
     # ------------------------------------------------------------------------------------------
 
     print("-" * 100)
@@ -89,7 +91,16 @@ if __name__ == "__main__":
     img_list = FileOperationUtil.re_all_file(img_dir, lambda x: str(x).endswith((".jpg", ".JPG")))
 
     for index, each_img_path in enumerate(img_list):
+
+        # todo 判断文件名是不是在缓存文件中有，没有的话，就运行，有的话就跳过
+        file_name = os.path.split(each_img_path)[1][:-3] + 'xml'
+        if os.path.exists(os.path.join(xml_dir, file_name)):
+            print("* check already")
+            continue
+
+        index += 1
         print(index, each_img_path)
+
         try:
             test_one_img(each_img_path)
         except Exception as e:

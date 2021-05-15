@@ -65,7 +65,8 @@ def merge_xml(xml_dir, save_dir):
 
 if __name__ == "__main__":
 
-    pass
+
+    merge_xml(r"C:\Users\14271\Desktop\ceshiji\merge", r"C:\Users\14271\Desktop\ceshiji\merge_all")
 
 
 

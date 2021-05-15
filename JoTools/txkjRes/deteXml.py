@@ -30,9 +30,16 @@ class ParseXml(object):
             node_name = each_node.nodeName
             if node_name in ["name", "pose", "truncated", "difficult", "prob", "id", "des"]:
                 object_info[node_name] = XmlUtil.get_info_from_node(each_node)['value']
+
+            # ----------------------------------------------------------------------------------------------------------
             # fixme 符合武汉那边给的规范
-            if node_name in ["code"]:
+            if node_name in ["code", "label"]:
                 object_info["name"] = XmlUtil.get_info_from_node(each_node)['value']
+
+            # fixme ** 写的不规范的 xml
+            # if node_name in ["angle"]:
+            #     object_info["name"] = str(XmlUtil.get_info_from_node(each_node)['value'])
+            # ----------------------------------------------------------------------------------------------------------
 
             elif node_name == "bndbox":
                 bndbox_info = {}
@@ -40,6 +47,13 @@ class ParseXml(object):
                     each_node_name = each_node_2.nodeName
                     if each_node_name in ["xmin", "ymin", "xmax", "ymax"]:
                         bndbox_info[each_node_name] = XmlUtil.get_info_from_node(each_node_2)['value']
+
+                    # --------------------------------------------------------------------------------------------------
+                    # fixme 这边为了兼容 ** 写的不规范的 xml
+                    if each_node_name in ["xMin", "yMin", "xMax", "yMax"]:
+                        bndbox_info[str(each_node_name).lower()] = XmlUtil.get_info_from_node(each_node_2)['value']
+                    # --------------------------------------------------------------------------------------------------
+
                 object_info['bndbox'] = bndbox_info
             elif node_name == "robndbox":
                 robndbox_info = {}

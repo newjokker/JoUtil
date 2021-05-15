@@ -14,6 +14,8 @@ from ..txkjRes.deteRes import DeteRes
 
 # fixme 可以主动选择分析颜色，选中需要的图片，右击更多，重新分析颜色
 
+# todo 因为分析时间比较长，将 md5 字典保存为文件，这样的话中间中断也不用从头开始
+
 use_xml_tag = True
 use_folder_tag = True
 
@@ -162,6 +164,8 @@ class EagleOperate(object):
         self.tag = None
         self.mtime = None
         self.faster_metadata = None
+        #
+        self.assign_id_pre = "KDH5"         # 指定 id 的前缀，
 
     @staticmethod
     def get_modification_time():
@@ -203,7 +207,7 @@ class EagleOperate(object):
         """随机获取图片的 id"""
 
         while True:
-            random_id = "KDH5" + str(random.randint(100000000, 1000000000))
+            random_id = self.assign_id_pre + str(random.randint(100000000, 1000000000))
             if random_id not in self.id_set:
                 self.id_set.add(random_id)
                 return random_id
@@ -309,8 +313,8 @@ class EagleOperate(object):
         self.tag = EagleTags()
         self.mtime = EagleMTimes()
         self.faster_metadata = EagleFolderMetaData()
-
-        self.get_tag_dict(img_dir, 'normal')
+        # fixme 按照规则找到对应的 xml 路径
+        self.get_tag_dict(img_dir, 'wh')
         # 创建对应的文件夹
         os.makedirs(self.back_up_dir, exist_ok=True)
         os.makedirs(self.images_dir, exist_ok=True)
@@ -358,6 +362,8 @@ if __name__ == "__main__":
     imgDir = r"C:\Users\14271\Desktop\test_data\img"
 
     a = EagleOperate(eagle_library, imgDir)
+    # 指定当前项目的前缀，不同的项目用不同的前缀就能合并了
+    a.assign_id_pre = "KDH5"
     a.init_edgal_project(imgDir)
 
     # a.save_to_xml_img(r"C:\Users\14271\Desktop\del\new_res")

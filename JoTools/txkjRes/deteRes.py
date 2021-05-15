@@ -103,11 +103,25 @@ class DeteRes(ResBase, ABC):
             # bndbox
             if 'bndbox' in each_obj:
                 bndbox = each_obj['bndbox']
-                x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+
+                if not bndbox:
+                    break
+
+                # ------------------------------------------------------------------------------------------------------
+                # fixme 恶心的代码，在同一后进行删除
+
+                if 'xmin' in bndbox:
+                    x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+
+                if 'xMin' in bndbox:
+                    x_min, x_max, y_min, y_max = int(bndbox['xMin']), int(bndbox['xMax']), int(bndbox['yMin']), int(bndbox['yMax'])
+                # ------------------------------------------------------------------------------------------------------
+
                 if 'prob' not in each_obj: each_obj['prob'] = -1
                 if 'id' not in each_obj: each_obj['id'] = -1
                 if 'des' not in each_obj: each_obj['des'] = ''
                 if each_obj['id'] in ['None', None]: each_obj['id'] = -1
+
                 self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']), describe=each_obj['des'])
             # robndbox
             if 'robndbox' in each_obj:

@@ -17,6 +17,7 @@ import hashlib
 import os
 import shutil
 from ..utils.FileOperationUtil import FileOperationUtil
+from ..utils.PickleUtil import PickleUtil
 
 """
 # # 如果数据量很大，可以分块多次调用update()，最后计算的结果是一样的：
@@ -76,6 +77,43 @@ class HashLibUtil(object):
                     # 不另存为文件夹，就直接在当前文件夹中将重复的图片删除
                     print("remove : {0}".format(each_img_path))
                     os.remove(each_img_path)
+
+    @staticmethod
+    def save_file_img_to_pkl(file_dir, save_pkl_path, need_file_type=None, assign_file_path_file=None):
+        """将制定路径下面的所有文件的 md5 和 路径组成的字典保存到 pkl 文件中"""
+        # 执行需要计算 md5 值的数据的类型
+        if need_file_type is None:
+            need_file_type = ['.jpg', '.JPG', '.png', '.PNG']
+        # 可以指定过滤已经扫描过的目录
+        if assign_file_path_file:
+            file_path_set = PickleUtil.load_data_from_pickle_file(assign_file_path_file)
+        else:
+            file_path_set = set()
+        md5_dict = {}
+
+        try:
+            for each_file_path in FileOperationUtil.re_all_file(file_dir, endswitch=need_file_type):
+                # 过滤已经扫描过的目录
+                if each_file_path not in file_path_set:
+                    file_path_set.add(each_file_path)
+                else:
+                    continue
+
+                print(each_file_path)
+                each_md5 = HashLibUtil.get_file_md5(each_file_path)
+
+                if each_md5 not in md5_dict:
+                    md5_dict[each_md5] = [each_file_path]
+                else:
+                    md5_dict[each_md5].append(each_file_path)
+
+        except Exception as e:
+            print(e)
+
+        finally:
+            # save_to_pickle
+            PickleUtil.save_data_to_pickle_file(md5_dict, save_pkl_path)
+            PickleUtil.save_data_to_pickle_file(file_path_set, save_pkl_path[:-4]+'_file_path.pkl')
 
 
 

@@ -79,7 +79,7 @@ class HashLibUtil(object):
                     os.remove(each_img_path)
 
     @staticmethod
-    def save_file_img_to_pkl(file_dir, save_pkl_path, need_file_type=None, assign_file_path_file=None):
+    def save_file_img_to_pkl(file_dir, save_pkl_path, need_file_type=None, assign_file_path_file=None, each_file_count=1000):
         """将制定路径下面的所有文件的 md5 和 路径组成的字典保存到 pkl 文件中"""
 
         # 执行需要计算 md5 值的数据的类型
@@ -108,11 +108,13 @@ class HashLibUtil(object):
                 else:
                     continue
 
-                if find_index > 300:
-                    raise ValueError("error")
-
                 find_index += 1
                 print(find_index, each_file_path)
+
+                # save file
+                if index % each_file_count == 0:
+                    PickleUtil.save_data_to_pickle_file(md5_dict, save_pkl_path)
+
                 each_md5 = HashLibUtil.get_file_md5(each_file_path)
 
                 if each_md5 not in md5_dict:

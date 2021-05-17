@@ -112,7 +112,7 @@ class HashLibUtil(object):
                 print(find_index, each_file_path)
 
                 # save file
-                if index % each_file_count == 0:
+                if find_index % each_file_count == 0:
                     PickleUtil.save_data_to_pickle_file(md5_dict, save_pkl_path)
 
                 each_md5 = HashLibUtil.get_file_md5(each_file_path)

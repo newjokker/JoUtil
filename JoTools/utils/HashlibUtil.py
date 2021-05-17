@@ -81,17 +81,26 @@ class HashLibUtil(object):
     @staticmethod
     def save_file_img_to_pkl(file_dir, save_pkl_path, need_file_type=None, assign_file_path_file=None):
         """将制定路径下面的所有文件的 md5 和 路径组成的字典保存到 pkl 文件中"""
+
         # 执行需要计算 md5 值的数据的类型
         if need_file_type is None:
             need_file_type = ['.jpg', '.JPG', '.png', '.PNG']
         # 可以指定过滤已经扫描过的目录
         if assign_file_path_file:
-            file_path_set = PickleUtil.load_data_from_pickle_file(assign_file_path_file)
+            md5_dict = PickleUtil.load_data_from_pickle_file(assign_file_path_file)
+            file_path_set = set()
+            for each_file_Path_set in md5_dict.values():
+                file_path_set = set.union(each_file_Path_set, file_path_set)
         else:
             file_path_set = set()
-        md5_dict = {}
+            md5_dict = {}
+
+        print('-'*50)
+        print("start file_path_set length   : ", len(file_path_set))
+        print("start md5 dict length        : ", len(md5_dict))
 
         try:
+            find_index = 0
             for each_file_path in FileOperationUtil.re_all_file(file_dir, endswitch=need_file_type):
                 # 过滤已经扫描过的目录
                 if each_file_path not in file_path_set:
@@ -99,21 +108,30 @@ class HashLibUtil(object):
                 else:
                     continue
 
-                print(each_file_path)
+                if find_index > 300:
+                    raise ValueError("error")
+
+                find_index += 1
+                print(find_index, each_file_path)
                 each_md5 = HashLibUtil.get_file_md5(each_file_path)
 
                 if each_md5 not in md5_dict:
-                    md5_dict[each_md5] = [each_file_path]
+                    md5_dict[each_md5] = set()
+                    md5_dict[each_md5].add(each_file_path)
                 else:
-                    md5_dict[each_md5].append(each_file_path)
+                    md5_dict[each_md5].add(each_file_path)
 
         except Exception as e:
+            print('GOT ERROR---->')
             print(e)
+            print(e.__traceback__.tb_frame.f_globals["__file__"])
+            print(e.__traceback__.tb_lineno)
 
         finally:
             # save_to_pickle
             PickleUtil.save_data_to_pickle_file(md5_dict, save_pkl_path)
-            PickleUtil.save_data_to_pickle_file(file_path_set, save_pkl_path[:-4]+'_file_path.pkl')
+            print("stop file_path_set length    : ", len(file_path_set))
+            print("stop md5 dict length         : ", len(md5_dict))
 
 
 

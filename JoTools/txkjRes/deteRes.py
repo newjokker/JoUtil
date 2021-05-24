@@ -284,11 +284,8 @@ class DeteRes(ResBase, ABC):
         """根据指定的 deteObj """
 
         # 如果没有读取 img
-        if (not self.img) and (not self.img_path):
+        if not self.img:
             raise ValueError ("need img_path or img")
-
-        if self.img is None:
-            self.img = Image.open(self.img_path)
 
         if isinstance(assign_dete_obj, DeteObj):
             if augment_parameter is None:
@@ -325,11 +322,8 @@ class DeteRes(ResBase, ABC):
 
     def get_img_array(self, RGB=True):
         """获取self.img对应的矩阵信息"""
-        if (not self.img) and self.img_path:
-            if os.path.exists(self.img_path):
-                self.img = Image.open(self.img_path)
-            else:
-                raise ValueError("need self.img or self.img_path")
+        if not self.img:
+            raise ValueError ("need img_path or img")
 
         if RGB:
             return np.array(self.img)
@@ -688,11 +682,9 @@ class DeteRes(ResBase, ABC):
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
 
-        if self.img is None:
-            if self.img_path is None:
-                raise ValueError("self.img self.img_path is None")
-            else:
-                self.img = Image.open(self.img_path)
+        if not self.img:
+            raise ValueError ("need img_path or img")
+
         #
         if assign_img_name is not None:
             img_name = assign_img_name
@@ -852,9 +844,8 @@ class DeteRes(ResBase, ABC):
         #
         self.save_to_xml(xml_save_path, new_alarms)
 
-        # 保存 jpg
-        img = Image.open(self.img_path)
-        crop = img.crop(assign_range)
+        # # 保存 jpg
+        crop = self.img.crop(assign_range)
         crop.save(jpg_save_path, quality=95)
 
     def count_tags(self):

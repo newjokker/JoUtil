@@ -472,8 +472,8 @@ class DeteRes(ResBase, ABC):
             each_res = dete_obj_list.pop(0)
             is_add = True
             for each in res:
-                # 计算每两个框之间的 iou，要是 nms 大于阈值，同时标签一致，去除置信度比较小的标签
-                if ResTools.point_in_poly(each_res.get_center_point(), each.get_points()):
+                # fixme 这个逻辑存在一个问题，当 conf 高的中心点不在 conf 低的范围内，但是 conf 低的中心点在 conf 高的范围内，只会保留 conf 比较低的，如何才能只是保留
+                if ResTools.point_in_poly(each_res.get_center_point(), each.get_points()) or ResTools.point_in_poly(each.get_center_point(), each_res.get_points()):
                     is_add = False
                     break
             # 如果判断需要添加到结果中

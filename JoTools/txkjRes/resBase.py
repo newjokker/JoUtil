@@ -53,6 +53,9 @@ class ResBase():
             if self.img_path is not None:
                 if os.path.exists(self.img_path):
                     self.img = Image.open(self.img_path)
+                    # RGBA(png) ==> RGB(jpg)
+                    if self.img.mode == "RGBA":
+                        self.img = self.img.convert("RGB")
                 else:
                     return False
             else:

@@ -123,6 +123,7 @@
 
 
 * tar --> image 
+    * docker load -i img_name.tar 
     * images : docker load image_id
     * container : docker import container_id  
 

@@ -1,0 +1,27 @@
+# 张一辰写的流程
+
+
+
+1 导入镜像
+docker import txkj_export.tar txkj_export:v1
+
+2 查看镜像信息
+docker image list可以看到镜像id
+
+3 run
+docker run -it --runtime=nvidia -p 7661:7661 -e CUDA_VISIBLE_DEVICES=0 -e NVIDIA_VISIBLE_DEVICES-0 -v 宿主机输入路径:容器路径 -v 宿主机输出路径:容器路径 镜像id /bin/bash
+docker run -it --runtime=nvidia -p 7661:7661  --gpus 'all' -e CUDA_VISIBLE_DEVICES=0 -e NVIDIA_VISIBLE_DEVICES-0 -v 宿主机输入路径:容器路径 -v 宿主机输出路径:容器路径 镜像id /bin/bash
+
+4 此时进入容器了，天明的代码我放在/home/a/txkj下面，用python3可以运行
+
+5 如果需要拷贝东西进容器，可以把东西放在上面指定的宿主机路径下，然后从容器中就可以读取了
+
+6 如果修改过后的容器需要保存，可以用docker export -o txkj_export:vX 容器id
+  容器id可以通过docker ps查看
+
+7 如果想将修改的内容添加到镜像里，可以用docker commit 容器id  镜像名（如txkj_export:v1）
+
+8 删除多余容器用docker rm 容器id
+
+
+确认测试集情况

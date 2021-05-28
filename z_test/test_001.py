@@ -14,21 +14,21 @@ save_path = r'C:\Users\14271\Desktop\test_2.jpg'
 # -------------------------------------------------------------------------------------
 
 
-# for each in OperateDeteRes.get_class_count(r"C:\Users\14271\Desktop\ceshiji\merge\xmlinfo_主线").items():
-#     print(each)
+for each in OperateDeteRes.get_class_count(r"/home/suanfa-4/ldq/del/merge").items():
+    print(each)
 
 
-
-xml_dir = r"C:\Users\14271\Desktop\ceshiji\merge\jyhQX"
-
-for each_xml_path in FileOperationUtil.re_all_file(xml_dir):
-    a = DeteRes(xml_path=each_xml_path)
-    # a.filter_by_tags(need_tag=['XJfail'])
-    a.save_to_xml(each_xml_path)
-
-    # print(a.count_tags())
-    # break
-
+#
+# xml_dir = r"C:\Users\14271\Desktop\ceshiji\merge\jyhQX"
+#
+# for each_xml_path in FileOperationUtil.re_all_file(xml_dir):
+#     a = DeteRes(xml_path=each_xml_path)
+#     # a.filter_by_tags(need_tag=['XJfail'])
+#     a.save_to_xml(each_xml_path)
+#
+#     # print(a.count_tags())
+#     # break
+#
 
 
 

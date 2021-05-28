@@ -83,8 +83,8 @@ if __name__ == "__main__":
 
     print("-" * 100)
 
-    # url = 'http://127.0.0.1:' + str(portNum) + '//' + model_name
-    url = 'http://192.168.3.155:11223/fzc'
+    url = 'http://127.0.0.1:' + str(portNum) + '//' + model_name
+    # url = 'http://192.168.3.155:11223/fzc'
 
     print(url)
 

@@ -189,19 +189,43 @@ class EagleOperate(object):
         a.load_atts_from_json(json_path)
         # 读取 comment 中的信息，并直接转为 xml 信息
         b = DeteRes()
-        for each_comment in a.comments:
-            print(each_comment)
-            x1 = int(each_comment["x"])
-            y1 = int(each_comment["y"])
-            x2 = int(each_comment["x"] + each_comment["width"])
-            y2 = int(each_comment["y"] + each_comment["height"])
-            tag = str(each_comment["annotation"])
-            b.add_obj(x1, y1, x2, y2, tag, conf=-1)
+
+        if a.comments:
+            for each_comment in a.comments:
+                print(each_comment)
+                x1 = int(each_comment["x"])
+                y1 = int(each_comment["y"])
+                x2 = int(each_comment["x"] + each_comment["width"])
+                y2 = int(each_comment["y"] + each_comment["height"])
+                tag = str(each_comment["annotation"])
+                b.add_obj(x1, y1, x2, y2, tag, conf=-1)
         #
         b.width = a.width
         b.height = a.height
         save_xml_path = os.path.join(xml_dir, a.name + '.xml')
         b.save_to_xml(save_xml_path)
+
+    @staticmethod
+    def json_to_dete_res(json_path):
+        """将 metadata json 文件转为 xml 文件"""
+        a = EagleMetaData()
+        a.load_atts_from_json(json_path)
+        # 读取 comment 中的信息，并直接转为 xml 信息
+        b = DeteRes()
+
+        if a.comments:
+            for each_comment in a.comments:
+                print(each_comment)
+                x1 = int(each_comment["x"])
+                y1 = int(each_comment["y"])
+                x2 = int(each_comment["x"] + each_comment["width"])
+                y2 = int(each_comment["y"] + each_comment["height"])
+                tag = str(each_comment["annotation"])
+                b.add_obj(x1, y1, x2, y2, tag, conf=-1)
+        #
+        b.width = a.width
+        b.height = a.height
+        return b
 
     def get_random_id(self):
         """随机获取图片的 id"""

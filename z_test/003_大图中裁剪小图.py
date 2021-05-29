@@ -10,12 +10,13 @@ from JoTools.operateDeteRes import OperateDeteRes
 from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院_2021_05\xml"
-img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院_2021_05\img"
-save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院_2021_05\crop_01"
+xml_dir = r"C:\Users\14271\Desktop\人脸识别\001_human"
+img_dir = r"C:\Users\14271\Desktop\人脸识别\001_human"
+save_dir = r"C:\Users\14271\Desktop\人脸识别\002_face"
 
 
-OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.1, 0.1, 0.1, 0.1])
+# OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.1, 0.1, 0.1, 0.1])
+OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True)
 
 
 # a = cv2.imread(r"C:\Users\14271\Desktop\del\png\202104_353173.jpg")

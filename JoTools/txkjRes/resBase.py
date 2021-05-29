@@ -2,12 +2,14 @@
 # -*- author: jokker -*-
 
 import os
-import redis
 import copy
 import pickle
 from PIL import Image
 from abc import ABCMeta, abstractmethod
-
+try:
+    import redis
+except Exception as e:
+    print("no models redis")
 
 class ResBase():
 

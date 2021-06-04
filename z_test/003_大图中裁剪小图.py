@@ -1,52 +1,52 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-
+import random
 import os
 import shutil
 import cv2
 import PIL.Image as Image
 from JoTools.operateDeteRes import OperateDeteRes
-from JoTools.txkjRes.deteRes import DeteRes
+from JoTools.txkjRes.deteRes import DeteRes,DeteObj
 from JoTools.utils.FileOperationUtil import FileOperationUtil
-
-xml_dir = r"C:\Users\14271\Desktop\人脸识别\001_human"
-img_dir = r"C:\Users\14271\Desktop\人脸识别\001_human"
-save_dir = r"C:\Users\14271\Desktop\人脸识别\002_face"
+from JoTools.utils.RandomUtil import RandomUtil
 
 
-# OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.1, 0.1, 0.1, 0.1])
-OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True)
+for i in range(1,4):
+    xml_dir = r"\\192.168.3.80\数据\4量化测试集\电科院3月测试集xml\xml修改后\{0}".format(i)
+    img_dir = r"\\192.168.3.80\数据\4量化测试集\电科院3月测试集xml\xml修改后\{0}".format(i)
+    save_dir = r"C:\Users\14271\Desktop\标准测试集整理"
+    OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.3,0.3,0.3,0.3])
+
+exit()
+
+# OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True)
 
 
-# a = cv2.imread(r"C:\Users\14271\Desktop\del\png\202104_353173.jpg")
-# print(a.shape)
+index = 0
+for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
+    each_img_path = os.path.join(img_dir, os.path.split(each_xml_path)[1][:-3] + 'jpg')
 
-# b = Image.open(r"C:\Users\14271\Desktop\del\img\110kV德七Ⅰ回_0塔头 (1).jpg")
-# print(b.mode)
-#
-# # 将一个4通道转化为rgb三通道
-# b = b.convert("RGB")
+    if not os.path.exists(each_img_path):
+        continue
 
-# a = DeteRes()
-# a.update_tags({"key_1":"key", "key_2":"key"})
+    print(index, each_xml_path)
+    a = DeteRes(each_xml_path)
 
 
-# OperateDeteRes.get_xml_from_crop_xml(xml_dir, img_dir, save_xml_dir)
+    a.img_path = each_img_path
+    try:
 
-# OperateDeteRes.get_xml_from_crop_img(crop_dir, region_img_dir=img_dir, save_xml_dir=save_dir)
+        augment_parameter = [RandomUtil.rand_range_float(-0.3, 0), RandomUtil.rand_range_float(-0.3, 0), RandomUtil.rand_range_float(-0.2, 0), RandomUtil.rand_range_float(-0.2, 0)]
 
+        print(augment_parameter)
 
-# for each in OperateDeteRes.get_class_count(save_dir).items():
-#     print(each)
-#
-#
-# for each in FileOperationUtil.re_all_file(r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\JPEGImages"):
-#     img_name = os.path.split(each)[1]
-#     xml_name = img_name[:-3] + 'xml'
-#     xml_path = os.path.join(r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\Annotations_broken", xml_name)
-#
-#     if not os.path.exists(xml_path):
-#         print(each)
+        a.crop_and_save(save_dir, split_by_tag=True, exclude_tag_list=None, augment_parameter=augment_parameter)
+
+        index += 1
+
+    except Exception as e:
+        print(e)
+
 
 

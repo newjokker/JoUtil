@@ -6,6 +6,7 @@ import cv2
 import copy
 import time
 import random
+from flask import jsonify
 import numpy as np
 from abc import ABC
 from PIL import Image
@@ -112,9 +113,10 @@ class DeteRes(ResBase, ABC):
 
                 if 'xmin' in bndbox:
                     x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
-
-                if 'xMin' in bndbox:
+                elif 'xMin' in bndbox:
                     x_min, x_max, y_min, y_max = int(bndbox['xMin']), int(bndbox['xMax']), int(bndbox['yMin']), int(bndbox['yMax'])
+                else:
+                    continue
                 # ------------------------------------------------------------------------------------------------------
 
                 if 'prob' not in each_obj: each_obj['prob'] = -1
@@ -621,7 +623,7 @@ class DeteRes(ResBase, ABC):
                     res.append(each_dete_obj)
         return res
 
-    # ------------------------------------------------------------------------------------------------------------------
+    # ----------------------------------------------- txkj -------------------------------------------------------------
 
     def get_fzc_format(self):
         """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)], des"""
@@ -639,15 +641,20 @@ class DeteRes(ResBase, ABC):
         for each in self.get_fzc_format():
             print(each)
 
-    def get_result_construction(self):
+    def get_result_construction(self, model_name="None", start_time=None, end_time=None):
         """返回规范的检测结果字典"""
+
+        if not end_time:
+            end_time = time.time()
+
         result = {
                   'filename': self.file_name,
-                  'start_time': 0,
-                  'end_time': time.time(),
+                  'start_time': start_time,
+                  'end_time': end_time,
                   'width': self.width,
                   'height': self.height,
-                  'alarms': []
+                  'alarms': [],
+                  'model_name':model_name,
                   }
 
         each_info = {}
@@ -659,6 +666,13 @@ class DeteRes(ResBase, ABC):
 
         result['count'] = len(result['alarms'])
         return result
+
+    def get_return_jsonify(self, script_name, obj_name):
+        """获取返回信息"""
+        if len(self._alarms) > 0:
+            return jsonify({script_name: {obj_name: self.save_to_json()}}), 200
+        else:
+            return jsonify({script_name: {obj_name: self.save_to_json()}}), 207
 
     def deep_copy(self):
         """返回一个深拷贝"""

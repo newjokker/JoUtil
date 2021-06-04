@@ -13,14 +13,14 @@ from setuptools import setup, find_packages
 setup(
 
     name='JoUtil',                                                                          # 打包起来的包的文件名
-    version='0.2.7',                                                                        # 版本
+    version='0.2.8',                                                                        # 版本
     description='a tools for TXKJ algo',                                                    # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
 
     requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash', 'prettytable', 'progress',
               'progressbar', 'requests', 'imageio', 'pyexiv2', 'cv2', 'exifread', 'whatimage', 'pyheif',
-              'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto',
+              'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'flask'
               ],          # 定义依赖哪些模块
 
     # 打包的python文件夹

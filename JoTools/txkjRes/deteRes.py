@@ -623,6 +623,20 @@ class DeteRes(ResBase, ABC):
                     res.append(each_dete_obj)
         return res
 
+    # ----------------------------------------------- set --------------------------------------------------------------
+
+    def do_augment(self, augment_parameter, is_relative=True):
+        """对检测框进行扩展"""
+
+        # todo 这个函数不该存在，想办法融合到其他数据中
+
+        for each_dete_obj in self._alarms:
+            if isinstance(each_dete_obj, DeteObj):
+                each_dete_obj.do_augment(augment_parameter=augment_parameter, width=self.width, height=self.height, is_relative=is_relative)
+            # todo 使用的函数等待完善
+            elif isinstance(each_dete_obj, DeteAngleObj):
+                each_dete_obj.do_augment(augment_parameter=augment_parameter, width=self.width, height=self.height, is_relative=is_relative)
+
     # ----------------------------------------------- txkj -------------------------------------------------------------
 
     def get_fzc_format(self):

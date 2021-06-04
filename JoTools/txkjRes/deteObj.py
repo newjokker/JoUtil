@@ -38,7 +38,7 @@ class DeteObj(object):
         self.y1 += offset_y
         self.y2 += offset_y
 
-    def do_augment(self, augment_parameter, widht, height, is_relative=True):
+    def do_augment(self, augment_parameter, width, height, is_relative=True):
         """对框进行扩展，这边传入的绝对比例，或者相对"""
         region_width = int(self.x2 - self.x1)
         region_height = int(self.y2 - self.y1)
@@ -56,7 +56,7 @@ class DeteObj(object):
         #
         new_x_min = max(0, new_x_min)
         new_y_min = max(0, new_y_min)
-        new_x_max = min(widht-1, new_x_max)
+        new_x_max = min(width - 1, new_x_max)
         new_y_max = min(height-1, new_y_max)
         #
         self.x1 = new_x_min

@@ -80,6 +80,15 @@ class DeteAngleObj(object):
         """返回深拷贝对象"""
         return copy.deepcopy(self)
 
+    def do_augment(self, augment_parameter, width, height, is_relative=None):
+        """数据范围进行扩展"""
+        if augment_parameter is not None:
+            self.w += self.w * augment_parameter[0]
+            self.h += self.h * augment_parameter[1]
+
+        # todo 判断数据是否过界，如果过界就对框进行切割
+        print(width, height, augment_parameter, is_relative)
+
     @staticmethod
     def _rotate_point(xc, yc, xp, yp, theta):
         xoff = xp-xc

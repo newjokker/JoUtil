@@ -21,6 +21,7 @@ from .utils.StrUtil import StrUtil
 
 
 class DeteAcc(object):
+    """检测结果验证相关函数"""
 
     def __init__(self):
         self.label_list = ["Fnormal", "fzc_broken"]                                 # xml 中的分类
@@ -308,7 +309,7 @@ class DeteAcc(object):
 
 
 class OperateDeteRes(object):
-    """基于检测结果的操作"""
+    """基于 DeteRes 的批量数据操作"""
 
     @staticmethod
     def filter_by_area_ratio(xml_dir, area_ratio_threshold=0.0006, save_dir=None):

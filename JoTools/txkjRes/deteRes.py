@@ -17,14 +17,6 @@ from ..txkjRes.resTools import ResTools
 from ..utils.JsonUtil import JsonUtil
 from ..txkjRes.deteXml import parse_xml, save_to_xml
 
-# todo 本质上 filter 和 del 是同一个作用，对这两个进行合并
-# todo 有返回值的函数名第一个单词是动词
-
-# todo 增加对武汉数据的支持
-# todo 完善映射代码，看
-# todo 映射代码确保能支持读取的 xml 为空的情况
-# todo 确保模型输出的 xml 不是空的，要有基本的要素
-
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -897,7 +889,4 @@ class DeteRes(ResBase, ABC):
                 each_obj = each_obj.get_dete_obj()
                 new_alarms.append(each_obj)
         self._alarms = new_alarms
-
-
-
 

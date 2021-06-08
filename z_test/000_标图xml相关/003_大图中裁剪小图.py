@@ -12,10 +12,10 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.RandomUtil import RandomUtil
 
 
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院_2021_04\xml"
-img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院_2021_04\img"
-save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院_2021_04\crop_0.3"
-OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.3, 0.3, 0.3, 0.3])
+xml_dir = r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_img_016_compare"
+img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\img"
+save_dir = r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_img_016_crop"
+OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.3, 0.3, 0.3, 0.3], exclude_tag_list=['correct_fzc'])
 
 exit()
 

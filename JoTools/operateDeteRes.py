@@ -37,7 +37,7 @@ class DeteAcc(object):
             else:
                 res[each] = each_res[each]
 
-    def compare_customer_and_standard(self, dete_res_standard, dete_res_customized, assign_img_path=None, save_path=None):
+    def compare_customer_and_standard(self, dete_res_standard, dete_res_customized, assign_img_path=None, save_path=None, save_xml=False, save_img=False):
         """对比 两个 DeteRes 实例 之间的差异， 自己算出来的和标准数据集之间的差异"""
         check_res = []
         check_dict = collections.defaultdict(lambda: 0)
@@ -103,25 +103,29 @@ class DeteAcc(object):
         if save_path is False or assign_img_path is None:
             return check_dict
 
-        # 画图，并返回统计结果
+        # 重置目标框
         dete_res_standard.reset_alarms(check_res)
-        if assign_img_path is not None:
-            dete_res_standard.img_path = assign_img_path
+
         # 保存图片
-        dete_res_standard.draw_dete_res(save_path, color_dict=self.color_dict)
+        if save_img:
+            dete_res_standard.img_path = assign_img_path
+            dete_res_standard.draw_dete_res(save_path, color_dict=self.color_dict)
         # 保存 xml
-        save_xml_path = save_path[:-4] + '.xml'
-        dete_res_standard.save_to_xml(save_xml_path)
+        if save_xml:
+            save_xml_path = save_path[:-4] + '.xml'
+            dete_res_standard.save_to_xml(save_xml_path)
         return check_dict
 
-    def cal_model_acc(self, standard_xml_dir, customized_xml_dir, assign_img_dir, save_dir=None):
+    def cal_model_acc(self, standard_xml_dir, customized_xml_dir, assign_img_dir, save_dir=None, assign_conf=None, save_xml=False, save_img=False):
         """计算模型的性能，通过对比标准结果和跑出来的结果，save_dir 不为 None 就保存结果"""
         standard_xml_path_set = set(FileOperationUtil.re_all_file(standard_xml_dir, lambda x:str(x).endswith('.xml')))
         customized_xml_path_set = set(FileOperationUtil.re_all_file(customized_xml_dir, lambda x:str(x).endswith('.xml')))
         check_res = {}      # 检验结果
         # 对比
+        index = 0
         for xml_path_s in standard_xml_path_set:
-            print(xml_path_s)
+            index += 1
+            print(index, xml_path_s)
             xml_name = os.path.split(xml_path_s)[1]
             xml_path_c = os.path.join(customized_xml_dir, xml_name)
             assign_img_path = os.path.join(assign_img_dir, xml_name[:-3] + 'jpg')
@@ -137,12 +141,15 @@ class DeteAcc(object):
             #
             if xml_path_c in customized_xml_path_set:
                 # 对比两个结果的差异
-                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s), DeteRes(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path)
+                c_dete_res = DeteRes(xml_path_c)
+                if assign_conf:
+                    c_dete_res.filter_by_conf(assign_conf)
+                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s), c_dete_res, assign_img_path=assign_img_path, save_path=save_img_path, save_img=save_img, save_xml=save_xml)
                 # 对比完了之后在 customized_xml_path_set 中删除这个对比过的 xml 路径
                 customized_xml_path_set.remove(xml_path_c)
             else:
                 # 算作漏检，新建一个空的 customized_xml_path 放进去检查
-                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s), DeteRes(), assign_img_path=assign_img_path, save_path=save_img_path)
+                each_check_res = self.compare_customer_and_standard(DeteRes(xml_path_s), DeteRes(), assign_img_path=assign_img_path, save_path=save_img_path, save_img=save_img, save_xml=save_xml)
             # 更新统计字典
             self._update_check_res(check_res, each_check_res)
 
@@ -157,7 +164,7 @@ class DeteAcc(object):
                 assign_img_path = None
                 save_img_path = None
 
-            each_check_res = self.compare_customer_and_standard(DeteRes(), DeteRes(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path)
+            each_check_res = self.compare_customer_and_standard(DeteRes(), DeteRes(xml_path_c), assign_img_path=assign_img_path, save_path=save_img_path, save_xml=save_xml, save_img=save_img)
             self._update_check_res(check_res, each_check_res)
 
         return check_res

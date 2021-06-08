@@ -5,15 +5,15 @@
 from JoTools.operateDeteRes import OperateDeteRes, DeteAcc
 
 
-dete_res_standard = r"./xml_gt"
-dete_res_customized = r"./xml_pr"
-assign_img_path = r""
-save_path= r""
+dete_res_standard = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml_one"
+dete_res_customized = r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_img_016"
+assign_img_path = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\img"
+save_path= r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_img_016_compare"
 
 
 a = DeteAcc()
-a.iou_thershold = 0.4
-res = a.cal_model_acc(standard_xml_dir=dete_res_standard, customized_xml_dir=dete_res_customized, assign_img_dir=assign_img_path, save_dir=save_path)
+a.iou_thershold = 0.3
+res = a.cal_model_acc(standard_xml_dir=dete_res_standard, customized_xml_dir=dete_res_customized, assign_img_dir=assign_img_path, save_dir=save_path, assign_conf=0.3, save_img=True, save_xml=True)
 
 res_2 = a.cal_acc_rec(res)
 

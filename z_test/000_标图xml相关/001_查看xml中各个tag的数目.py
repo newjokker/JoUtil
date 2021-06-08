@@ -9,12 +9,10 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 # -------------------------------------------------------------------------------------
 
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院四月五月数据"
+xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml"
 # -------------------------------------------------------------------------------------
 
 
 for each in OperateDeteRes.get_class_count(xml_dir).items():
     print(each)
-
-
 

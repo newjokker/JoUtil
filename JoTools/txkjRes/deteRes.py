@@ -547,7 +547,7 @@ class DeteRes(ResBase, ABC):
     def filter_by_conf(self, conf_th, assign_tag_list=None):
         """根据置信度进行筛选，指定标签就能对不同标签使用不同的置信度"""
 
-        if not(isinstance(conf_th, int) and isinstance(conf_th, float)):
+        if not(isinstance(conf_th, int) or isinstance(conf_th, float)):
             raise ValueError("conf_th should be int or float")
 
         new_alarms, del_alarms = [], []
@@ -688,7 +688,8 @@ class DeteRes(ResBase, ABC):
     @property
     def alarms(self):
         """获取属性自动进行排序"""
-        return sorted(self._alarms, key=lambda x:x.id)
+        # return sorted(self._alarms, key=lambda x:x.id)
+        return self._alarms
 
     # ------------------------------------------------------------------------------------------------------------------
 

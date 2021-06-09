@@ -25,6 +25,8 @@ from JoTools.utils.RandomUtil import RandomUtil
 #     "fzc_broken": "fzc",
 #     "other": "other"}
 
+# up_dict = {"extra": "Fnormal", "UGuaHuan":"Fnormal"}
+
 up_dict = {"Fnormal": "fzc", "fzc_broken":"fzc"}
 
 xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml"

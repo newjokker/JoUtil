@@ -5,15 +5,18 @@
 from JoTools.operateDeteRes import OperateDeteRes, DeteAcc
 
 
-dete_res_standard = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml_one"
-dete_res_customized = r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_img_016"
-assign_img_path = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\img"
-save_path= r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_img_016_compare"
+# dete_res_standard = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml_one"
+dete_res_standard = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\Annotations_one"
+dete_res_customized = r"C:\Users\14271\Desktop\updata_step_1_train_data\res_xml"
+# assign_img_path = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\img"
+assign_img_path = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\JPEGImages"
+# save_path= r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_img_020_compare"
+save_path= r"C:\Users\14271\Desktop\updata_step_1_train_data\compare_xml"
 
 
 a = DeteAcc()
 a.iou_thershold = 0.3
-res = a.cal_model_acc(standard_xml_dir=dete_res_standard, customized_xml_dir=dete_res_customized, assign_img_dir=assign_img_path, save_dir=save_path, assign_conf=0.3, save_img=True, save_xml=True)
+res = a.cal_model_acc(standard_xml_dir=dete_res_standard, customized_xml_dir=dete_res_customized, assign_img_dir=assign_img_path, save_dir=save_path, assign_conf=0.3, save_img=False, save_xml=True)
 
 res_2 = a.cal_acc_rec(res)
 
@@ -25,3 +28,4 @@ print('-'*50)
 
 for each in res_2.items():
     print(each)
+

@@ -15,7 +15,7 @@ from .utils.NumberUtil import NumberUtil
 from .txkjRes.resTools import ResTools
 from .txkjRes.deteObj import DeteObj
 from .utils.StrUtil import StrUtil
-
+import prettytable as pt
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
 
@@ -536,7 +536,7 @@ class OperateDeteRes(object):
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def get_class_count(xml_folder):
+    def get_class_count(xml_folder, print_count=False):
         """查看 voc xml 的标签"""
         xml_info, name_dict = [], {}
         # 遍历 xml 统计 xml 信息
@@ -545,11 +545,21 @@ class OperateDeteRes(object):
         for xml_index, each_xml_path in enumerate(xml_list):
             each_xml_info = parse_xml(each_xml_path)
             xml_info.append(each_xml_info)
-            for each in each_xml_info['object']:
-                if each['name'] not in name_dict:
-                    name_dict[each['name']] = 1
+            for each_name in each_xml_info['object']:
+                if each_name['name'] not in name_dict:
+                    name_dict[each_name['name']] = 1
                 else:
-                    name_dict[each['name']] += 1
+                    name_dict[each_name['name']] += 1
+        # 打印结果
+        if print_count:
+            tb = pt.PrettyTable()
+            # id, 等待检测的图片数量，端口，使用的 gpu_id, 消耗的 gpu 资源
+            tb.field_names = ["Name", "Count"]
+            #
+            for each_name in name_dict:
+                tb.add_row((each_name, name_dict[each_name]))
+            print(tb)
+
         return name_dict
 
     @staticmethod

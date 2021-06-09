@@ -10,9 +10,9 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.RandomUtil import RandomUtil
 
 
-img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院四月五月数据\img"
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院四月五月数据\xml_new"
-save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院四月五月数据\train_data"
+img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\img"
+xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml_add_extra"
+save_dir = r"C:\Users\14271\Desktop\fzc_v1.2.5.0\000_test_add_extra"
 
 img_save_dir = os.path.join(save_dir, "JPEGImages")
 xml_save_dir = os.path.join(save_dir, "Annotations")
@@ -38,8 +38,7 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
         continue
 
     a = DeteRes(each_xml_path)
-    if len(a) < 2 and not (a.has_tag("fzc_broken")):
-        print("要素过少，或者没有破损数据 ： {0}".format(each_xml_path))
+    if not a.has_tag("extra"):
         continue
 
     img_path_list.append(each_img_path)

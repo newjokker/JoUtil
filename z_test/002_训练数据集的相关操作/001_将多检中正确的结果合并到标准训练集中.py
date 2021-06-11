@@ -10,14 +10,11 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
 
-xml_stand_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml"
-xml_extra_dir = r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_img_016_extra_xml"
+xml_stand_dir = r"C:\Users\14271\Desktop\updata_step_1_train_data\crop_fix_by_ldq\Annotations_broken"
+xml_extra_dir = r"C:\Users\14271\Desktop\updata_step_1_train_data\crop_fix_by_ldq\extra_xml"
 
 
-for each in OperateDeteRes.get_class_count(xml_stand_dir).items():
-    print(each)
-print("-"*100)
-
+OperateDeteRes.get_class_count(xml_stand_dir, print_count=True)
 
 for each_xml_path in FileOperationUtil.re_all_file(xml_extra_dir, endswitch=['.xml']):
     each_stand_xml = os.path.join(xml_stand_dir, os.path.split(each_xml_path)[1])
@@ -27,5 +24,4 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_extra_dir, endswitch=['.x
         c = a + b
         c.save_to_xml(each_stand_xml)
 
-for each in OperateDeteRes.get_class_count(xml_stand_dir).items():
-    print(each)
+OperateDeteRes.get_class_count(xml_stand_dir, print_count=True)

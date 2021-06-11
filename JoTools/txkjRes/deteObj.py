@@ -97,9 +97,12 @@ class DeteObj(object):
         """返回深拷贝对象"""
         return copy.deepcopy(self)
 
-    def get_name_str(self):
+    def get_name_str(self, assign_loc=None):
         """信息保存为文件名"""
-        name_str = "[{0},{1},{2},{3},{4},{5},{6}]".format(self.x1, self.y1, self.x2, self.y2, "'" + self.tag + "'", self.conf, self.id)
+        if assign_loc:
+            name_str = "[{0},{1},{2},{3},{4},{5},{6}]".format(assign_loc[0], assign_loc[1], assign_loc[2], assign_loc[3], "'" + self.tag + "'", self.conf, self.id)
+        else:
+            name_str = "[{0},{1},{2},{3},{4},{5},{6}]".format(self.x1, self.y1, self.x2, self.y2, "'" + self.tag + "'", self.conf, self.id)
         return name_str
 
     def load_from_name_str(self, name_str):

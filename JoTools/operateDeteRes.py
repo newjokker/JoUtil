@@ -399,7 +399,7 @@ class OperateDeteRes(object):
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def get_xml_from_crop_img(img_dir, region_img_dir, save_xml_dir=None):
+    def get_xml_from_crop_img(crop_dir, region_img_dir, save_xml_dir=None):
         """从小图构建 xml，用于快速指定标签和核对问题，可以将 labelimg 设置为使用固定标签进行标注（等待修改）"""
 
         if save_xml_dir is None:
@@ -407,12 +407,12 @@ class OperateDeteRes(object):
 
         dete_res_dict = {}
         # 小截图信息获取
-        for each_xml_path in FileOperationUtil.re_all_file(img_dir, lambda x: str(x).endswith('.jpg')):
+        for each_xml_path in FileOperationUtil.re_all_file(crop_dir, lambda x: str(x).endswith('.jpg')):
             each_img_dir, img_name, _ = FileOperationUtil.bang_path(each_xml_path)
             region_img_name = img_name.split('-+-')[0]
             img_name = img_name.split('-+-')[-1]
             # 现在的标签
-            each_tag = each_img_dir[len(img_dir) + 1:]
+            each_tag = each_img_dir[len(crop_dir) + 1:]
             # 构造新的 deteObj 实例
             a = DeteObj()
             a.load_from_name_str(img_name)

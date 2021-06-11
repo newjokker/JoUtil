@@ -10,9 +10,9 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.RandomUtil import RandomUtil
 
 
-img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\img"
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml_add_extra"
-save_dir = r"C:\Users\14271\Desktop\fzc_v1.2.5.0\000_test_add_extra"
+img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\JPEGImages"
+xml_dir = r"C:\Users\14271\Desktop\updata_step_1_train_data\crop_fix_by_ldq\Annotations_broken"
+save_dir = r"C:\Users\14271\Desktop\updata_step_1_train_data\to_fix_extra_data"
 
 img_save_dir = os.path.join(save_dir, "JPEGImages")
 xml_save_dir = os.path.join(save_dir, "Annotations")
@@ -38,7 +38,7 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
         continue
 
     a = DeteRes(each_xml_path)
-    if not a.has_tag("extra"):
+    if not a.has_tag("fzc"):
         continue
 
     img_path_list.append(each_img_path)

@@ -16,7 +16,7 @@ from .deteAngleObj import DeteAngleObj
 from ..txkjRes.resTools import ResTools
 from ..utils.JsonUtil import JsonUtil
 from ..txkjRes.deteXml import parse_xml, save_to_xml
-
+from ..utils.FileOperationUtil import FileOperationUtil
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -759,7 +759,8 @@ class DeteRes(ResBase, ABC):
             if method is not None:
                 each_crop = method(each_crop)
             # 保存截图
-            each_crop.save(each_save_path, quality=95)
+            # each_crop.save(each_save_path, quality=95)
+            each_crop.save(each_save_path)
 
     def crop_angle_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
@@ -804,6 +805,38 @@ class DeteRes(ResBase, ABC):
             # crop.save(each_save_path)
 
             cv2.imencode('.jpg', each_crop)[1].tofile(each_save_path)
+
+    def crop_with_xml(self, augment_parameter, save_dir, split_by_tag=False, need_tags=None):
+        """保存裁剪结果，结果带着 xml"""
+        #
+        for each_dete_obj in self._alarms:
+            if need_tags:
+                if each_dete_obj.tag not in need_tags:
+                    continue
+
+            x_min, y_min, x_max, y_max = each_dete_obj.get_rectangle()
+            new_x_min, new_y_min, new_x_max, new_y_max = ResTools.region_augment(each_dete_obj.get_rectangle(), (self.width, self.height), augment_parameter=augment_parameter)
+            # todo 获取相对位置，即为 xml 中的位置值
+            x1 = x_min - new_x_min + 1
+            x2 = x_max - x_min + x1
+            y1 = y_min - new_y_min + 1
+            y2 = y_max - y_min + y1
+
+            a = DeteRes()
+            a.add_obj(x1=x1, y1=y1, x2=x2, y2=y2, tag=each_dete_obj.tag, conf=each_dete_obj.conf, assign_id=0)
+            each_name = FileOperationUtil.bang_path(self.xml_path)[1]
+            if split_by_tag:
+                each_save_dir = os.path.join(save_dir, each_dete_obj.tag)
+                os.makedirs(each_save_dir, exist_ok=True)
+                each_xml_path = os.path.join(each_save_dir, each_name + "-+-" +each_dete_obj.get_name_str([new_x_min, new_y_min, new_x_max, new_y_max])+'.xml')
+                each_img_path = os.path.join(each_save_dir, each_name + "-+-" +each_dete_obj.get_name_str([new_x_min, new_y_min, new_x_max, new_y_max])+'.jpg')
+            else:
+                each_xml_path = os.path.join(save_dir, each_name + "-+-" + each_dete_obj.get_name_str([new_x_min, new_y_min, new_x_max, new_y_max])+'.xml')
+                each_img_path = os.path.join(save_dir, each_name + "-+-" + each_dete_obj.get_name_str([new_x_min, new_y_min, new_x_max, new_y_max])+'.jpg')
+
+            a.save_to_xml(each_xml_path)
+            each_img = self.img.crop([new_x_min, new_y_min, new_x_max, new_y_max])
+            each_img.save(each_img_path)
 
     # ------------------------------------------------------------------------------------------------------------------
 

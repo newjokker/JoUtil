@@ -11,31 +11,30 @@ from JoTools.txkjRes.deteRes import DeteRes,DeteObj
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.RandomUtil import RandomUtil
 
-# up_dict = {
-#     "fzc_yt": "fzc",
-#     "fzc_sm": "fzc",
-#     "fzc_gt": "fzc",
-#     "zd_yt": "fzc",
-#     "zd_sm": "fzc",
-#     "zd_gt": "fzc",
-#     "qx_yt": "fzc",
-#     "qx_sm": "fzc",
-#     "qx_gt": "fzc",
-#     "fzc_other": "fzc",
-#     "fzc_broken": "fzc",
-#     "other": "other"}
+up_dict = {
+    "fzc_yt": "Fnormal",
+    "fzc_sm": "Fnormal",
+    "fzc_gt": "Fnormal",
+    "zd_yt": "Fnormal",
+    "zd_sm": "Fnormal",
+    "zd_gt": "Fnormal",
+    "qx_yt": "Fnormal",
+    "qx_sm": "Fnormal",
+    "qx_gt": "Fnormal",
+    "fzc_other": "Fnormal",
+    "fzc_broken": "Fnormal",
+    "other": "other"}
 
 # up_dict = {"extra": "Fnormal", "UGuaHuan":"Fnormal"}
 
-up_dict = {"Fnormal": "fzc", "fzc_broken":"fzc"}
+# up_dict = {"Fnormal": "fzc", "fzc_broken":"fzc"}
 
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml"
-save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\xml_one"
+xml_dir = r"C:\Users\14271\Desktop\updata_step_1_train_data\to_fix_extra_data\Annotations"
+save_dir = r"C:\Users\14271\Desktop\updata_step_1_train_data\to_fix_extra_data\Annotations"
 
-for each in OperateDeteRes.get_class_count(xml_dir).items():
-    print(each)
 
-print('-'*50)
+OperateDeteRes.get_class_count(xml_dir, print_count=True)
+
 
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
     a = DeteRes(each_xml_path)
@@ -44,7 +43,7 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
     save_path = os.path.join(save_dir, os.path.split(each_xml_path)[1])
     a.save_to_xml(save_path)
 
-for each in OperateDeteRes.get_class_count(save_dir).items():
-    print(each)
+
+OperateDeteRes.get_class_count(save_dir, print_count=True)
 
 

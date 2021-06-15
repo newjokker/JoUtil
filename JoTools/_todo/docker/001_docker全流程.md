@@ -28,9 +28,10 @@
 
 * 容器，docker exec -it CONTAINER_ID  /bin/bash
 
-### 暂停
+### 暂停|执行
 
 * 容器，docker stop CONTAINER_ID
+* 容器，docker start CONTAINER_ID
 
 ### 退出
 

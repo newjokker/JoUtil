@@ -176,9 +176,30 @@ class FileOperationUtil(object):
 
         return res
 
+    @staticmethod
+    def divide_file_equally(file_dir, save_dir, divide_count=1, need_endswitch=None, assign_name='part_', is_clip=False):
+        """均分文件"""
 
+        # 初始化数据结构
+        file_dict = {}
+        for i in range(divide_count):
+            file_dict[i] = []
 
+        # 遍历分配数据
+        index = 0
+        for each_file in FileOperationUtil.re_all_file(file_dir, endswitch=need_endswitch):
+            file_dict[index].append(each_file)
+            if index < divide_count-1:
+                index += 1
+            else:
+                index = 0
+            print(index)
 
+        # 移动数据
+        for each_key in file_dict:
+            each_save_dir = os.path.join(save_dir, assign_name+str(each_key+1))
+            os.makedirs(each_save_dir, exist_ok=True)
+            FileOperationUtil.move_file_to_folder(file_dict[each_key], assign_folder=each_save_dir, is_clicp=is_clip)
 
 #
 # if __name__ == "__main__":
@@ -187,6 +208,12 @@ class FileOperationUtil(object):
 #     #     print(each)
 #
 #
-#     FileOperationUtil.clear_empty_folder(r"C:\Users\14271\Desktop\del")
+#     #FileOperationUtil.clear_empty_folder(r"C:\Users\14271\Desktop\del")
+#
+#     file_dir = r"C:\Users\14271\Desktop\del\crop_001"
+#     save_dir = r"C:\Users\14271\Desktop\del\crop_001_divide"
+#     divide_count = 10
+#
+#     FileOperationUtil.divide_file_equally(file_dir=file_dir, save_dir=save_dir, divide_count=divide_count, need_endswitch=['.xml', '.jpg'])
 #
 #

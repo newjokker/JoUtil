@@ -17,6 +17,8 @@ from ..txkjRes.resTools import ResTools
 from ..utils.JsonUtil import JsonUtil
 from ..txkjRes.deteXml import parse_xml, save_to_xml
 from ..utils.FileOperationUtil import FileOperationUtil
+from ..utils.DecoratorUtil import DecoratorUtil
+
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -63,11 +65,11 @@ class DeteRes(ResBase, ABC):
         """设置属性后执行对应"""
         object.__setattr__(self, key, value)
         #
-        if key == 'img_path' and isinstance(value, str):
+        if key == 'img_path' and isinstance(value, str) and self.parse_auto:
             self._parse_img_info()
-        elif key == 'xml_path' and isinstance(value, str):
+        elif key == 'xml_path' and isinstance(value, str) and self.parse_auto:
             self._parse_xml_info()
-        elif key == 'json_dict' and isinstance(value, dict):
+        elif key == 'json_dict' and isinstance(value, dict) and self.parse_auto:
             self._parse_json_info()
 
     # ------------------------------------------ transform -------------------------------------------------------------
@@ -680,10 +682,28 @@ class DeteRes(ResBase, ABC):
         else:
             return jsonify({script_name: {obj_name: self.save_to_json()}}), 207
 
-    def deep_copy(self):
-        """返回一个深拷贝"""
-        # fixme 对于 socket 对象是不能进行深拷贝的
-        return copy.deepcopy(self)
+    # @DecoratorUtil.time_this
+    def deep_copy(self, copy_img=False):
+        """深拷贝，为了时间考虑，分享的是同一个 img 对象"""
+        if copy_img:
+            return copy.deepcopy(self)
+        else:
+            a = DeteRes()
+            a.parse_auto = False
+            a.height = self.height
+            a.width = self.width
+            a.xml_path = self.xml_path
+            a.img_path = self.img_path
+            a.file_name = self.file_name
+            a.folder = self.folder
+            # img 是不进行深拷贝的，因为不会花很长的时间
+            a.img = self.img
+            a.json_dict = copy.deepcopy(self.json_dict)
+            a.reset_alarms(copy.deepcopy(self.alarms))
+            a.redis_conn_info = self.redis_conn_info
+            a.img_redis_key = self.img_redis_key
+            a.parse_auto = True
+            return a
 
     @property
     def alarms(self):
@@ -698,6 +718,7 @@ class DeteRes(ResBase, ABC):
         for each_dete_obj in self._alarms:
             each_dete_obj.do_offset(x, y)
 
+    # @DecoratorUtil.time_this
     def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]

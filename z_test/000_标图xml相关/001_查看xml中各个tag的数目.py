@@ -8,7 +8,7 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
-xml_dir = r"C:\Users\14271\Desktop\fzc_v1.2.5.0\test_old_model"
+xml_dir = r"C:\Users\14271\Desktop\merge_old"
 
 OperateDeteRes.get_class_count(xml_dir, print_count=True)
 

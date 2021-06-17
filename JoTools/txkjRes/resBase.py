@@ -14,6 +14,9 @@ except Exception as e:
 class ResBase():
 
     def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, redis_conn_info=None, img_redis_key=None):
+        #
+        self.parse_auto = True                              # 设置时候自动解析参数
+        #
         self.img = None
         self.height = -1                                    # 检测图像的高
         self.width = -1                                     # 检测图像的宽
@@ -25,6 +28,7 @@ class ResBase():
         self.redis_conn = None
         self.redis_conn_info = redis_conn_info
         self.img_redis_key = img_redis_key
+        #
 
     @abstractmethod
     def save_to_xml(self, save_path, assign_alarms=None):
@@ -51,17 +55,16 @@ class ResBase():
     def _parse_img_info(self):
         """获取图像信息"""
 
-        if self.img is None:
-            if self.img_path is not None:
-                if os.path.exists(self.img_path):
-                    self.img = Image.open(self.img_path)
-                    # RGBA(png) ==> RGB(jpg)
-                    if self.img.mode == "RGBA":
-                        self.img = self.img.convert("RGB")
-                else:
-                    return False
+        if self.img_path is not None:
+            if os.path.exists(self.img_path):
+                self.img = Image.open(self.img_path)
+                # RGBA(png) ==> RGB(jpg)
+                if self.img.mode == "RGBA":
+                    self.img = self.img.convert("RGB")
             else:
                 return False
+        else:
+            return False
 
         self.width, self.height = self.img.size
         if self.img_path:

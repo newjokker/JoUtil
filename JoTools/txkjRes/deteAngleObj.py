@@ -6,6 +6,8 @@ import copy
 import math
 import numpy as np
 from .deteObj import DeteObj
+import os
+import cv2
 
 
 class DeteAngleObj(object):
@@ -21,6 +23,8 @@ class DeteAngleObj(object):
         self.angle = angle
         self.id = assign_id
         self.des = describe
+        # crop 下来的小图保存的位置
+        self.crop_path = ""
 
     def __eq__(self, other):
         """等于"""
@@ -110,6 +114,24 @@ class DeteAngleObj(object):
     def load_from_name_str(self, name_str):
         """从文件名获取信息"""
         self.cx, self.cy, self.w, self.h, self.angle, self.tag, self.conf, self.id = eval(name_str)
+
+    def get_crop_img(self, RGB=True, assign_shape_min=False):
+        """根据指定的 deteObj 读取裁剪的 小图"""
+
+        if not os.path.exists(self.crop_path):
+            return None
+
+        im_array = cv2.imread(self.crop_path)
+
+        if assign_shape_min:
+            w, h = im_array.shape[:2]
+            ratio = assign_shape_min/min(w, h)
+            im_array = cv2.resize(im_array, (int(ratio*w), int(ratio*h)))
+
+        if RGB:
+            return cv2.cvtColor(im_array, cv2.COLOR_BGR2RGB)
+        else:
+            return im_array
 
 
 if __name__ == "__main__":

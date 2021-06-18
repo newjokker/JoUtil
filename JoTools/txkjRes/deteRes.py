@@ -116,9 +116,12 @@ class DeteRes(ResBase, ABC):
                 if 'prob' not in each_obj: each_obj['prob'] = -1
                 if 'id' not in each_obj: each_obj['id'] = -1
                 if 'des' not in each_obj: each_obj['des'] = ''
+                if 'crop_path' not in each_obj: each_obj['crop_path'] = ''
                 if each_obj['id'] in ['None', None]: each_obj['id'] = -1
-
-                self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']), describe=each_obj['des'])
+                each_dete_obj = DeteObj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']), describe=each_obj['des'])
+                each_dete_obj.crop_path = each_obj['crop_path']
+                self.add_obj_2(each_dete_obj)
+                # self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']), describe=each_obj['des'])
             # robndbox
             if 'robndbox' in each_obj:
                 bndbox = each_obj['robndbox']
@@ -126,9 +129,13 @@ class DeteRes(ResBase, ABC):
                 if 'prob' not in each_obj: each_obj['prob'] = -1
                 if 'id' not in each_obj : each_obj['id'] = -1
                 if 'des' not in each_obj : each_obj['des'] = ''
+                if 'crop_path' not in each_obj : each_obj['crop_path'] = ''
                 # fixme 这块要好好修正一下，这边应为要改 bug 暂时这么写的
                 if each_obj['id'] in ['None', None] : each_obj['id'] = -1
-                self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'], describe=each_obj['des'])
+                each_dete_obj = DeteAngleObj(cx, cy, w, h, angle, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'], describe=each_obj['des'])
+                each_dete_obj.crop_path = each_obj['crop_path']
+                self.add_obj_2(each_dete_obj)
+                # self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=each_obj['prob'], assign_id=each_obj['id'], describe=each_obj['des'])
 
     def _parse_json_info(self):
         """解析 json 信息"""
@@ -162,7 +169,11 @@ class DeteRes(ResBase, ABC):
                     if 'prob' not in each_obj: each_obj['prob'] = -1
                     if 'id' not in each_obj: each_obj['id'] = -1
                     if 'des' not in each_obj: each_obj['des'] = ''
-                    self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']), describe=str(each_obj['des']))
+                    if 'crop_path' not in each_obj: each_obj['crop_path'] = ''
+                    each_dete_obj = DeteObj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']), describe=str(each_obj['des']))
+                    each_dete_obj.crop_path = each_obj['crop_path']
+                    self.add_obj_2(each_dete_obj)
+                    # self.add_obj(x1=x_min, x2=x_max, y1=y_min, y2=y_max, tag=each_obj['name'], conf=float(each_obj['prob']), assign_id=int(each_obj['id']), describe=str(each_obj['des']))
                 # robndbox
                 if 'robndbox' in each_obj:
                     bndbox = each_obj['robndbox']
@@ -170,7 +181,11 @@ class DeteRes(ResBase, ABC):
                     if 'prob' not in each_obj: each_obj['prob'] = -1
                     if 'id' not in each_obj: each_obj['id'] = -1
                     if 'des' not in each_obj: each_obj['des'] = -1
-                    self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=float(each_obj['prob']),assign_id=int(each_obj['id']), describe=str(each_obj['des']))
+                    if 'crop_path' not in each_obj: each_obj['crop_path'] = ''
+                    each_dete_obj = DeteAngleObj(cx, cy, w, h, angle, tag=each_obj['name'], conf=float(each_obj['prob']),assign_id=int(each_obj['id']), describe=str(each_obj['des']))
+                    each_dete_obj.crop_path = each_obj['crop_path']
+                    self.add_obj_2(each_dete_obj)
+                    # self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=float(each_obj['prob']),assign_id=int(each_obj['id']), describe=str(each_obj['des']))
 
     def save_to_xml(self, save_path, assign_alarms=None):
         """保存为 xml 文件"""
@@ -186,13 +201,13 @@ class DeteRes(ResBase, ABC):
         for each_dete_obj in alarms:
             # bndbox
             if isinstance(each_dete_obj, DeteObj):
-                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id':str(each_dete_obj.id), 'des':str(each_dete_obj.des),
+                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id':str(each_dete_obj.id), 'des':str(each_dete_obj.des),'crop_path':str(each_dete_obj.crop_path),
                             'bndbox': {'xmin': str(int(each_dete_obj.x1)), 'xmax': str(int(each_dete_obj.x2)),
                                        'ymin': str(int(each_dete_obj.y1)), 'ymax': str(int(each_dete_obj.y2))}}
                 xml_info['object'].append(each_obj)
             # robndbox
             elif isinstance(each_dete_obj, DeteAngleObj):
-                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id': str(int(each_dete_obj.id)), 'des':str(each_dete_obj.des),
+                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id': str(int(each_dete_obj.id)), 'des':str(each_dete_obj.des),'crop_path':str(each_dete_obj.crop_path),
                             'robndbox': {'cx': str(each_dete_obj.cx), 'cy': str(each_dete_obj.cy),
                                          'w': str(each_dete_obj.w), 'h': str(each_dete_obj.h),'angle': str(each_dete_obj.angle)}}
                 xml_info['object'].append(each_obj)
@@ -216,13 +231,13 @@ class DeteRes(ResBase, ABC):
         for each_dete_obj in alarms:
             # bndbox
             if isinstance(each_dete_obj, DeteObj):
-                each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf), 'id':int(each_dete_obj.id), 'des':str(each_dete_obj.des),
+                each_obj = {'name': each_dete_obj.tag, 'prob': float(each_dete_obj.conf), 'id':int(each_dete_obj.id), 'des':str(each_dete_obj.des), 'crop_path':str(each_dete_obj.crop_path),
                             'bndbox': {'xmin': int(each_dete_obj.x1), 'xmax': int(each_dete_obj.x2),
                                        'ymin': int(each_dete_obj.y1), 'ymax': int(each_dete_obj.y2)}}
                 json_object.append(JsonUtil.save_data_to_json_str(each_obj))
             # robndbox
             elif isinstance(each_dete_obj, DeteAngleObj):
-                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id': str(each_dete_obj.id), 'des':str(each_dete_obj.des),
+                each_obj = {'name': each_dete_obj.tag, 'prob': str(each_dete_obj.conf), 'id': str(each_dete_obj.id), 'des':str(each_dete_obj.des), 'crop_path':str(each_dete_obj.crop_path),
                             'robndbox': {'cx': float(each_dete_obj.cx), 'cy': float(each_dete_obj.cy),
                                          'w': float(each_dete_obj.w), 'h': float(each_dete_obj.h),
                                          'angle': float(each_dete_obj.angle)}}
@@ -234,6 +249,75 @@ class DeteRes(ResBase, ABC):
         """label img 中会将标注信息转为 txt 进行保存"""
         # todo 会生成两个文件 （1）classes.txt 存放类别信息 （2）文件名.txt 存放标注信息，tag mx my w h , mx my 为中心点坐标
         pass
+
+    def crop_dete_obj(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
+        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
+        * augment_parameter = [0.5, 0.5, 0.2, 0.2]
+        """
+        # fixme 存储 crop 存的文件夹，
+
+        if not self.img:
+            raise ValueError ("need img_path or img")
+
+        #
+        if assign_img_name is not None:
+            img_name = assign_img_name
+        else:
+            if self.file_name:
+                img_name = os.path.split(self.file_name)[1][:-4]
+            elif self.img_path is not None :
+                img_name = os.path.split(self.img_path)[1][:-4]
+            else:
+                raise ValueError("need self.img_path or assign_img_name")
+
+        tag_count_dict = {}
+        #
+        for each_obj in self._alarms:
+            # 只支持正框的裁切
+            if not isinstance(each_obj, DeteObj):
+                continue
+            # 截图的区域
+            bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
+            # 排除掉不需要保存的 tag
+            if include_tag_list is not None:
+                if each_obj.tag not in include_tag_list:
+                    continue
+
+            if not exclude_tag_list is None:
+                if each_obj.tag in exclude_tag_list:
+                    continue
+
+            # 计算这是当前 tag 的第几个图片
+            if each_obj.tag not in tag_count_dict:
+                tag_count_dict[each_obj.tag] = 0
+            else:
+                tag_count_dict[each_obj.tag] += 1
+            # 图片扩展
+            if augment_parameter is not None:
+                bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
+
+            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
+            if split_by_tag is True:
+                each_save_dir = os.path.join(save_dir, each_obj.tag)
+                if not os.path.exists(each_save_dir):
+                    os.makedirs(each_save_dir)
+            else:
+                each_save_dir = save_dir
+
+            # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
+            each_name_str = each_obj.get_name_str()
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
+            #
+            each_obj.crop_path = each_save_path
+            #
+            each_crop = self.img.crop(bndbox)
+            # 保存截图
+            # each_crop.save(each_save_path, quality=95)
+            each_crop.save(each_save_path)
+
+    def del_crop_dete_obj(self, save_dir):
+        """存储"""
+        # todo 删除缓存的图片文件，是不是要在 deteRes 中写，需要考虑一下
 
     def parse_txt_info(self, classes_path, record_path):
         """解析 txt 信息"""
@@ -315,6 +399,25 @@ class DeteRes(ResBase, ABC):
             return im_array
         else:
             return cv2.cvtColor(im_array, cv2.COLOR_RGB2BGR)
+
+    # @staticmethod
+    # def get_sub_img_by_dete_obj_from_crop(self, assign_dete_obj, RGB=True, assign_shape_min=False):
+    #     """根据指定的 deteObj 读取裁剪的 小图"""
+    #
+    #     if not os.path.exists(assign_dete_obj.crop_path):
+    #         return None
+    #
+    #     im_array = cv2.imread(assign_dete_obj.crop_path)
+    #
+    #     if assign_shape_min:
+    #         w, h = im_array.shape[:2]
+    #         ratio = assign_shape_min/min(w, h)
+    #         im_array = cv2.resize(im_array, (int(ratio*w), int(ratio*h)))
+    #
+    #     if RGB:
+    #         return cv2.cvtColor(im_array, cv2.COLOR_BGR2RGB)
+    #     else:
+    #         return im_array
 
     def get_img_array(self, RGB=True):
         """获取self.img对应的矩阵信息"""
@@ -675,12 +778,21 @@ class DeteRes(ResBase, ABC):
         result['count'] = len(result['alarms'])
         return result
 
-    def get_return_jsonify(self, script_name, obj_name):
+    def get_return_jsonify(self, script_name=None, obj_name=None):
         """获取返回信息"""
-        if len(self._alarms) > 0:
-            return jsonify({script_name: {obj_name: self.save_to_json()}}), 200
+        # fixme 最好能强制全部使用并行模式，这样就省的麻烦了
+        # 并行模式
+        if obj_name is None:
+            if len(self._alarms) > 0:
+                return jsonify({script_name: {obj_name: self.save_to_json()}}), 200
+            else:
+                return jsonify({script_name: {obj_name: self.save_to_json()}}), 207
+        # 非并行模式
         else:
-            return jsonify({script_name: {obj_name: self.save_to_json()}}), 207
+            if len(self._alarms) > 0:
+                return jsonify({script_name: self.save_to_json()}), 200
+            else:
+                return jsonify({script_name: self.save_to_json()}), 207
 
     # @DecoratorUtil.time_this
     def deep_copy(self, copy_img=False):

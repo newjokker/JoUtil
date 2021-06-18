@@ -62,11 +62,15 @@ class HashLibUtil(object):
         return res
 
     @staticmethod
-    def leave_one(img_dir, save_dir=None):
+    def leave_one(img_dir, save_dir=None, endswith=(".jpg", ".png", ".JPG", ".PNG"), del_log_path=None):
         """检查路径下面有没有重复的文件，把所有不重复的文件复制到指定文件夹，或者直接在当前文件夹删除"""
         md5_set = set()
-        for each_img_path in FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith((".jpg", ".png"))):
+        del_list = []
+        file_count_sum = 0
+        del_file_count = 0
+        for each_img_path in FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith(endswith)):
             each_md5 = HashLibUtil.get_file_md5(each_img_path)
+            file_count_sum += 1
             if each_md5 not in md5_set:
                 md5_set.add(each_md5)
                 if save_dir is not None:
@@ -76,10 +80,19 @@ class HashLibUtil(object):
                 if save_dir is None:
                     # 不另存为文件夹，就直接在当前文件夹中将重复的图片删除
                     print("remove : {0}".format(each_img_path))
+                    del_list.append((each_md5, each_img_path))
                     os.remove(each_img_path)
+                    del_file_count += 1
+        # 保存删除的 log
+        if del_log_path:
+            with open(del_log_path, 'a') as log_txt:
+                for each_line in del_list:
+                    log_txt.write(each_line[0] + ' : ' + each_line[1])
+                    log_txt.write('\n')
+        return file_count_sum, del_file_count
 
     @staticmethod
-    def save_file_img_to_pkl(file_dir, save_pkl_path, need_file_type=None, assign_file_path_file=None, each_file_count=1000):
+    def save_file_md5_to_pkl(file_dir, save_pkl_path, need_file_type=None, assign_file_path_file=None, each_file_count=1000):
         """将制定路径下面的所有文件的 md5 和 路径组成的字典保存到 pkl 文件中"""
 
         # 执行需要计算 md5 值的数据的类型

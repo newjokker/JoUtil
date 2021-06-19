@@ -315,10 +315,6 @@ class DeteRes(ResBase, ABC):
             # each_crop.save(each_save_path, quality=95)
             each_crop.save(each_save_path)
 
-    def del_crop_dete_obj(self, save_dir):
-        """存储"""
-        # todo 删除缓存的图片文件，是不是要在 deteRes 中写，需要考虑一下
-
     def parse_txt_info(self, classes_path, record_path):
         """解析 txt 信息"""
         # todo txt 信息中不包含图像的大小，波段数等信息，保存和读取 txt 标注的信息比较鸡肋
@@ -400,24 +396,15 @@ class DeteRes(ResBase, ABC):
         else:
             return cv2.cvtColor(im_array, cv2.COLOR_RGB2BGR)
 
-    # @staticmethod
-    # def get_sub_img_by_dete_obj_from_crop(self, assign_dete_obj, RGB=True, assign_shape_min=False):
-    #     """根据指定的 deteObj 读取裁剪的 小图"""
-    #
-    #     if not os.path.exists(assign_dete_obj.crop_path):
-    #         return None
-    #
-    #     im_array = cv2.imread(assign_dete_obj.crop_path)
-    #
-    #     if assign_shape_min:
-    #         w, h = im_array.shape[:2]
-    #         ratio = assign_shape_min/min(w, h)
-    #         im_array = cv2.resize(im_array, (int(ratio*w), int(ratio*h)))
-    #
-    #     if RGB:
-    #         return cv2.cvtColor(im_array, cv2.COLOR_BGR2RGB)
-    #     else:
-    #         return im_array
+    @staticmethod
+    def get_sub_img_by_dete_obj_from_crop(assign_dete_obj, RGB=True, assign_shape_min=False):
+        """根据指定的 deteObj 读取裁剪的 小图"""
+        return assign_dete_obj.get_crop_img(RGB=RGB, assign_shape_min=assign_shape_min)
+
+    def del_sub_img_from_crop(self):
+        """删除裁剪的缓存文件"""
+        for each_dete_obj in self:
+            each_dete_obj.del_crop_img()
 
     def get_img_array(self, RGB=True):
         """获取self.img对应的矩阵信息"""
@@ -782,7 +769,7 @@ class DeteRes(ResBase, ABC):
         """获取返回信息"""
         # fixme 最好能强制全部使用并行模式，这样就省的麻烦了
         # 并行模式
-        if obj_name is None:
+        if obj_name:
             if len(self._alarms) > 0:
                 return jsonify({script_name: {obj_name: self.save_to_json()}}), 200
             else:

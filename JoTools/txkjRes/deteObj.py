@@ -131,6 +131,12 @@ class DeteObj(object):
         else:
             return im_array
 
+    def del_crop_img(self):
+        """删除裁剪下来的缓存文件"""
+        if os.path.exists(self.crop_path):
+            os.remove(self.crop_path)
+            self.crop_path = ''
+
 
 if __name__ == "__main__":
 

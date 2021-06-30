@@ -26,26 +26,19 @@ from JoTools.utils.RandomUtil import RandomUtil
 #     "other": "other"}
 
 up_dict = {
-    "fzc": "fzc",
-    "other": "fzc",
-    "1": "fzc",
-    "2": "fzc",
-    "3": "fzc",
-    "4": "fzc",
-    "5": "fzc",
-    "6": "fzc",
-    "7": "fzc",
-    "8": "fzc",
-    "9": "other",
-    "0": "fzc",
+    "040500013": "K",
+    "040501013": "螺母锈蚀",
+    "010000023": "nc",
+    "040500023": "kkxTC", # 退出
+    "030100023": "jyzzb",
 }
 
 # up_dict = {"extra": "Fnormal", "UGuaHuan":"Fnormal"}
 
 # up_dict = {"Fnormal": "fzc", "fzc_broken":"fzc"}
 
-xml_dir = r"C:\Users\14271\Desktop\fzc_多版本对比\xml_v0.2.5.0"
-save_dir = r"C:\Users\14271\Desktop\fzc_多版本对比\xml_v0.2.5.0"
+xml_dir = r"C:\Users\14271\Desktop\结果对比\merge_update_only_nc"
+save_dir = r"C:\Users\14271\Desktop\结果对比\merge_update_only_nc"
 
 
 OperateDeteRes.get_class_count(xml_dir, print_count=True)
@@ -54,8 +47,8 @@ OperateDeteRes.get_class_count(xml_dir, print_count=True)
 
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
     a = DeteRes(each_xml_path)
-    # a.update_tags(up_dict)
-    a.filter_by_tags(need_tag=["fzc_broken", "Fnormal"])
+    a.update_tags(up_dict)
+    a.filter_by_tags(need_tag=["nc"])
     save_path = os.path.join(save_dir, os.path.split(each_xml_path)[1])
     a.save_to_xml(save_path)
 

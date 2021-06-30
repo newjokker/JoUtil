@@ -12,13 +12,13 @@ from JoTools.utils.RandomUtil import RandomUtil
 
 img_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\JPEGImages"
 xml_dir = r"C:\Users\14271\Desktop\updata_step_1_train_data\crop_fix_by_ldq\Annotations_broken"
-save_dir = r"C:\Users\14271\Desktop\updata_step_1_train_data\to_fix_extra_data"
+save_dir = r"C:\Users\14271\Desktop\del\多目标测试"
 
 img_save_dir = os.path.join(save_dir, "JPEGImages")
 xml_save_dir = os.path.join(save_dir, "Annotations")
 
-os.makedirs(img_save_dir)
-os.makedirs(xml_save_dir)
+os.makedirs(img_save_dir, exist_ok=True)
+os.makedirs(xml_save_dir, exist_ok=True)
 
 img_path_list = []
 xml_path_list = []
@@ -38,8 +38,14 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
         continue
 
     a = DeteRes(each_xml_path)
-    if not a.has_tag("fzc"):
+
+    a.filter_by_area(50*100)
+
+    if len(a) > 3:
         continue
+
+    if index > 100:
+        break
 
     img_path_list.append(each_img_path)
     xml_path_list.append(each_xml_path)

@@ -28,7 +28,7 @@ class ParseXml(object):
         object_info = {}
         for each_node in assign_node.childNodes:
             node_name = each_node.nodeName
-            if node_name in ["name", "pose", "truncated", "difficult", "prob", "id", "des"]:
+            if node_name in ["name", "pose", "truncated", "difficult", "prob", "id", "des", "crop_path"]:
                 object_info[node_name] = XmlUtil.get_info_from_node(each_node)['value']
 
             # ----------------------------------------------------------------------------------------------------------

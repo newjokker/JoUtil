@@ -4,6 +4,7 @@
 import shutil
 import os
 import datetime
+import collections
 
 
 class FileOperationUtil(object):
@@ -201,19 +202,37 @@ class FileOperationUtil(object):
             os.makedirs(each_save_dir, exist_ok=True)
             FileOperationUtil.move_file_to_folder(file_dict[each_key], assign_folder=each_save_dir, is_clicp=is_clip)
 
-#
-# if __name__ == "__main__":
-#
-#     # for each in FileOperationUtil.re_all_folder(r"C:\Users\14271\Desktop\del"):
-#     #     print(each)
-#
-#
-#     #FileOperationUtil.clear_empty_folder(r"C:\Users\14271\Desktop\del")
-#
-#     file_dir = r"C:\Users\14271\Desktop\del\crop_001"
-#     save_dir = r"C:\Users\14271\Desktop\del\crop_001_divide"
-#     divide_count = 10
-#
-#     FileOperationUtil.divide_file_equally(file_dir=file_dir, save_dir=save_dir, divide_count=divide_count, need_endswitch=['.xml', '.jpg'])
-#
-#
+    @staticmethod
+    def show_file_dispersed(file_dir, endswitch, assign_func):
+        """查看文件的分布"""
+
+        data_list = []
+
+        for each_file in FileOperationUtil.re_all_file(file_dir, endswitch=endswitch):
+            data_list.append(assign_func(each_file))
+        # 统计
+        a = collections.Counter(data_list)
+        # 显示
+
+        print(list(a.keys()))
+
+        min_value = min(list(a.keys()))
+        max_value = max(list(a.keys()))
+
+        for i in range(min_value, max_value + 1):
+            if i in a:
+                print(i, a[i])
+
+        print(a)
+
+
+
+if __name__ == "__main__":
+
+    #FileOperationUtil.clear_empty_folder(r"C:\Users\14271\Desktop\del")
+
+    file_dir = r"/home/suanfa-1/ceshiji"
+
+    FileOperationUtil.show_file_dispersed(file_dir, endswitch=['.jpg', '.JPG'], assign_func=lambda x:int(os.path.getsize(x)/(1024*1024)))
+
+

@@ -148,7 +148,7 @@ class HashLibUtil(object):
             print("stop file_path_set length    : ", len(file_path_set))
             print("stop md5 dict length         : ", len(md5_dict))
 
-
+        return md5_dict
 
 if __name__ == "__main__":
 

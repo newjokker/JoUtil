@@ -23,8 +23,8 @@ from JoTools.operateDeteRes import OperateDeteRes, OperateTrainData
 
 
 
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\crop_xml"
+xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\fix_obj_range\crop_xml"
 img_dir= r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\JPEGImages"
-save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\fix_xml"
+save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\fix_obj_range\xml"
 
 OperateDeteRes.get_xml_from_crop_xml(xml_dir=xml_dir, region_img_dir=img_dir, save_xml_dir=save_dir)

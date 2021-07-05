@@ -2,6 +2,7 @@
 # -*- author: jokker -*-
 
 import os
+import cv2
 import random
 import collections
 import numpy as np
@@ -627,6 +628,48 @@ class OperateDeteRes(object):
             each_dete_res = DeteRes(each_xml_path)
             each_dete_res.update_tags(update_dict)
             each_dete_res.save_to_xml(each_xml_path)
+
+    @staticmethod
+    def resize_train_data(img_dir, xml_dir, save_dir, resize_ratio=0.5):
+        """对训练数据进行resize，resize img 和 xml """
+
+        save_img_dir = os.path.join(save_dir, 'JPEGImages')
+        save_xml_dir = os.path.join(save_dir, 'Annotations')
+        os.makedirs(save_xml_dir, exist_ok=True)
+        os.makedirs(save_img_dir, exist_ok=True)
+
+        index = 0
+        for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
+            print(index, each_xml_path)
+            index += 1
+            each_img_path = os.path.join(img_dir, FileOperationUtil.bang_path(each_xml_path)[1] + '.jpg')
+            # 查看数据是否能找到
+            if not os.path.exists(each_img_path):
+                break
+            #
+            a = DeteRes(each_xml_path)
+            if len(a) < 1:
+                break
+            #
+            im = cv2.imdecode(np.fromfile(each_img_path, dtype=np.uint8), 1)
+            im_height, im_width = im.shape[:2]
+            im_height_new, im_width_new = int(im_height*resize_ratio), int(im_width*resize_ratio)
+            im_new = cv2.resize(im, (im_width_new, im_height_new))
+            #
+            a.height = im_height_new
+            a.width = im_width_new
+            # 将每一个 obj 进行 resize
+            for each_obj in a:
+                each_obj.x1 = int(each_obj.x1*resize_ratio)
+                each_obj.x2 = int(each_obj.x2*resize_ratio)
+                each_obj.y1 = int(each_obj.y1*resize_ratio)
+                each_obj.y2 = int(each_obj.y2*resize_ratio)
+            # 保存 img
+            save_img_path = os.path.join(save_img_dir, FileOperationUtil.bang_path(each_xml_path)[1] + '.jpg')
+            cv2.imwrite(save_img_path, im_new)
+            # 保存 xml
+            save_xml_path = os.path.join(save_xml_dir, FileOperationUtil.bang_path(each_xml_path)[1] + '.xml')
+            a.save_to_xml(save_xml_path)
 
 
 class OperateTrainData(object):

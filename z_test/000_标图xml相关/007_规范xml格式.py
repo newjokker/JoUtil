@@ -14,7 +14,7 @@ from JoTools.utils.RandomUtil import RandomUtil
 
 
 
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\999_wait_for_train\武汉电科院_2021_04\img"
+xml_dir = r"C:\Users\14271\Desktop\wuhan_006_fzc\xml_new"
 
 
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):

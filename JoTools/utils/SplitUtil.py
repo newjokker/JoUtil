@@ -3,6 +3,7 @@
 
 
 import copy
+import math
 
 
 class SplitUtil(object):
@@ -45,10 +46,23 @@ class SplitUtil(object):
 if __name__ == "__main__":
 
 
-    test_data = list(range(200))
+    # test_data = list(range(200))
+    #
+    # # res = SplitUtil.split_to_assign_part(test_data, 7)
+    # res = SplitUtil.split_by_every_count(test_data, 5)
+    #
+    # for each in res:
+    #     print(each)
 
-    # res = SplitUtil.split_to_assign_part(test_data, 7)
-    res = SplitUtil.split_by_every_count(test_data, 5)
+
+
+    test_data = []
+    with open(r"C:\Users\14271\Desktop\fzc_step_one_20K\out_fzc_step_one_0.txt", 'r') as txt_file:
+        for each_line in txt_file:
+            each_line = each_line.strip()
+            test_data.append(float(each_line.split(' --> ')[1][:-3]))
+
+    res = SplitUtil.split_by_every_count(test_data, assign_count=10)
 
     for each in res:
-        print(each)
+        print(sum(each)/len(each))

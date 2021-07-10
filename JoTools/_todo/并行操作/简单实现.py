@@ -14,7 +14,7 @@ def somefunc(str_1, str_2, iterable_iterm):
     print("%s %s %d" % (str_1, str_2, iterable_iterm))
 
 def main():
-    iterable = [1, 2, 3, 4, 5]
+    iterable = [1, 2, 3, 4, 5,1,2,3,4,45,6,5,4,3,2,45,3,4,5,6]
     pool = Pool()
     str_1 = "This"
     str_2 = "is"

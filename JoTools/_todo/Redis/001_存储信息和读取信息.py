@@ -13,10 +13,10 @@ img_path = r"C:\Users\14271\Desktop\del\res.jpg"
 
 r = redis.StrictRedis(host='192.168.3.185', port=6379)
 
-# # 设置关键词
-# r.set('jokker', 'hello')
-# # 获取关键词
-# r.get('foo')
+# 设置关键词
+r.set('jokker', 'hello')
+# 获取关键词
+print(r.get('jokker'))
 
 # todo 将图像存储在 redis 中
 
@@ -30,11 +30,11 @@ r = redis.StrictRedis(host='192.168.3.185', port=6379)
 
 # img = r.get('image')
 
-for i in range(10):
-    img = pickle.loads(r.get('image'))
-    print(img.width)
-    print(img.height)
-
+# for i in range(10):
+#     img = pickle.loads(r.get('image'))
+#     print(img.width)
+#     print(img.height)
+#
 
 
 

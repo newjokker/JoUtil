@@ -10,6 +10,7 @@ import prettytable
 from .txkjRes.deteRes import DeteRes
 from .txkjRes.deteAngleObj import DeteAngleObj
 from .txkjRes.deteObj import DeteObj
+from .utils.DecoratorUtil import DecoratorUtil
 from .utils.FileOperationUtil import FileOperationUtil
 from .txkjRes.deteXml import parse_xml
 from .utils.NumberUtil import NumberUtil
@@ -17,6 +18,8 @@ from .txkjRes.resTools import ResTools
 from .txkjRes.deteObj import DeteObj
 from .utils.StrUtil import StrUtil
 import prettytable as pt
+from multiprocessing import Pool
+from functools import partial
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
 
@@ -557,8 +560,11 @@ class OperateDeteRes(object):
             # id, 等待检测的图片数量，端口，使用的 gpu_id, 消耗的 gpu 资源
             tb.field_names = ["Name", "Count"]
             #
+            sum = 0
             for each_name in name_dict:
                 tb.add_row((each_name, name_dict[each_name]))
+                sum += name_dict[each_name]
+            tb.add_row(('sum', sum))
             print(tb)
 
         return name_dict
@@ -630,6 +636,43 @@ class OperateDeteRes(object):
             each_dete_res.save_to_xml(each_xml_path)
 
     @staticmethod
+    def resize_one_img_xml(save_dir, resize_ratio, img_xml):
+        """将一张训练图片进行 resize"""
+        # 解析读到的数据
+        img_path, xml_path = img_xml
+        #
+        a = DeteRes(xml_path)
+        #
+        if (not os.path.exists(img_path)) or (not os.path.exists(xml_path)):
+            return
+        #
+        if len(a) < 1:
+            return
+        #
+        im = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
+        im_height, im_width = im.shape[:2]
+        im_height_new, im_width_new = int(im_height * resize_ratio), int(im_width * resize_ratio)
+        im_new = cv2.resize(im, (im_width_new, im_height_new))
+        #
+        # a.height = im_height_new
+        # a.width = im_width_new
+        # a.img_path =
+        # 将每一个 obj 进行 resize
+        for each_obj in a:
+            each_obj.x1 = max(1, int(each_obj.x1 * resize_ratio))
+            each_obj.x2 = min(im_width_new-1, int(each_obj.x2 * resize_ratio))
+            each_obj.y1 = max(1, int(each_obj.y1 * resize_ratio))
+            each_obj.y2 = min(im_height_new-1, int(each_obj.y2 * resize_ratio))
+        # 保存 img
+        save_img_path = os.path.join(save_dir, 'JPEGImages', FileOperationUtil.bang_path(xml_path)[1] + '.jpg')
+        cv2.imwrite(save_img_path, im_new)
+        # 保存 xml
+        a.img_path = save_img_path
+        save_xml_path = os.path.join(save_dir, 'Annotations', FileOperationUtil.bang_path(xml_path)[1] + '.xml')
+        a.save_to_xml(save_xml_path)
+
+    # @DecoratorUtil.time_this
+    @staticmethod
     def resize_train_data(img_dir, xml_dir, save_dir, resize_ratio=0.5):
         """对训练数据进行resize，resize img 和 xml """
 
@@ -638,39 +681,9 @@ class OperateDeteRes(object):
         os.makedirs(save_xml_dir, exist_ok=True)
         os.makedirs(save_img_dir, exist_ok=True)
 
-        index = 0
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
-            print(index, each_xml_path)
-            index += 1
             each_img_path = os.path.join(img_dir, FileOperationUtil.bang_path(each_xml_path)[1] + '.jpg')
-            # 查看数据是否能找到
-            if not os.path.exists(each_img_path):
-                break
-            #
-            a = DeteRes(each_xml_path)
-            if len(a) < 1:
-                break
-            #
-            im = cv2.imdecode(np.fromfile(each_img_path, dtype=np.uint8), 1)
-            im_height, im_width = im.shape[:2]
-            im_height_new, im_width_new = int(im_height*resize_ratio), int(im_width*resize_ratio)
-            im_new = cv2.resize(im, (im_width_new, im_height_new))
-            #
-            a.height = im_height_new
-            a.width = im_width_new
-            # 将每一个 obj 进行 resize
-            for each_obj in a:
-                each_obj.x1 = int(each_obj.x1*resize_ratio)
-                each_obj.x2 = int(each_obj.x2*resize_ratio)
-                each_obj.y1 = int(each_obj.y1*resize_ratio)
-                each_obj.y2 = int(each_obj.y2*resize_ratio)
-            # 保存 img
-            save_img_path = os.path.join(save_img_dir, FileOperationUtil.bang_path(each_xml_path)[1] + '.jpg')
-            cv2.imwrite(save_img_path, im_new)
-            # 保存 xml
-            save_xml_path = os.path.join(save_xml_dir, FileOperationUtil.bang_path(each_xml_path)[1] + '.xml')
-            a.save_to_xml(save_xml_path)
-
+            OperateDeteRes.resize_one_img_xml(save_dir, resize_ratio, (each_img_path, each_xml_path))
 
 class OperateTrainData(object):
     """对训练数据集进行处理"""

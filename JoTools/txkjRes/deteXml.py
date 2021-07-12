@@ -50,8 +50,8 @@ class ParseXml(object):
 
                     # --------------------------------------------------------------------------------------------------
                     # fixme 这边为了兼容 ** 写的不规范的 xml
-                    if each_node_name in ["xMin", "yMin", "xMax", "yMax"]:
-                        bndbox_info[str(each_node_name).lower()] = XmlUtil.get_info_from_node(each_node_2)['value']
+                    # if each_node_name in ["xMin", "yMin", "xMax", "yMax"]:
+                    #     bndbox_info[str(each_node_name).lower()] = XmlUtil.get_info_from_node(each_node_2)['value']
                     # --------------------------------------------------------------------------------------------------
 
                 object_info['bndbox'] = bndbox_info
@@ -155,6 +155,41 @@ class ParseXml(object):
         # 保存 xml 到文件
         XmlUtil.save_xml(root, save_path)
 
+    def save_to_xml_wh_format(self, save_path, assign_xml_info):
+        """将 xml 保存为武汉提供的格式"""
+        if assign_xml_info is None:
+            assign_xml_info = self.__xml_info_dict.copy()
+        # 没有值
+        if not assign_xml_info:
+            raise ValueError("xml info is empty")
+        # 写 xml
+        root = XmlUtil.get_document()
+        xml_calss_1 = XmlUtil.add_sub_node(root, root, 'annotation', '')
+        # 增加 "folder", "filename", "path", "segmented"
+        for attr_name in ["filename"]:
+            XmlUtil.add_sub_node(root, xml_calss_1, attr_name, assign_xml_info[attr_name])
+        # 增加 size
+        size_node = XmlUtil.add_sub_node(root, xml_calss_1, "size", '')
+        XmlUtil.add_sub_node(root, xml_calss_1, "objectsum", str(len(assign_xml_info["object"])))
+        XmlUtil.add_sub_node(root, size_node, "width", str(int(float(assign_xml_info["size"]["width"]))))
+        XmlUtil.add_sub_node(root, size_node, "height", assign_xml_info["size"]["height"])
+        XmlUtil.add_sub_node(root, size_node, "depth", assign_xml_info["size"]["depth"])
+        # 增加 object
+        index = 0
+        for each_object in assign_xml_info["object"]:
+            index += 1
+            object_node = XmlUtil.add_sub_node(root, xml_calss_1, "object", '')
+            XmlUtil.add_sub_node(root, object_node, "Serial", str(index))
+            XmlUtil.add_sub_node(root, object_node, "code", each_object["name"])
+            bndbox_node = XmlUtil.add_sub_node(root, object_node, "bndbox", "")
+            XmlUtil.add_sub_node(root, bndbox_node, "xmin", each_object["bndbox"]["xmin"])
+            XmlUtil.add_sub_node(root, bndbox_node, "ymin", each_object["bndbox"]["ymin"])
+            XmlUtil.add_sub_node(root, bndbox_node, "xmax", each_object["bndbox"]["xmax"])
+            XmlUtil.add_sub_node(root, bndbox_node, "ymax", each_object["bndbox"]["ymax"])
+
+        # 保存 xml 到文件
+        XmlUtil.save_xml(root, save_path)
+
 
 def parse_xml(xml_path):
     """简易的函数使用版本"""
@@ -167,3 +202,8 @@ def save_to_xml(xml_info, xml_path):
     """保存为 xml"""
     a = ParseXml()
     a.save_to_xml(save_path=xml_path, assign_xml_info=xml_info)
+
+def save_to_xml_wh_format(xml_info, xml_path):
+    """按照武汉的格式保存 xml """
+    a = ParseXml()
+    a.save_to_xml_wh_format(save_path=xml_path, assign_xml_info=xml_info)

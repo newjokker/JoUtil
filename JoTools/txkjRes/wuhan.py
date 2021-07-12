@@ -6,6 +6,73 @@ from JoTools.utils.CsvUtil import CsvUtil
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 import os
 
+# 映射字典
+tag_code_dict = {
+
+    # --------------------------------------------------------------------------------------------------------------
+    # 开口销缺失
+    "K": "040500013",
+
+    # 安装不规范
+    "illegal": "040500023",
+
+    # 销钉锈蚀
+    "K_KG_rust": "040500033",
+
+    # 螺母锈蚀
+    "Lm_rust": "040501013",
+    # --------------------------------------------------------------------------------------------------------------
+
+    # 鸟巢蜂巢
+    "nc": "010000023",
+    "nest": "010000023",
+
+    # 玻璃绝缘子自爆
+    "jyzzb": "030100023",
+
+    # 绝缘子污秽
+    "abnormal": "030100011",
+
+    # 均压环倾斜
+    "fail": "030200131",
+
+    # 金具锈蚀
+    "rust": "040000011",
+
+    # 防振锤锈蚀
+    "fzc_rust": "040303031",
+
+    # 防振锤破损
+    "fzc_broken": "040303021",
+
+    # fixme 导线散股,看看这个标签是否正确
+    "sg": "040402011",
+
+    # --------------------------------------------------------------------------------------------------------------
+    # 吊塔
+    "TowerCrane": "060800013",
+
+    # 推土机
+    "Bulldozer": "060800023",
+
+    # 挖掘机
+    "Digger": "060800033",
+
+    "CementPumpTruck_yb": "060800033",
+    # --------------------------------------------------------------------------------------------------------------
+
+    # 线夹缺垫片
+    "dp_missed": "040001042",
+
+    # 防鸟刺安装不规范
+    "fncBGF": "070400031",
+
+    # 防鸟刺未打开
+    "weidakai": "070400021",
+
+                 }
+
+
 def xml_to_csv(xml_dir, csv_save_path):
     """将保存的 xml 文件信息存放在 csv 文件中"""
     csv_list = [['filename', 'code', 'score', 'xmin', 'ymin', 'xmax', 'ymax']]
@@ -36,22 +103,24 @@ def merge_xml_list(xml_path_list, save_path):
             a += each_dete_res
     else:
         return None
+    # 使用映射字典进行映射
+    a.update_tags(tag_code_dict)
     # fixme 这边要保存为武汉的格式，直接写一个函数
-    a.save_to_xml(save_path)
+    a.save_to_xml(save_path, format='wuhan')
 
 
-def dete_res_to_xml(dete_res, save_xml_path):
-    """将 dete_res 转为 xml 文件"""
-
-    # 按照武汉的格式写一个函数对生成 xml 进行完善
-    pass
-
-
-def merge_xml(xml_dir, save_dir):
+def merge_xml(xml_dir_list, save_dir):
     """将 xml_dir 中文件名相同的 xml 进行合并，放到 save_dir 文件夹下"""
-    # 合并相同文件名
+
+    # 拿到 xml 文件夹路径列表中的所有 xml 路径
+    xml_path_list = []
+    for each_xml_dir in xml_dir_list:
+        for each_xml_path in FileOperationUtil.re_all_file(each_xml_dir, endswitch=['.xml']):
+            xml_path_list.append(each_xml_path)
+
+    # 合并
     xml_dict = {}
-    for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
+    for each_xml_path in xml_path_list:
         each_xml_name = os.path.split(each_xml_path)[1]
         if each_xml_name in xml_dict:
             xml_dict[each_xml_name].append(each_xml_path)
@@ -65,10 +134,13 @@ def merge_xml(xml_dir, save_dir):
 
 if __name__ == "__main__":
 
+    region_xml_dir_list = [r"C:\Users\14271\Desktop\del\Annotations"]
+    merge_xml_dir = r"C:\Users\14271\Desktop\del\Annotations_wuhan"
+    csv_path = r"C:\Users\14271\Desktop\del\Annotations_wuhan.csv"
 
-    merge_xml(r"C:\Users\14271\Desktop\ceshiji\merge", r"C:\Users\14271\Desktop\ceshiji\merge_all")
+    merge_xml(region_xml_dir_list, merge_xml_dir)
 
-
+    xml_to_csv(merge_xml_dir, csv_path)
 
 
 

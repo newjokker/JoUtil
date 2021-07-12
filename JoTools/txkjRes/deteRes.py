@@ -15,7 +15,7 @@ from .deteObj import DeteObj
 from .deteAngleObj import DeteAngleObj
 from ..txkjRes.resTools import ResTools
 from ..utils.JsonUtil import JsonUtil
-from ..txkjRes.deteXml import parse_xml, save_to_xml
+from ..txkjRes.deteXml import parse_xml, save_to_xml, save_to_xml_wh_format
 from ..utils.FileOperationUtil import FileOperationUtil
 from ..utils.DecoratorUtil import DecoratorUtil
 
@@ -187,9 +187,9 @@ class DeteRes(ResBase, ABC):
                     self.add_obj_2(each_dete_obj)
                     # self.add_angle_obj(cx, cy, w, h, angle, tag=each_obj['name'], conf=float(each_obj['prob']),assign_id=int(each_obj['id']), describe=str(each_obj['des']))
 
-    def save_to_xml(self, save_path, assign_alarms=None):
+    def save_to_xml(self, save_path, assign_alarms=None, format='normal'):
         """保存为 xml 文件"""
-        xml_info = {'size': {'height': str(self.height), 'width': str(self.width), 'depth': '3'},
+        xml_info = {'size': {'height': str(int(self.height)), 'width': str(int(self.width)), 'depth': '3'},
                     'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
                     'segmented': "", 'source': ""}
 
@@ -213,7 +213,10 @@ class DeteRes(ResBase, ABC):
                 xml_info['object'].append(each_obj)
 
         # 保存为 xml
-        save_to_xml(xml_info, xml_path=save_path)
+        if format == 'normal':
+            save_to_xml(xml_info, xml_path=save_path)
+        elif format == 'wuhan':
+            save_to_xml_wh_format(xml_info, xml_path=save_path)
 
     def save_to_json(self, assign_alarms=None):
         """转为 json 结构"""

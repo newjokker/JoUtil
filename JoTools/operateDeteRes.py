@@ -20,6 +20,7 @@ from .utils.StrUtil import StrUtil
 import prettytable as pt
 from multiprocessing import Pool
 from functools import partial
+from .txkj.imageAugmentation import ImageAugmentation
 
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
 

@@ -178,7 +178,7 @@ class FileOperationUtil(object):
         return res
 
     @staticmethod
-    def divide_file_equally(file_dir, save_dir, divide_count=1, need_endswitch=None, assign_name='part_', is_clip=False):
+    def divide_file_equally(file_dir, save_dir, divide_count=3, need_endswitch=None, assign_name='part_', is_clip=False):
         """均分文件"""
 
         # 初始化数据结构

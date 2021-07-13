@@ -138,8 +138,9 @@ if __name__ == "__main__":
     merge_xml_dir = r"C:\Users\14271\Desktop\del\Annotations_wuhan"
     csv_path = r"C:\Users\14271\Desktop\del\Annotations_wuhan.csv"
 
+    # 合并 xml
     merge_xml(region_xml_dir_list, merge_xml_dir)
-
+    # 保存为 csv 文件
     xml_to_csv(merge_xml_dir, csv_path)
 
 

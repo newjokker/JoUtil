@@ -876,14 +876,19 @@ class DeteRes(ResBase, ABC):
             each_name_str = each_obj.get_name_str()
             each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
 
-            # todo 对 bndbox 的范围进行检查
-            each_crop = self.img.crop(bndbox)
-            # 对截图的图片自定义操作, 可以指定缩放大小之类的
-            if method is not None:
-                each_crop = method(each_crop)
-            # 保存截图
-            # each_crop.save(each_save_path, quality=95)
-            each_crop.save(each_save_path)
+            try:
+                # todo 对 bndbox 的范围进行检查
+                each_crop = self.img.crop(bndbox)
+                # 对截图的图片自定义操作, 可以指定缩放大小之类的
+                if method is not None:
+                    each_crop = method(each_crop)
+                # 保存截图
+                # each_crop.save(each_save_path, quality=95)
+                each_crop.save(each_save_path)
+            except Exception as e:
+                # 当遇到错误的图片会报错，
+                # todo 图片损坏使用 cv2.crop 截取图片不会报错，是否考虑使用 cv2 的截图获取部分破损的图片
+                print(e)
 
     def crop_angle_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数

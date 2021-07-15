@@ -31,53 +31,53 @@ from ..utils.DecoratorUtil import DecoratorUtil
  '_parse_json_info',
  '_parse_xml_info',
  # 
- 'add_angle_obj',                       # 增加旋转框
- 'add_obj',                             # 增加矩形框
+ 'add_angle_obj',                       # [*]增加旋转框
+ 'add_obj',                             # [*]增加矩形框
  'add_obj_2',                           # 增加旋转框或者矩形框或者其他什么框
  'angle_obj_to_obj',                    # 旋转框转矩形框
  'count_tags',                          # 统计标签个数
  'crop_and_save',                       # 矩形框保存小截图
  'crop_angle_and_save',                 # 旋转框保存小截图
- 'crop_dete_obj',                       # 将正框裁剪到指定文件夹，裁剪路径会记录在 obj 的 crop_path 路径下
+ 'crop_dete_obj',                       # [*]将正框裁剪到指定文件夹，裁剪路径会记录在 obj 的 crop_path 路径下
  'crop_with_xml',                       # 裁剪正框并生成对应的 xml 
- 'deep_copy',                           # 深拷贝
- 'del_dete_obj',                        # 删除指定 dete obj
- 'del_sub_img_from_crop',               # 删除保存的截图，DeteObj crop_path 属性记录了截图的位置
+ 'deep_copy',                           # [*]深拷贝
+ 'del_dete_obj',                        # [*]删除指定 dete obj
+ 'del_sub_img_from_crop',               # [*]删除保存的截图，DeteObj crop_path 属性记录了截图的位置
  'do_augment',                          # 框的扩增（上下左右）
- 'do_nms',                              # 对框之间做 nms 
+ 'do_nms',                              # [*]对框之间做 nms 
  'do_nms_center_point',                 # 对框之间做 center nms
  'do_nms_in_assign_tags',               # 在指定几种 tag 之间做 nms 
- 'draw_dete_res',                       # 画图
+ 'draw_dete_res',                       # [*]画图
  'filter_by_area',                      # 根据框的绝对面积进行筛除
  'filter_by_area_ratio',                # 根据框的相对面积进行筛除
- 'filter_by_conf',                      # 根据框的置信度进行筛除
+ 'filter_by_conf',                      # [*]根据框的置信度进行筛除
  'filter_by_func',                      # 使用指定方法对框进行筛除
  'filter_by_mask',                      # 使用掩膜（掩膜内，掩膜外）对框进行筛除
- 'filter_by_tags',                      # 根据标签类型对框进行筛除
+ 'filter_by_tags',                      # [*]根据标签类型对框进行筛除
  'get_crop_name_by_id',                 # 获取指定 id 对应的裁剪名（考虑删除该方法） 
  'get_dete_obj_by_id',                  # 获取指定 id 对应的第一个 dete obj
  'get_dete_obj_list_by_func',           # 获取指定方法找到的 dete obj list
  'get_dete_obj_list_by_id',             # 获取等于指定id的 dete obj list
- 'get_dete_obj_list_by_tag',            # 获取等于指定tag的 dete obj list
+ 'get_dete_obj_list_by_tag',            # [*]获取等于指定tag的 dete obj list
  'get_fzc_format',                      # 将所有 dete obj 按照一定的样式返回
  'get_id_list',                         # 获取所有的标签 id list (考虑删除函数)
- 'get_img_array',                       # 获取图像的矩阵
+ 'get_img_array',                       # [*]获取图像的矩阵
  'get_img_from_resdis',                 # 从redis中获取图像矩阵
  'get_result_construction',             # 获取标准返回给 java 的结果
- 'get_return_jsonify',                  # 获取标准返回结果（子模型的返回）
- 'get_sub_img_by_dete_obj',             # 拿到指定 dete obj 对应的图像矩阵
- 'get_sub_img_by_dete_obj_from_crop',   # 如果之前进行过小图裁剪，可以通过这个方法读取 dete obj 对应的小图，返回矩阵
+ 'get_return_jsonify',                  # [*]获取标准返回结果（子模型的返回）
+ 'get_sub_img_by_dete_obj',             # [*]拿到指定 dete obj 对应的图像矩阵
+ 'get_sub_img_by_dete_obj_from_crop',   # [*]如果之前进行过小图裁剪，可以通过这个方法读取 dete obj 对应的小图，返回矩阵
  'get_sub_img_by_id',                   # 找到指定 id 第一个小图，返回框范围矩阵
  'has_tag',                             # 是否存在指定标签
- 'offset',                              # 对多有框进行偏移
+ 'offset',                              # [*]对多有框进行偏移
  'parse_txt_info',                      # 解析 txt 信息（之前准备使用 txt 存储 xml 中的信息，考虑删除该方法）
  'print_as_fzc_format',                 # 对框的标准打印（考虑换一个名字）
  'refresh_obj_id',                      # 刷新框（dete obj）的id
  'reset_alarms',                        # 重设框的信息
  'save_assign_range',                   # 保存图像指定范围内的信息（图像矩阵，框）
- 'save_to_json',                        # 返回 json str
+ 'save_to_json',                        # [*]返回 json str
  'save_to_txt',                         # 保存为 txt
- 'save_to_xml',                         # 保存为 xml
+ 'save_to_xml',                         # [*]保存为 xml
  'set_img_to_redis',                    # 将图像存储到redis中
  'update_tags',                         # 更新标签
  # ------------------------

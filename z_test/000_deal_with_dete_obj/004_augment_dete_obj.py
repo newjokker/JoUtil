@@ -12,3 +12,4 @@ for i in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
     a = DeteRes(i)
     a.do_augment([0.05,0.05,0.05,0.05], is_relative=True)
     a.save_to_xml(i)
+

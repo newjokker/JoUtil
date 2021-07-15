@@ -687,6 +687,34 @@ class OperateDeteRes(object):
             each_img_path = os.path.join(img_dir, FileOperationUtil.bang_path(each_xml_path)[1] + '.jpg')
             OperateDeteRes.resize_one_img_xml(save_dir, resize_ratio, (each_img_path, each_xml_path))
 
+    @staticmethod
+    def count_assign_dir(dir_path, endswitc=None):
+        """获取一层文件夹下面需要的文件的个数"""
+        dir_list, file_numb = [], 0
+        #
+        for each in os.listdir(dir_path):
+            each = os.path.join(dir_path, each)
+            if os.path.isdir(each):
+                dir_list.append(each)
+            else:
+                if endswitc is None:
+                    file_numb += 1
+                else:
+                    _, end_str = os.path.splitext(each)
+                    if end_str in endswitc:
+                        file_numb += 1
+        #
+        tb = pt.PrettyTable()
+        tb.field_names = ["dir", "count"]
+        tb.add_row(["self", file_numb])
+        for each_dir in dir_list:
+            each_file_count = len(list(FileOperationUtil.re_all_file(each_dir, endswitch=endswitc)))
+            file_numb += each_file_count
+            tb.add_row([os.path.split(each_dir)[1], each_file_count])
+        tb.add_row(["sum", file_numb])
+        print(tb)
+
+
 class OperateTrainData(object):
     """对训练数据集进行处理"""
 

@@ -13,7 +13,7 @@ region_img_dir_list = [
     r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\JPEGImages"
 ]
 
-new_img_dir = r"C:\Users\14271\Desktop\test"
+new_img_dir = r"C:\Users\14271\Desktop\train_data"
 
 index = 0
 for each_img_path in FileOperationUtil.re_all_file(new_img_dir, endswitch=['.jpg', '.JPG', '.png', '.PNG']):

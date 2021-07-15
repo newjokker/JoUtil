@@ -6,9 +6,9 @@ from JoTools.operateDeteRes import OperateDeteRes, DeteAcc
 from JoTools.txkjRes.deteRes import DeteRes
 
 dete_res_standard = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\Annotations"
-dete_res_customized = r"C:\Users\14271\Desktop\fzc_v1.2.5.0_new版本\001_dete_res\fzc_v1.2.5.6-C\xml"
+dete_res_customized = r"C:\Users\14271\Desktop\finally_test"
 assign_img_path = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\JPEGImages"
-save_path= r"C:\Users\14271\Desktop\fzc_v1.2.5.0_new版本\001_dete_res\fzc_v1.2.5.6-C\compare_xml"
+save_path= r"C:\Users\14271\Desktop\del\v1.2.5.0_new"
 
 
 a = DeteAcc()

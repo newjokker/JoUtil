@@ -21,6 +21,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--port', dest='port', type=int, default=7654)
     parser.add_argument('--host', dest='host', type=str, default='127.0.0.1')
+    parser.add_argument('--img_dir', dest='img_dir', type=str, default='./inputImg')
     assign_args = parser.parse_args()
     return assign_args
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
 
     print("-" * 100)
 
-    url = 'http://127.0.0.1:' + str(portNum) + '//' + model_name
+    url = 'http://192.168.3.109:' + str(portNum) + '//' + model_name
 
 
     for each_img_path in FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith((".jpg", ".JPG"))):

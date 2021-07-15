@@ -495,7 +495,7 @@ class OperateDeteRes(object):
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None, augment_parameter=None):
+    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None, augment_parameter=None, include_tag_list=None):
         """将文件夹下面的所有 xml 进行裁剪"""
         # todo 增加裁剪指定类型
         index = 0
@@ -513,7 +513,7 @@ class OperateDeteRes(object):
 
             a.img_path = each_img_path
             try:
-                a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter)
+                a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list)
                 index += 1
             except Exception as e:
                 print(e)
@@ -562,7 +562,8 @@ class OperateDeteRes(object):
             tb.field_names = ["Name", "Count"]
             #
             sum = 0
-            for each_name in name_dict:
+            # key 进行排序
+            for each_name in sorted(name_dict.keys()):
                 tb.add_row((each_name, name_dict[each_name]))
                 sum += name_dict[each_name]
             tb.add_row(('sum', sum))

@@ -2,12 +2,11 @@
 # -*- author: jokker -*-
 
 import cv2
+import os
 import copy
 import math
 import numpy as np
 from .deteObj import DeteObj
-import os
-import cv2
 
 
 class DeteAngleObj(object):

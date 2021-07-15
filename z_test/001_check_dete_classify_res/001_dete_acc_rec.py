@@ -25,6 +25,8 @@ def parse_args():
 
 if __name__ == "__main__":
 
+    # python C:\Algo\jo_util\z_test\001_check_dete_classify_res\001_dete_acc_rec.py --standard_dir C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\Annotations  --customized_dir  C:\Users\14271\Desktop\finally_test
+    
     a = DeteAcc()
 
     if len(sys.argv) > 1:

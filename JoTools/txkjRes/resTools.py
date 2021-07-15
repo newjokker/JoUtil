@@ -7,8 +7,6 @@ from shapely.geometry import Polygon, Point
 from ..txkjRes.deteObj import DeteObj
 from ..txkjRes.deteAngleObj import DeteAngleObj
 
-# todo 这边的输入参数最好不要是 dete_obj 之类的类，这样显得没那么通用？
-# todo 统一文件名，按照同样的逻辑对文件进行命名
 
 # todo cal_iou 函数需要进行合并，全部改为新的样式
 

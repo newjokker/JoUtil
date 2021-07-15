@@ -1,6 +1,8 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
+import sys
+import argparse
 from JoTools.txkjRes.deteRes import DeteRes,DeteObj
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 

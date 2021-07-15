@@ -13,12 +13,10 @@ from ..utils.FileOperationUtil import FileOperationUtil
 from ..txkjRes.deteRes import DeteRes
 
 # fixme 可以主动选择分析颜色，选中需要的图片，右击更多，重新分析颜色
-
 # todo 因为分析时间比较长，将 md5 字典保存为文件，这样的话中间中断也不用从头开始
 
 use_xml_tag = True
 use_folder_tag = True
-
 
 
 class EagleMetaData(object):

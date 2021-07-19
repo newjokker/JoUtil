@@ -49,8 +49,9 @@ if __name__ == "__main__":
         OperateDeteRes.crop_imgs(args.img_dir, args.xml_dir, args.save_dir, split_by_tag=args.split_by_tag, augment_parameter=augment_parameter,
                                  exclude_tag_list=exclude_tag_list, include_tag_list=include_tag_list)
     else:
-        img_dir = r"C:\Users\14271\Desktop\del\img"
-        xml_dir = r"C:\Users\14271\Desktop\del\img"
-        save_dir = r"C:\Users\14271\Desktop\del\crop"
-        OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.1, 0.1, 0.1, 0.1])
+        img_dir = r"C:\data\集装箱温度识别\001_data\divide"
+        xml_dir = r"C:\data\集装箱温度识别\001_data\divide"
+        save_dir = r"C:\data\集装箱温度识别\001_data\crop"
+        # OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.1, 0.1, 0.1, 0.1])
+        OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False)
 

@@ -2,8 +2,7 @@
 # -*- author: jokker -*-
 
 import os
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.txkjRes.deteRes import DeteRes, DeteObj, DeteAngleObj
+import JoTools.txkjRes as txkj
 
 
 img_dir = r"/home/suanfa-3/ldq/002_test_res/fzc_v1.2.5.2_check_error"

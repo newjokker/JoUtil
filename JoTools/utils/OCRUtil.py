@@ -41,6 +41,6 @@ if __name__ == '__main__':
 
     # todo 写一个带界面的程序，在照片上画可以倾斜的矩形，识别其中的文字
 
-    Text = OCRUtil.get_words_from_image(r'C:\Users\14271\Desktop\111.png')
+    Text = OCRUtil.get_words_from_image(r'C:\Users\14271\Desktop\test.png')
 
     print(Text)

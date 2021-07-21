@@ -10,10 +10,11 @@ from JoTools.utils.HashlibUtil import HashLibUtil
 
 region_img_dir_list = [
     r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\JPEGImages",
-    r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\JPEGImages"
+    r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\JPEGImages",
+    r"C:\data\003_塔下站人\train\JPEGImages"
 ]
 
-new_img_dir = r"C:\Users\14271\Desktop\train_data"
+new_img_dir = r"C:\data\003_塔下站人\train\td\JPEGImages"
 
 index = 0
 for each_img_path in FileOperationUtil.re_all_file(new_img_dir, endswitch=['.jpg', '.JPG', '.png', '.PNG']):

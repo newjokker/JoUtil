@@ -8,7 +8,7 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
 
-xml_dir = r"C:\Users\14271\Desktop\寻找未被发现的fzc_broken\region_img"
+xml_dir = r"C:\data\003_塔下站人\train\Annotations"
 
 
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):

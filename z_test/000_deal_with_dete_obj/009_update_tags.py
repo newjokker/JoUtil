@@ -43,8 +43,8 @@ up_dict = {
 
 # up_dict = {"Fnormal": "fzc", "fzc_broken":"fzc"}
 
-xml_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\Annotations"
-save_dir = r"C:\data\fzc_优化相关资料\dataset_fzc\000_train_data_step_1\Annotations_one"
+xml_dir = r"C:\data\003_塔下站人\train\Annotations_td"
+save_dir = r"C:\data\003_塔下站人\train\Annotations_td_new"
 
 
 OperateDeteRes.get_class_count(xml_dir, print_count=True)
@@ -54,7 +54,7 @@ OperateDeteRes.get_class_count(xml_dir, print_count=True)
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
     a = DeteRes(each_xml_path)
     a.update_tags(up_dict)
-    # a.filter_by_tags(need_tag=["nc"])
+    # a.filter_by_tags(need_tag=["td"])
     # a.do_augment(augment_parameter=[0.05,0.05,0.05,0.05])
     save_path = os.path.join(save_dir, os.path.split(each_xml_path)[1])
     a.save_to_xml(save_path)

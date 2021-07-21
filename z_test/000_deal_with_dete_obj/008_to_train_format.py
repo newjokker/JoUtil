@@ -10,9 +10,9 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.RandomUtil import RandomUtil
 
 
-img_dir = r"C:\Users\14271\Desktop\寻找未被发现的fzc_broken\region_img"
-xml_dir = r"C:\Users\14271\Desktop\寻找未被发现的fzc_broken\region_img"
-save_dir = r"C:\Users\14271\Desktop\寻找未被发现的fzc_broken\train_data"
+img_dir = r"/home/suanfa-5/ldq/002_test_data/69G塔基"
+xml_dir = r"/home/ldq/tj_dete/merge_new"
+save_dir = r"/home/ldq/tj_dete/train_data"
 
 img_save_dir = os.path.join(save_dir, "JPEGImages")
 xml_save_dir = os.path.join(save_dir, "Annotations")
@@ -42,9 +42,6 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
     # a.filter_by_area(50*100)
 
     if len(a) < 1:
-        continue
-
-    if not a.has_tag("OK"):
         continue
 
     img_path_list.append(each_img_path)

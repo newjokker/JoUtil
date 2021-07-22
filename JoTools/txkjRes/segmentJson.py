@@ -1,14 +1,9 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-
-# 解析 labelme 标注的 json 数据
-
-from JoTools.utils.JsonUtil import JsonUtil
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.txkjRes.segmentObj import SegmentObj
-
-
+from ..utils.JsonUtil import JsonUtil
+from ..utils.FileOperationUtil import FileOperationUtil
+from .segmentObj import SegmentObj
 
 
 class SegmentJson(object):

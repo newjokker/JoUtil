@@ -1,46 +1,65 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
+import cv2
+from labelme import utils
 from ..utils.JsonUtil import JsonUtil
 from ..utils.FileOperationUtil import FileOperationUtil
 from .segmentObj import SegmentObj
+import numpy as np
 
 
 class SegmentJson(object):
 
-
-    def __init__(self):
+    def __init__(self, json_path=None):
 
         self.version = ""
-        self.imageWidth = ""
-        self.imageHeight = ""
+        self.image_width = ""
+        self.image_height = ""
         self.shapes = []
-        self.imagePath = ""
-        self.lineColor = ""
-        self.fillColor = ""
-        self.imageData = ""
+        self.image_path = ""
+        self.line_color = ""
+        self.fill_color = ""
+        self.image_data = None
         self.flags = ""
+        self.json_path = json_path
+        self.mask = None
 
-    def parse_json_info(self, json_path):
-        """解析 json 的信息"""
+    def parse_json_info(self, json_path=None, parse_img=False, parse_mask=False):
+        """解析 json 的信息, 可以选择是否解析 img 和 mask"""
 
-        a = JsonUtil.load_data_from_json_file(json_path)
+        if json_path:
+            a = JsonUtil.load_data_from_json_file(json_path)
+        else:
+            a = JsonUtil.load_data_from_json_file(self.json_path)
         # parse attr
         self.version = a["version"] if "version" in a else ""
-        self.imageWidth = a["imageWidth"] if "imageWidth" in a else ""
-        self.imageHeight = a["imageHeight"] if "imageWidth" in a else ""
-        self.imagePath = a["imagePath"] if "imagePath" in a else ""
-        self.lineColor = a["lineColor"] if "lineColor" in a else ""
-        self.fillColor = a["fillColor"] if "fillColor" in a else ""
-        self.imageData = a["imageData"] if "imageData" in a else ""
+        self.image_width = a["imageWidth"] if "imageWidth" in a else ""
+        self.image_height = a["imageHeight"] if "imageWidth" in a else ""
+        self.image_path = a["imagePath"] if "imagePath" in a else ""
+        self.line_color = a["lineColor"] if "lineColor" in a else ""
+        self.fill_color = a["fillColor"] if "fillColor" in a else ""
+        # fixme 需要拿到 img 才知道图像的大小，属性中的图像大小可能出问题
+        if parse_img or parse_mask:
+            self.image_data = utils.img_b64_to_arr(a["imageData"]) if "imageData" in a else ""
         self.flags = a["flags"] if "flags" in a else ""
         # parse shape
+        label_name_dict = {}
         for each_shape in a["shapes"]:
             each_label = each_shape["label"] if "label" in each_shape else ""
+            label_name_dict[each_label] = 1
             each_shape_points = each_shape["points"] if "points" in each_shape else []
             each_type = each_shape["shape_type"] if "shape_type" in each_shape else ""
             each_obj = SegmentObj(label=each_label, points=each_shape_points, shape_type=each_type)
             self.shapes.append(each_obj)
+        # parse mask
+        if parse_mask:
+            self.mask, _ = utils.shapes_to_label(self.image_data.shape, a["shapes"], label_name_dict)
+
+    def save_mask(self, save_path=None):
+        """将 mask 保存为图片文件"""
+        # fixme 最好不要保存，保存后的结果比较大，还不如临时读取
+        np.save(save_path, self.mask.astype(np.bool))
 
     def print_as_fzc_format(self):
         """按照防振锤的格式进行打印"""

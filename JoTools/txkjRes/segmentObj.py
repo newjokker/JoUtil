@@ -5,13 +5,14 @@
 class SegmentObj(object):
     """一个分割对象"""
 
-    def __init__(self, label="", points=None, shape_type="polygon"):
+    def __init__(self, label="", points=None, shape_type="polygon", mask=None):
         self.label = label
         self.points = [] if points is None else points
         self.shape_type = shape_type
         self.flags = ""
         self.line_color = []
         self.fill_color = []
+        self.mask = mask
 
     def get_format_list(self):
         """获得格式化的输出"""

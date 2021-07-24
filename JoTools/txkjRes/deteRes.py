@@ -1004,7 +1004,7 @@ class DeteRes(ResBase, ABC):
                 w += w * augment_parameter[0]
                 h += h * augment_parameter[1]
             # 裁剪
-            each_crop = ResTools.crop_angle_rect(self.img_path, ((cx, cy), (w, h), angle))
+            each_crop = ResTools.crop_angle_rect(self.get_img_array(), ((cx, cy), (w, h), angle))
             if method is not None: each_crop = method(each_crop)
             # crop = Image.fromarray(each_crop)
             # crop.save(each_save_path)

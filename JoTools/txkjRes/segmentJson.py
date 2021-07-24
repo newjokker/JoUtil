@@ -8,6 +8,9 @@ from ..utils.FileOperationUtil import FileOperationUtil
 from .segmentObj import SegmentObj
 import numpy as np
 
+# todo 从 mask 得到 points，可以指定 point 中的点的个数，这样就能直接将 分割出来的结果直接转为 json 输入的结果的样式
+
+
 
 class SegmentJson(object):
 
@@ -45,13 +48,23 @@ class SegmentJson(object):
         self.flags = a["flags"] if "flags" in a else ""
         # parse shape
         label_name_dict = {}
+        lables_dict = {}
+        value_index = 1
         for each_shape in a["shapes"]:
             each_label = each_shape["label"] if "label" in each_shape else ""
-            label_name_dict[each_label] = 1
+            # strip number
+            each_label_no_number = each_label.strip("0123456789")
+            # fixme label_no_number 是 Jo12 应该是 Jo， yo2 应该是 yo
+            if each_label_no_number not in lables_dict:
+                lables_dict[each_label_no_number] = value_index
+                value_index += 1
+            label_name_dict[each_label] = lables_dict[each_label_no_number]
+            #
             each_shape_points = each_shape["points"] if "points" in each_shape else []
             each_type = each_shape["shape_type"] if "shape_type" in each_shape else ""
-            each_obj = SegmentObj(label=each_label, points=each_shape_points, shape_type=each_type)
+            each_obj = SegmentObj(label=each_label_no_number, points=each_shape_points, shape_type=each_type, mask_value=each_label_no_number)
             self.shapes.append(each_obj)
+
         # parse mask
         if parse_mask:
             self.mask, _ = utils.shapes_to_label(self.image_data.shape, a["shapes"], label_name_dict)

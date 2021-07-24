@@ -1,11 +1,13 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
+import math
+
 
 class SegmentObj(object):
     """一个分割对象"""
 
-    def __init__(self, label="", points=None, shape_type="polygon", mask=None):
+    def __init__(self, label="", points=None, shape_type="polygon", mask=None, mask_value=None):
         self.label = label
         self.points = [] if points is None else points
         self.shape_type = shape_type
@@ -13,6 +15,22 @@ class SegmentObj(object):
         self.line_color = []
         self.fill_color = []
         self.mask = mask
+        self.mask_value = mask_value            # 当前要素在 mask 中的值（mask 中相同的 label 不同的对象有不同的值）
+        # 根据 points 得到 box
+        if self.points:
+            x_min, y_min, x_max, y_max = math.inf, math.inf, -math.inf, -math.inf
+            for each_point in self.points:
+                each_x, each_y = each_point
+                if each_x < x_min:
+                    x_min = each_x
+                if each_x > x_max:
+                    x_max = each_x
+                if each_y < y_min:
+                    y_min = each_y
+                if each_y > y_max:
+                    y_max = each_y
+            #
+            self.box = [x_min, y_min, x_max, y_max]
 
     def get_format_list(self):
         """获得格式化的输出"""

@@ -31,9 +31,9 @@ for each_json_path in list(FileOperationUtil.re_all_file(json_dir, endswitch=['.
         dete_res.add_obj(box[0], box[1], box[2], box[3], tag=each_obj.label)
 
     b = Image.fromarray(a.mask.astype(np.uint8)*100)
-    b.save(r"C:\Users\14271\Desktop\del\112233.jpg")
+    b.save(r"C:\Users\14271\Desktop\del\112233.png")
 
-    dete_res.draw_dete_res(r"C:\Users\14271\Desktop\del\1100.jpg")
+    dete_res.draw_dete_res(r"C:\Users\14271\Desktop\del\1100.png")
 
     # a.save_mask(r"C:\Users\14271\Desktop\del\del.npy")
 

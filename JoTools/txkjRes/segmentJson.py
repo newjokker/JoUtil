@@ -7,6 +7,7 @@ from ..utils.JsonUtil import JsonUtil
 from ..utils.FileOperationUtil import FileOperationUtil
 from .segmentObj import SegmentObj
 import numpy as np
+from skimage.measure import find_contours
 
 # todo 从 mask 得到 points，可以指定 point 中的点的个数，这样就能直接将 分割出来的结果直接转为 json 输入的结果的样式
 
@@ -67,7 +68,56 @@ class SegmentJson(object):
 
         # parse mask
         if parse_mask:
-            self.mask, _ = utils.shapes_to_label(self.image_data.shape, a["shapes"], label_name_dict)
+            # fixme mask 的 channel 必须和 box 的个数一样多，否则会报错【好像还不一定，好像是问题】
+            _, self.mask = utils.shapes_to_label(self.image_data.shape, a["shapes"], label_name_dict)
+
+    def save_to_josn(self, json_path):
+        """保存为json数据格式"""
+
+        json_info = {"version":"", "imageWidth":"", "imageHeight":"", "imagePath":"", "lineColor":"", "fillColor":"", "imageData":"", "shapes":[]}
+
+        if self.version:
+            json_info["version"] = self.version
+        if self.image_width:
+            json_info["imageWidth"] = self.image_width
+        if self.image_height:
+            json_info["imageHeight"] = self.image_height
+        if self.image_path:
+            json_info["imagePath"] = self.image_path
+        if self.line_color:
+            json_info["lineColor"] = self.line_color
+        if self.fill_color:
+            json_info["fillColor"] = self.fill_color
+        # --------------------------------------------------------------------------
+        for each_shape in self.shapes:
+            each_shape_info = {
+                "label": each_shape.label,
+                "points": each_shape.points,
+                "shape_type": each_shape.shape_type}
+            json_info["shapes"].append(each_shape_info)
+        #
+        if self.image_data:
+            json_info["imageData"] = self.image_data
+        # save
+        JsonUtil.save_data_to_json_file(json_info, json_path)
+
+    def get_segment_obj_from_mask(self, mask):
+        """从掩膜中提取关键点"""
+        # 找到轮廓点
+        contours = find_contours(mask, 0.5)
+        #
+        # points_list = []
+        for contour in contours:
+            # 删除其中的几行，确保每个形状只保留不到 60 个关键点
+            del_list = [i for i in range(1, len(contour) - 1) if i % int(len(contour) / 60) != 0]
+            contour = np.delete(contour, del_list, axis=0)
+            # points_list.append(contour)
+            each_points_list = []
+            for each_point in contour:
+                each_points_list.append([each_point[0], each_point[1]])
+            #
+            each_segment_obj = SegmentObj(label="test", points=each_points_list, shape_type="polygon", mask=None, mask_value=None)
+            self.shapes.append(each_segment_obj)
 
     def save_mask(self, save_path=None):
         """将 mask 保存为图片文件"""

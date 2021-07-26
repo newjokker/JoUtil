@@ -112,9 +112,15 @@ class SegmentRes(object):
     def get_segment_obj_from_mask(self, mask, each_mask_point_numb=5):
         """从掩膜中提取关键点, each_mask_point_numb 指定每个 mask 大概用多少点进行描绘"""
 
+        # mask is path str
         if isinstance(mask, str):
             mask = cv2.imdecode(np.fromfile(mask, dtype=np.uint8), 1)
-            mask = mask[:,:,0]
+            if mask.dim >= 3:
+                mask = mask[:,:,0]
+            elif mask.dim == 2:
+                pass
+            else:
+                raise TypeError("mask's dim should be >= 2")
 
         # 读取图像的长宽，如果之前没有读取的话
         if (not self.image_width) or (not self.image_height):
@@ -123,12 +129,10 @@ class SegmentRes(object):
         # 找到轮廓点
         contours = find_contours(mask, 0.5)
         for contour in contours:
-            # 删除其中的几行，确保每个形状只保留不到 60 个关键点
-            print(len(contour))
-
+            # filter small
             if len(contour) <= each_mask_point_numb:
                 continue
-
+            #
             del_list = [i for i in range(1, len(contour) - 1) if i % int(len(contour) / each_mask_point_numb) != 0]
             contour = np.delete(contour, del_list, axis=0)
             # points_list.append(contour)
@@ -153,19 +157,18 @@ class SegmentRes(object):
 
 if __name__ == "__main__":
 
-    json_dir = r"C:\data\004_绝缘子污秽\val\json"
+    img_dir = r"C:\Users\14271\Desktop\mask_test_res"
+    mask_dir = r"C:\Users\14271\Desktop\mask_test_res"
+    save_dir = r"C:\Users\14271\Desktop\mask_test_res\json"
 
-    a = SegmentRes()
+    for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg']):
+        each_mask_path = os.path.join(mask_dir, FileOperationUtil.bang_path(each_img_path)[1] + '_mask.png')
+        each_save_path = os.path.join(save_dir, FileOperationUtil.bang_path(each_img_path)[1] + '.json')
 
-    for each_json_path in FileOperationUtil.re_all_file(json_dir, endswitch=['.json']):
-
-        a.parse_json_info(each_json_path)
-
-        break
-
-    a.print_as_fzc_format()
-
-
+        a = SegmentRes()
+        a.img_path = each_img_path
+        a.get_segment_obj_from_mask(each_mask_path, each_mask_point_numb=30)
+        a.save_to_josn(each_save_path)
 
 
 

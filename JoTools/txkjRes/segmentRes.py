@@ -9,22 +9,20 @@ from .segmentObj import SegmentObj
 import numpy as np
 from skimage.measure import find_contours
 
-# todo 从 mask 得到 points，可以指定 point 中的点的个数，这样就能直接将 分割出来的结果直接转为 json 输入的结果的样式
 
-
-
-class SegmentJson(object):
+class SegmentRes(object):
 
     def __init__(self, json_path=None):
 
-        self.version = ""
+        self.version = "3.16.1"
         self.image_width = ""
         self.image_height = ""
         self.shapes = []
-        self.image_path = ""
-        self.line_color = ""
-        self.fill_color = ""
-        self.image_data = None
+        self.img_path = ""
+        self.line_color = [0,255,0,128]
+        self.fill_color = [255,0,0,128]
+        self.image_data = None                  # 转为 array 的 bs64 字符串
+        self.image_data_bs64 = None             # 保存在 json 文件中的 bs64 字符串
         self.flags = ""
         self.json_path = json_path
         self.mask = None
@@ -40,9 +38,10 @@ class SegmentJson(object):
         self.version = a["version"] if "version" in a else ""
         self.image_width = a["imageWidth"] if "imageWidth" in a else ""
         self.image_height = a["imageHeight"] if "imageWidth" in a else ""
-        self.image_path = a["imagePath"] if "imagePath" in a else ""
-        self.line_color = a["lineColor"] if "lineColor" in a else ""
-        self.fill_color = a["fillColor"] if "fillColor" in a else ""
+        self.img_path = a["imagePath"] if "imagePath" in a else ""
+        self.line_color = a["lineColor"] if "lineColor" in a else []
+        self.fill_color = a["fillColor"] if "fillColor" in a else []
+        self.image_data_bs64 = a["imageData"]
         # fixme 需要拿到 img 才知道图像的大小，属性中的图像大小可能出问题
         if parse_img or parse_mask:
             self.image_data = utils.img_b64_to_arr(a["imageData"]) if "imageData" in a else ""
@@ -51,6 +50,7 @@ class SegmentJson(object):
         label_name_dict = {}
         lables_dict = {}
         value_index = 1
+        # fixme 下面的代码要精简一下，很多地方用不到
         for each_shape in a["shapes"]:
             each_label = each_shape["label"] if "label" in each_shape else ""
             # strip number
@@ -63,7 +63,7 @@ class SegmentJson(object):
             #
             each_shape_points = each_shape["points"] if "points" in each_shape else []
             each_type = each_shape["shape_type"] if "shape_type" in each_shape else ""
-            each_obj = SegmentObj(label=each_label_no_number, points=each_shape_points, shape_type=each_type, mask_value=each_label_no_number)
+            each_obj = SegmentObj(label=each_label, points=each_shape_points, shape_type=each_type, mask_value=each_label_no_number)
             self.shapes.append(each_obj)
 
         # parse mask
@@ -82,8 +82,8 @@ class SegmentJson(object):
             json_info["imageWidth"] = self.image_width
         if self.image_height:
             json_info["imageHeight"] = self.image_height
-        if self.image_path:
-            json_info["imagePath"] = self.image_path
+        if self.img_path:
+            json_info["imagePath"] = self.img_path
         if self.line_color:
             json_info["lineColor"] = self.line_color
         if self.fill_color:
@@ -93,28 +93,48 @@ class SegmentJson(object):
             each_shape_info = {
                 "label": each_shape.label,
                 "points": each_shape.points,
-                "shape_type": each_shape.shape_type}
+                "shape_type": each_shape.shape_type,
+                "line_color": each_shape.line_color,
+                "fill_color": each_shape.fill_color}
             json_info["shapes"].append(each_shape_info)
         #
-        if self.image_data:
-            json_info["imageData"] = self.image_data
+        if self.image_data_bs64:
+            json_info["imageData"] = self.image_data_bs64
+        elif self.img_path:
+            img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            self.image_data_bs64 = utils.img_arr_to_b64(img).decode('utf-8')
+            json_info["imageData"] = self.image_data_bs64
+        else:
+            raise ValueError("self.image_data_bs64 and img_path can not empty both")
         # save
         JsonUtil.save_data_to_json_file(json_info, json_path)
 
-    def get_segment_obj_from_mask(self, mask):
-        """从掩膜中提取关键点"""
+    def get_segment_obj_from_mask(self, mask, each_mask_point_numb=5):
+        """从掩膜中提取关键点, each_mask_point_numb 指定每个 mask 大概用多少点进行描绘"""
+
+        if isinstance(mask, str):
+            mask = cv2.imdecode(np.fromfile(mask, dtype=np.uint8), 1)
+            mask = mask[:,:,0]
+
+        # 读取图像的长宽，如果之前没有读取的话
+        if (not self.image_width) or (not self.image_height):
+            self.image_height, self.image_width = mask.shape[:2]
+
         # 找到轮廓点
         contours = find_contours(mask, 0.5)
-        #
-        # points_list = []
         for contour in contours:
             # 删除其中的几行，确保每个形状只保留不到 60 个关键点
-            del_list = [i for i in range(1, len(contour) - 1) if i % int(len(contour) / 60) != 0]
+            print(len(contour))
+
+            if len(contour) <= each_mask_point_numb:
+                continue
+
+            del_list = [i for i in range(1, len(contour) - 1) if i % int(len(contour) / each_mask_point_numb) != 0]
             contour = np.delete(contour, del_list, axis=0)
             # points_list.append(contour)
             each_points_list = []
             for each_point in contour:
-                each_points_list.append([each_point[0], each_point[1]])
+                each_points_list.append([each_point[1], each_point[0]])
             #
             each_segment_obj = SegmentObj(label="test", points=each_points_list, shape_type="polygon", mask=None, mask_value=None)
             self.shapes.append(each_segment_obj)
@@ -131,12 +151,11 @@ class SegmentJson(object):
 
 
 
-
 if __name__ == "__main__":
 
     json_dir = r"C:\data\004_绝缘子污秽\val\json"
 
-    a = SegmentJson()
+    a = SegmentRes()
 
     for each_json_path in FileOperationUtil.re_all_file(json_dir, endswitch=['.json']):
 

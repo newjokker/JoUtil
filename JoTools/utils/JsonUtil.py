@@ -10,7 +10,7 @@ class JsonUtil(object):
     def save_data_to_json_file(data, json_file_path):
         try:
             with open(json_file_path, 'w') as json_file:
-                json.dump(data, json_file)
+                json.dump(data, json_file, indent=4)
             return True
         except Exception as e:
             print(e)

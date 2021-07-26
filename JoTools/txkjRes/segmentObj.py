@@ -12,8 +12,8 @@ class SegmentObj(object):
         self.points = [] if points is None else points
         self.shape_type = shape_type
         self.flags = ""
-        self.line_color = []
-        self.fill_color = []
+        self.line_color = None
+        self.fill_color = None
         self.mask = mask
         self.mask_value = mask_value            # 当前要素在 mask 中的值（mask 中相同的 label 不同的对象有不同的值）
         # 根据 points 得到 box

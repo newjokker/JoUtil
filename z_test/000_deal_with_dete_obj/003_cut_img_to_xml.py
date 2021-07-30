@@ -36,9 +36,9 @@ if __name__ == "__main__":
 
     else:
 
-        img_dir = r"C:\Users\14271\Desktop\寻找未被发现的fzc_broken\JPEGImages"
-        crop_dir = r"C:\Users\14271\Desktop\寻找未被发现的fzc_broken\crop"
-        save_dir = r"C:\Users\14271\Desktop\寻找未被发现的fzc_broken\xml"
+        img_dir = r"E:\data\train_data\JPEGImages"
+        crop_dir = r"E:\data\crop_jyz"
+        save_dir = r"E:\data\xml"
 
         OperateDeteRes.get_xml_from_crop_img(region_img_dir=img_dir, crop_dir=crop_dir, save_xml_dir=save_dir)
         OperateDeteRes.get_class_count(save_dir, print_count=True)

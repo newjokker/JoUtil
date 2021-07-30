@@ -49,9 +49,9 @@ if __name__ == "__main__":
         OperateDeteRes.crop_imgs(args.img_dir, args.xml_dir, args.save_dir, split_by_tag=args.split_by_tag, augment_parameter=augment_parameter,
                                  exclude_tag_list=exclude_tag_list, include_tag_list=include_tag_list)
     else:
-        img_dir = r"C:\data\003_塔下站人\000_69G数据中的检测结果\JPEGImages"
-        xml_dir = r"C:\data\003_塔下站人\000_69G数据中的检测结果\Annotations"
-        save_dir = r"C:\data\003_塔下站人\000_69G数据中的检测结果\crop"
+        img_dir = r"E:\data\train_data\JPEGImages"
+        xml_dir = r"E:\data\train_data\Annotations"
+        save_dir = r"E:\data\crop_jyz"
         # OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.1, 0.1, 0.1, 0.1])
-        OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False)
+        OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, include_tag_list=["bljyz", "tcjyz"], augment_parameter=[0.15, 0.15, 0.15, 0.15], save_augment=True)
 

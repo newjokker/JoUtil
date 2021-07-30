@@ -7,9 +7,9 @@ import json
 class JsonUtil(object):
 
     @staticmethod
-    def save_data_to_json_file(data, json_file_path):
+    def save_data_to_json_file(data, json_file_path, encoding='utf-8'):
         try:
-            with open(json_file_path, 'w') as json_file:
+            with open(json_file_path, 'w', encoding=encoding) as json_file:
                 json.dump(data, json_file, indent=4)
             return True
         except Exception as e:
@@ -21,9 +21,9 @@ class JsonUtil(object):
         return json.dumps(data)
 
     @staticmethod
-    def load_data_from_json_file(json_file_path):
+    def load_data_from_json_file(json_file_path, encoding='utf-8'):
         try:
-            with open(json_file_path, 'r', encoding='utf-8') as json_file:
+            with open(json_file_path, 'r', encoding=encoding) as json_file:
                 return json.load(json_file)
         except Exception as e:
             print(e)

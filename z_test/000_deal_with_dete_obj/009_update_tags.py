@@ -11,40 +11,37 @@ from JoTools.txkjRes.deteRes import DeteRes,DeteObj
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.RandomUtil import RandomUtil
 
-up_dict = {
-    "fzc_sm": "fzc",
-    "fzc_yt": "fzc",
-    "fzc_broken": "fzc",
-    "fzc_gt": "fzc",
-    "zd_yt": "fzc",
-    "zd_gt": "fzc",
-    "zd_sm": "fzc",
-    "qx_yt": "fzc",
-    "other1": "fzc",
-    "qx_sm": "fzc",
-    "K": "fzc",
-    "qx_gt": "fzc",
-    "XieXingXJ": "fzc",
-    "fzc_zhedang": "fzc",
-    "other2": "fzc",
-    "K2": "fzc",
-    "fs": "fzc",
-}
-
 # up_dict = {
-#     "040500013": "K",
-#     "040501013": "螺母锈蚀",
-#     "010000023": "nc",
-#     "040500023": "kkxTC", # 退出
-#     "030100023": "jyzzb",
+#     "fzc_sm": "fzc",
+#     "fzc_yt": "fzc",
+#     "fzc_broken": "fzc",
+#     "fzc_gt": "fzc",
+#     "zd_yt": "fzc",
+#     "zd_gt": "fzc",
+#     "zd_sm": "fzc",
+#     "qx_yt": "fzc",
+#     "other1": "fzc",
+#     "qx_sm": "fzc",
+#     "K": "fzc",
+#     "qx_gt": "fzc",
+#     "XieXingXJ": "fzc",
+#     "fzc_zhedang": "fzc",
+#     "other2": "fzc",
+#     "K2": "fzc",
+#     "fs": "fzc",
 # }
+
+up_dict = {
+    "fzc_broken": "fzc",
+    "Fnormal": "fzc",
+}
 
 # up_dict = {"extra": "Fnormal", "UGuaHuan":"Fnormal"}
 
 # up_dict = {"Fnormal": "fzc", "fzc_broken":"fzc"}
 
-xml_dir = r"C:\data\003_塔下站人\train\Annotations_td"
-save_dir = r"C:\data\003_塔下站人\train\Annotations_td_new"
+xml_dir = r"/home/suanfa-4/ldq/001_train_data/fzc_test/Annotations"
+save_dir = r"/home/suanfa-4/ldq/001_train_data/fzc_test/Annotations"
 
 
 OperateDeteRes.get_class_count(xml_dir, print_count=True)

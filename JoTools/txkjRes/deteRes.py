@@ -898,9 +898,10 @@ class DeteRes(ResBase, ABC):
             each_dete_obj.do_offset(x, y)
 
     # @DecoratorUtil.time_this
-    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
+    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None, save_augment=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
+        * save_augment 是否保存为扩展后的范围，还是之前的范围
         """
 
         if not self.img:
@@ -950,7 +951,10 @@ class DeteRes(ResBase, ABC):
                 each_save_dir = save_dir
 
             # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
-            each_name_str = each_obj.get_name_str()
+            if save_augment:
+                each_name_str = each_obj.get_name_str(assign_loc=bndbox)
+            else:
+                each_name_str = each_obj.get_name_str()
             each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
 
             try:

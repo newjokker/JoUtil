@@ -495,8 +495,8 @@ class OperateDeteRes(object):
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None, augment_parameter=None, include_tag_list=None):
-        """将文件夹下面的所有 xml 进行裁剪"""
+    def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None, augment_parameter=None, include_tag_list=None, save_augment=False):
+        """将文件夹下面的所有 xml 进行裁剪, save_augment 保存的范围是不是扩展的范围"""
         # todo 增加裁剪指定类型
         index = 0
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
@@ -513,7 +513,7 @@ class OperateDeteRes(object):
 
             a.img_path = each_img_path
             try:
-                a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list)
+                a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list, save_augment=save_augment)
                 index += 1
             except Exception as e:
                 print(e)

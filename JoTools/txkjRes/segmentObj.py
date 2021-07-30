@@ -16,21 +16,6 @@ class SegmentObj(object):
         self.fill_color = None
         self.mask = mask
         self.mask_value = mask_value            # 当前要素在 mask 中的值（mask 中相同的 label 不同的对象有不同的值）
-        # 根据 points 得到 box
-        if self.points:
-            x_min, y_min, x_max, y_max = math.inf, math.inf, -math.inf, -math.inf
-            for each_point in self.points:
-                each_x, each_y = each_point
-                if each_x < x_min:
-                    x_min = each_x
-                if each_x > x_max:
-                    x_max = each_x
-                if each_y < y_min:
-                    y_min = each_y
-                if each_y > y_max:
-                    y_max = each_y
-            #
-            self.box = [x_min, y_min, x_max, y_max]
 
     def get_format_list(self):
         """获得格式化的输出"""
@@ -46,4 +31,18 @@ class SegmentObj(object):
         # print("line_color : {0}".format(self.line_color))
         # print("fill_color : {0}".format(self.fill_color))
 
+    def get_rectangle(self):
+        """返回外接矩形"""
+        x_min, y_min, x_max, y_max = math.inf, math.inf, -math.inf, -math.inf
+        for each_point in self.points:
+            each_x, each_y = each_point
+            if each_x < x_min:
+                x_min = each_x
+            if each_x > x_max:
+                x_max = each_x
+            if each_y < y_min:
+                y_min = each_y
+            if each_y > y_max:
+                y_max = each_y
+        return [x_min, y_min, x_max, y_max]
 

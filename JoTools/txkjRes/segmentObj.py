@@ -2,6 +2,7 @@
 # -*- author: jokker -*-
 
 import math
+from shapely.geometry import Polygon, Point
 
 
 class SegmentObj(object):
@@ -45,4 +46,10 @@ class SegmentObj(object):
             if each_y > y_max:
                 y_max = each_y
         return [x_min, y_min, x_max, y_max]
+
+    def get_area(self):
+        """返回面积"""
+
+        poly1 = Polygon(self.points).convex_hull
+        return poly1.area
 

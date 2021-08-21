@@ -189,11 +189,11 @@ class SegmentRes(object):
 
         img_name = FileOperationUtil.bang_path(self.json_path)[1]
 
-        for each_segment_obj in self.shapes:
+        for obj_index, each_segment_obj in enumerate(self.shapes):
             each_rect = each_segment_obj.get_rectangle()
             each_crop = self.img.crop(each_rect)
             try:
-                each_crop.save(os.path.join(save_dir, "{0}_{1}.jpg".format(img_name, each_segment_obj.label)))
+                each_crop.save(os.path.join(save_dir, "{0}_{1}_{2}.jpg".format(obj_index, img_name, each_segment_obj.label)))
             except Exception as e:
                 print(e)
 
@@ -224,6 +224,22 @@ class SegmentRes(object):
         """按照防振锤的格式进行打印"""
         for each_shape in self.shapes:
             print(each_shape.get_format_list())
+
+    def draw_points(self):
+        """在图上画出点"""
+
+        if (self.image_data is not None) and (not self.img):
+            self.img = Image.fromarray(self.image_data)
+
+        if os.path.exists(self.img_path) and (not self.img):
+            self.img = Image.open(self.img_path)
+
+        if not self.img:
+            raise ValueError("self.img_path self.img self.img_data all empty")
+
+
+        
+
 
 
 

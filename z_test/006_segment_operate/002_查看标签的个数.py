@@ -17,15 +17,23 @@ import os
 # json_dir = r"C:\data\004_绝缘子污秽\002_测试标图流程\json"
 json_dir = r"C:\data\004_绝缘子污秽\001_分割训练数据\train\json"
 
-index = 0
-label_num = 0
-for each_json_path in FileOperationUtil.re_all_file(json_dir, endswitch=[".json"]):
-    print(index, each_json_path)
-    a = SegmentRes()
-    a.parse_json_info(each_json_path, parse_img=False, parse_mask=False)
-    label_num += len(a)
-    index += 1
+# index = 0
+# label_num = 0
+# for each_json_path in FileOperationUtil.re_all_file(json_dir, endswitch=[".json"]):
+#     print(index, each_json_path)
+#     a = SegmentRes()
+#     a.parse_json_info(each_json_path, parse_img=False, parse_mask=False)
+#     label_num += len(a)
+#     index += 1
+#
+# print("label count : {0}".format(label_num))
+#
 
-print("label count : {0}".format(label_num))
+a = SegmentRes()
+a.parse_json_info(r"C:\Users\14271\Desktop\test\456.json")
+
+a.save_to_josn(r"C:\Users\14271\Desktop\test\789.json")
+
+
 
 

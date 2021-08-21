@@ -20,5 +20,8 @@ class LoadUtil(object):
 
 if __name__ == "__main__":
 
-    pass
+    url = ""
+
+    LoadUtil.load_file_from_url(url, r"C:\Users\14271\Desktop\del.jpg")
+
 

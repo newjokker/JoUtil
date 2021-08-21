@@ -18,11 +18,9 @@ import os
 """
 
 
-
-
-img_dir = r"C:\data\004_绝缘子污秽\000_定位数据\z_crop\img"
-mask_dir = r"C:\data\004_绝缘子污秽\000_定位数据\z_crop\mask"
-save_dir = r"C:\data\004_绝缘子污秽\000_定位数据\z_crop\json"
+img_dir = r"C:\Users\14271\Desktop\mask_test_res_019\img"
+mask_dir = r"C:\Users\14271\Desktop\mask_test_res_019\mask"
+save_dir = r"C:\Users\14271\Desktop\mask_test_res_019\json"
 
 
 for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg']):
@@ -37,6 +35,8 @@ for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg']):
 
     a = SegmentRes()
     a.img_path = each_img_path
-    a.get_segment_obj_from_mask(each_mask_path, each_mask_point_numb=30)
+    a.get_segment_obj_from_mask(each_mask_path, each_mask_point_numb=60)
     a.save_to_josn(each_save_path)
+
+
 

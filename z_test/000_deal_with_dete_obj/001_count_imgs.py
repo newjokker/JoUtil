@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
         OperateDeteRes.count_assign_dir(args.xml_dir, endswitc=endswitch)
     else:
-        img_dir = r"C:\Users\14271\Desktop\del"
+        img_dir = r"C:\Users\14271\Desktop\vedio_img"
         OperateDeteRes.count_assign_dir(img_dir, endswitc=['.xml', '.jpg'])
 
 

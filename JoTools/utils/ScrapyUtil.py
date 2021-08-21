@@ -57,18 +57,15 @@ class ScrapyUtil(object):
 
 if __name__ == '__main__':
 
-    # url = r'https://www.dy2018.com'
-    # bs = ScrapyUtil.get_bs_obj_from_url(url)
-    #
-    # # 传入正则表达式，找到存在 title 和 href 属性的 标签
-    # for each in bs.find_all(lambda x: 'title' in x.attrs and 'href' in x.attrs):  # （3）使用 find_all 正则表达式 找到所有需要的标签值
-    #     href = each.attrs['href']
-    #     title = each.attrs['title']
-    #     text = each.text
-    #
-    #     print(url + href)
+    url = r'https://download.pytorch.org/whl/torch_stable.html'
+    bs = ScrapyUtil.get_bs_obj_from_url(url)
 
-    pic_path = r'https://img.18qweasd.com/d/file/html/dongman/new/2019-09-22/2f0b1407ee6b78baf090e668df11dc15.jpg'
-    save_path = r'C:\Users\Administrator\Desktop\New_frm_wprd.jpg'
+    # 传入正则表达式，找到存在 title 和 href 属性的 标签
+    for each in bs.find_all(lambda x: 'href' in x.attrs):  # （3）使用 find_all 正则表达式 找到所有需要的标签值
+        href = each.attrs['href']
+        print(href)
 
-    ScrapyUtil.load_file_from_url(pic_path, save_path)
+    # pic_path = r'https://img.18qweasd.com/d/file/html/dongman/new/2019-09-22/2f0b1407ee6b78baf090e668df11dc15.jpg'
+    # save_path = r'C:\Users\Administrator\Desktop\New_frm_wprd.jpg'
+    #
+    # ScrapyUtil.load_file_from_url(pic_path, save_path)

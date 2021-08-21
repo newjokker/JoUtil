@@ -22,6 +22,6 @@ if __name__ == "__main__":
         PrintUtil.print(args)
         OperateDeteRes.get_class_count(args.xml_dir, print_count=True)
     else:
-        xml_dir = r"F:\绝缘子\202106绝缘子数据标注结果xml"
+        xml_dir = r"C:\Users\14271\Desktop\old"
         OperateDeteRes.get_class_count(xml_dir, print_count=True)
 

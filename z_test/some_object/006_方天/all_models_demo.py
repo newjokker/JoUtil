@@ -45,7 +45,122 @@ from lib_xjQX.detect_libs.ljjxjR2cnnDetection import ljcR2cnnDetection
 from lib_xjQX.detect_libs.xjDeeplabDetection import xjDeeplabDetection
 
 
-# todo log 要是事实的，需要不断打开关闭
+
+M_dict = {
+    "M1":"杆塔类",
+    "M2":"导地线类",
+    "M3":"绝缘子类",
+    "M4":"大尺寸金具类",
+    "M5":"小尺寸金具类",
+    "M6":"基础类",
+    "M7":"通道环境类",
+    "M8":"接地装置类",
+    "M9":"附属设施类"
+}
+
+M_model_list ={
+    "M1":["nc"],
+    "M2":[],
+    "M3":["jyzZB", "jyzQX"],
+    "M4":["fzc", "fzcRust", "xjQX", "jyhQX", "ljcRust"],
+    "M5":["kkxQuiting", "kkxTC", "kkxRust"],
+    "M6":[],
+    "M7":["waipo"],
+    "M8":[],
+    "M9":["fncDK"],
+}
+
+key_M_dict = {
+    "杆塔":"M1",
+    "导地线":"M2",
+    "绝缘子":"M3",
+    "大金具":"M4",
+    "小金具":"M5",
+    "基础":"M6",
+    "通道环境":"M7",
+    "接地装置":"M8",
+    "附属设施":"M9",
+}
+
+tag_code_dict = {
+
+    # --------------------------------------------------------------------------------------------------------------
+    # 开口销缺失
+    "K": "040500013",
+
+    # 开口销缺失
+    "kkxTC": "040500023",
+
+    # 安装不规范
+    "illegal": "040500023",
+
+    # 销钉锈蚀
+    "K_KG_rust": "040500033",
+
+    # 螺母锈蚀
+    "Lm_rust": "040501013",
+    # --------------------------------------------------------------------------------------------------------------
+
+    # 鸟巢蜂巢
+    "nc": "010000021",
+    "fw": "010000021",
+
+    # 玻璃绝缘子自爆
+    "jyzzb": "030100023",
+
+    # 绝缘子污秽
+    "abnormal": "030100011",
+
+    # 均压环倾斜
+    "fail": "030200131",
+
+    # 金具锈蚀
+    "rust": "040000011",
+
+    # 防振锤锈蚀
+    "fzc_rust": "040303031",
+
+    # 防振锤破损
+    "fzc_broken": "040303021",
+
+    # fixme 导线散股,看看这个标签是否正确
+    "sg": "040402011",
+
+    # --------------------------------------------------------------------------------------------------------------
+    # 吊塔
+    "TowerCrane": "060800013",
+
+    # 推土机
+    "Bulldozer": "060800023",
+
+    # 挖掘机
+    "Digger": "060800033",
+
+    "CementPumpTruck_yb": "060800033",
+    # --------------------------------------------------------------------------------------------------------------
+
+    # 线夹缺垫片
+    "dp_missed": "040001042",
+
+    # 线夹缺倾斜
+    "XJfail": "040000071",
+
+    # 防鸟刺安装不规范
+    "fncBGF": "070400031",
+
+    # 防鸟刺未打开
+    "weidakai": "070400021",
+
+    # jiedi
+    "050000011": "050000011",
+    "050001012": "050001012",
+
+    # jichu
+    "000000181": "000000051",
+    "000000151": "000000151",
+    "000000081": "000000081",
+    "000000051": "000000051",
+}
 
 
 def xml_to_csv(xml_dir, csv_save_path):
@@ -56,7 +171,6 @@ def xml_to_csv(xml_dir, csv_save_path):
     CsvUtil.save_list_to_csv(csv_list, csv_save_path)
 
 
-
 class SaveLog():
 
     def __init__(self, log_path, img_count, csv_path=None):
@@ -65,6 +179,9 @@ class SaveLog():
         self.img_index = 1
         self.csv_path = csv_path
         self.csv_list = [['filename', 'name', 'score', 'xmin', 'ymin', 'xmax', 'ymax']]
+        # empty log
+        if os.path.exists(self.log_path):
+            os.remove(self.log_path)
 
     def add_log(self, img_name):
         self.log = open(self.log_path, 'a')
@@ -100,8 +217,8 @@ def parse_args():
     parser.add_argument('--host',dest='host',type=str,default='127.0.0.1')
     parser.add_argument('--logID',dest='logID',type=str,default='0')
     parser.add_argument('--objName',dest='objName',type=str,default='')
-    parser.add_argument('--imgDir',dest='img dir',type=str)
-    parser.add_argument('--modelList',dest='model list str')
+    parser.add_argument('--imgDir',dest='imgDir',type=str)
+    parser.add_argument('--modelList',dest='modelList',default="M1,M2,M3,M4,M5,M6,M7,M8,M9")
     args = parser.parse_args()
     return args
 
@@ -118,6 +235,30 @@ def screen(y, img):
         y='0'
     return y
 
+
+def get_model_list_from_img_name(img_name, M_list):
+    """从文件名中获取 model_list，传入的是文件名不是完整的路径"""
+
+    model_set = set()
+    is_empty = True
+    for each_key in key_M_dict:
+    # for each_key in key_M_dict:
+        if each_key in img_name:
+            is_empty = False
+            if key_M_dict[each_key] in M_list:
+                for each_model_name in M_model_list[key_M_dict[each_key]]:
+                    model_set.add(each_model_name)
+    if len(model_set) > 0:
+        return list(model_set)
+    elif is_empty:
+        # 模型名真的不带要检测的关键字信息
+        # 解析不到文件名中的关键字的，用能使用的所有模型
+        for key in M_list:
+            for each_model_name in M_model_list[key]:
+                model_set.add(each_model_name)
+        return model_set
+    else:
+        return model_set
 
 
 def model_restore(args, scriptName, model_list=None):
@@ -624,7 +765,12 @@ def model_dete(img_path, model_dict, model_list=None):
 
     # print
     #dete_res_all.print_as_fzc_format()
-    
+
+    save_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/res"
+    each_save_name = os.path.split(img_path)[1]
+    each_save_path = os.path.join(save_dir, each_save_name)
+    dete_res_all.draw_dete_res(each_save_path)
+
     # empty cache
     torch.cuda.empty_cache()
     
@@ -632,97 +778,13 @@ def model_dete(img_path, model_dict, model_list=None):
 
 
 
-# 将映射字典写到配置文件中，或者一个单独的文件中去
-tag_code_dict = {
-
-    # --------------------------------------------------------------------------------------------------------------
-    # 开口销缺失
-    "K": "040500013",
-
-    # 开口销缺失
-    "kkxTC": "040500023",
-
-    # 安装不规范
-    "illegal": "040500023",
-
-    # 销钉锈蚀
-    "K_KG_rust": "040500033",
-
-    # 螺母锈蚀
-    "Lm_rust": "040501013",
-    # --------------------------------------------------------------------------------------------------------------
-
-    # 鸟巢蜂巢
-    "nc": "010000021",
-    "fw": "010000021",
-
-    # 玻璃绝缘子自爆
-    "jyzzb": "030100023",
-
-    # 绝缘子污秽
-    "abnormal": "030100011",
-
-    # 均压环倾斜
-    "fail": "030200131",
-
-    # 金具锈蚀
-    "rust": "040000011",
-
-    # 防振锤锈蚀
-    "fzc_rust": "040303031",
-
-    # 防振锤破损
-    "fzc_broken": "040303021",
-
-    # fixme 导线散股,看看这个标签是否正确
-    "sg": "040402011",
-
-    # --------------------------------------------------------------------------------------------------------------
-    # 吊塔
-    "TowerCrane": "060800013",
-
-    # 推土机
-    "Bulldozer": "060800023",
-
-    # 挖掘机
-    "Digger": "060800033",
-
-    "CementPumpTruck_yb": "060800033",
-    # --------------------------------------------------------------------------------------------------------------
-
-    # 线夹缺垫片
-    "dp_missed": "040001042",
-
-    # 线夹缺倾斜
-    "XJfail": "040000071",
-
-    # 防鸟刺安装不规范
-    "fncBGF": "070400031",
-
-    # 防鸟刺未打开
-    "weidakai": "070400021",
-
-    # jiedi
-    "050000011": "050000011",
-    "050001012": "050001012",
-
-    # jichu
-    "000000181": "000000051",
-    "000000151": "000000151",
-    "000000081": "000000081",
-    "000000051": "000000051",
-}
-
-
-
 if __name__ == '__main__':
-
 
     args = parse_args()
     
     # ---------------------------
     #img_dir = args.img_dir 
-    img_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/inputImg/xjQX"
+    img_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/inputImg"
     log_path = r'/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/test.log'
     csv_path = r'/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/test.csv'
     # ---------------------------
@@ -731,8 +793,8 @@ if __name__ == '__main__':
     # todo 根据得到的 M1,M2 等，决定是否使用某些模型
     # todo 是否需要根据文件名得到指定检测的模型
 
-
-    model_list = ['nc' ,'jyzZB', 'fzc', 'fzcRust', 'ljcRust', 'fncDK', 'kkxTC', 'kkxQuiting', 'kkxRust', 'waipo', 'xjQX']
+    # model_list
+    assign_model_list = args.modelList.strip().split(',')
 
     # get img
     img_path_list = list(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith(('.jpg', '.JPG', '.png'))))
@@ -743,23 +805,20 @@ if __name__ == '__main__':
 
     # warm up
     print("* start warm model ")
-    scriptName = os.path.basename(__file__).split('.')[0]    
-    model_dict = model_restore(args, scriptName, model_list)
+    scriptName = os.path.basename(__file__).split('.')[0]
+    all_model_list = ['nc' ,'jyzZB', 'fzc', 'fzcRust', 'ljcRust', 'fncDK', 'kkxTC', 'kkxQuiting', 'kkxRust', 'waipo', 'xjQX']
+    model_dict = model_restore(args, scriptName, all_model_list)
     print("* warm model success ")
 
     # dete
     for each_img_path in img_path_list:
-
         # todo 需要映射，文件名，得到新的文件路径
-
-        # todo 需要映射文件结果
-
         print(each_img_path)
-
         each_img_name = os.path.split(each_img_path)[1]
-
+        #
         try:
-            each_dete_res = model_dete(each_img_path, model_dict, model_list)
+            each_model_list = get_model_list_from_img_name(each_img_name, assign_model_list)
+            each_dete_res = model_dete(each_img_path, model_dict, each_model_list)
             dete_log.add_csv_info(each_dete_res, each_img_name)
         except Exception as e:
             print(e)

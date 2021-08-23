@@ -68,7 +68,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--gpuID', dest='gpuID',type=int,default=3)
     parser.add_argument('--port',dest='port',type=int,default=45452)
-    parser.add_argument('--gpuRatio',dest='gpuRatio',type=float,default=0.5)
+    parser.add_argument('--gpuRatio',dest='gpuRatio',type=float,default=0.3)
     parser.add_argument('--host',dest='host',type=str,default='127.0.0.1')
     parser.add_argument('--logID',dest='logID',type=str,default='0')
     parser.add_argument('--objName',dest='objName',type=str,default='')
@@ -266,8 +266,7 @@ def model_dete(img_path, model_dict, model_list=None):
             print(e.__traceback__.tb_lineno)
     
     if "fzc" in model_list:
-    
-    
+
         if ("model_fzc_1" not in model_dict):
             print("* error : no model : model_fzc_1")
             
@@ -694,7 +693,7 @@ if __name__ == '__main__':
     
     # ---------------------------
     #img_dir = args.img_dir 
-    img_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1" 
+    img_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/inputImg/xjQX"
     log_path = r'/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/test_001_res.log'
     # ---------------------------
 

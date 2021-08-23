@@ -38,30 +38,58 @@ from lib.detect_libs.kkgY5Detection import KkgDetection
 from lib.detect_libs.clsDetectionPyTorch import ClsDetectionPyTorch
 from lib.JoTools.txkjRes.resTools import ResTools
 from lib.JoTools.utils.FileOperationUtil import FileOperationUtil
+from lib.JoTools.utils.CsvUtil import CsvUtil
 # 
 #from lib.detect_libs.scrDetection import scrDetection 
 from lib_xjQX.detect_libs.ljjxjR2cnnDetection import ljcR2cnnDetection
 from lib_xjQX.detect_libs.xjDeeplabDetection import xjDeeplabDetection
 
 
+# todo log 要是事实的，需要不断打开关闭
+
+
+def xml_to_csv(xml_dir, csv_save_path):
+    """将保存的 xml 文件信息存放在 csv 文件中"""
+    csv_list = [['filename', 'code', 'score', 'xmin', 'ymin', 'xmax', 'ymax']]
+
+
+    CsvUtil.save_list_to_csv(csv_list, csv_save_path)
+
+
+
 class SaveLog():
 
-    def __init__(self, log_path, img_count):
+    def __init__(self, log_path, img_count, csv_path=None):
         self.log_path = log_path
         self.img_count = img_count
         self.img_index = 1
-        self.log = open(self.log_path, 'a')
+        self.csv_path = csv_path
+        self.csv_list = [['filename', 'name', 'score', 'xmin', 'ymin', 'xmax', 'ymax']]
 
     def add_log(self, img_name):
+        self.log = open(self.log_path, 'a')
         self.log.write("process:{0}/{1} {2}\n".format(self.img_index, self.img_count, img_name))
         self.img_index += 1
+        self.log.close()
+
+    def add_csv_info(self, dete_res, img_name):
+        #
+        for dete_obj in dete_res:
+            if dete_obj.tag in tag_code_dict:
+                each_code = tag_code_dict[dete_obj.tag]
+                self.csv_list.append([img_name, each_code, dete_obj.conf, dete_obj.x1, dete_obj.y1, dete_obj.x2, dete_obj.y2])
 
     def read_img_list_finshed(self):
+        self.log = open(self.log_path, 'a')
         self.log.write("Loading Finished\n")
+        self.log.close()
 
     def close(self):
+        self.log = open(self.log_path, 'a')
         self.log.write("---process complete---\n")
         self.log.close()
+        # save csv
+        CsvUtil.save_list_to_csv(self.csv_list, self.csv_path)
 
 
 def parse_args():
@@ -89,6 +117,7 @@ def screen(y, img):
     if blurry<200:
         y='0'
     return y
+
 
 
 def model_restore(args, scriptName, model_list=None):
@@ -694,7 +723,8 @@ if __name__ == '__main__':
     # ---------------------------
     #img_dir = args.img_dir 
     img_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/inputImg/xjQX"
-    log_path = r'/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/test_001_res.log'
+    log_path = r'/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/test.log'
+    csv_path = r'/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/test.csv'
     # ---------------------------
 
 
@@ -708,7 +738,7 @@ if __name__ == '__main__':
     img_path_list = list(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith(('.jpg', '.JPG', '.png'))))
 
     # init log
-    dete_log = SaveLog(log_path, len(img_path_list))
+    dete_log = SaveLog(log_path, len(img_path_list), csv_path)
     dete_log.read_img_list_finshed()
 
     # warm up
@@ -726,14 +756,16 @@ if __name__ == '__main__':
 
         print(each_img_path)
 
+        each_img_name = os.path.split(each_img_path)[1]
+
         try:
             each_dete_res = model_dete(each_img_path, model_dict, model_list)
+            dete_log.add_csv_info(each_dete_res, each_img_name)
         except Exception as e:
             print(e)
             print(e.__traceback__.tb_frame.f_globals["__file__"])
             print(e.__traceback__.tb_lineno)
 
-        each_img_name = os.path.split(each_img_path)[1]
         dete_log.add_log(each_img_name)
         #
         print('-'*50)

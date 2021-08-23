@@ -18,32 +18,26 @@ import torch
 import numpy as np
 import threading
 from PIL import Image
-
-#from gevent import monkey
-#from gevent.pywsgi import WSGIServer
-#monkey.patch_all()
-#from flask import Flask,request,jsonify
+import uuid
 
 from lib.detect_libs.yolov5Detection import YOLOV5Detection
-from lib.JoTools.txkjRes.deteRes import DeteRes
-from lib.JoTools.txkjRes.deteObj import DeteObj
-from lib.JoTools.txkjRes.deteAngleObj import DeteAngleObj
 from lib.detect_utils.timer import Timer
 from lib.detect_libs.fasterDetectionPyTorch import FasterDetectionPytorch
 from lib.detect_libs.vggClassify import VggClassify
 from lib.detect_libs.clsDetectionPyTorch import ClsDetectionPyTorch
 from lib.detect_libs.ljcY5Detection import LjcDetection
 from lib.detect_libs.kkgY5Detection import KkgDetection
-#from lib.detect_libs.clsViTDetection import ClsViTDetection
 from lib.detect_libs.clsDetectionPyTorch import ClsDetectionPyTorch
+from lib_xjQX.detect_libs.ljjxjR2cnnDetection import ljcR2cnnDetection
+from lib_xjQX.detect_libs.xjDeeplabDetection import xjDeeplabDetection
+#
 from lib.JoTools.txkjRes.resTools import ResTools
 from lib.JoTools.utils.FileOperationUtil import FileOperationUtil
 from lib.JoTools.utils.CsvUtil import CsvUtil
-# 
-#from lib.detect_libs.scrDetection import scrDetection 
-from lib_xjQX.detect_libs.ljjxjR2cnnDetection import ljcR2cnnDetection
-from lib_xjQX.detect_libs.xjDeeplabDetection import xjDeeplabDetection
-
+from lib.JoTools.txkjRes.deteRes import DeteRes
+from lib.JoTools.txkjRes.deteObj import DeteObj
+from lib.JoTools.txkjRes.deteAngleObj import DeteAngleObj
+from lib.JoTools.utils.JsonUtil import JsonUtil
 
 
 M_dict = {
@@ -123,7 +117,6 @@ tag_code_dict = {
     # 防振锤破损
     "fzc_broken": "040303021",
 
-    # fixme 导线散股,看看这个标签是否正确
     "sg": "040402011",
 
     # --------------------------------------------------------------------------------------------------------------
@@ -211,16 +204,31 @@ class SaveLog():
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
-    parser.add_argument('--gpuID', dest='gpuID',type=int,default=3)
+    #
+    parser.add_argument('--imgDir',dest='imgDir',type=str, default=r"/usr/input_picture")
+    parser.add_argument('--modelList',dest='modelList',default="M1,M2,M3,M4,M5,M6,M7,M8,M9")
+    parser.add_argument('--jsonPath',dest='jsonPath', default=r"/usr/input_picture_attach/pictureName.json")
+    parser.add_argument('--outputDir',dest='outputDir', default=r"/usr/output_dir")
+    #
+    parser.add_argument('--gpuID', dest='gpuID',type=int,default=0)
     parser.add_argument('--port',dest='port',type=int,default=45452)
     parser.add_argument('--gpuRatio',dest='gpuRatio',type=float,default=0.3)
     parser.add_argument('--host',dest='host',type=str,default='127.0.0.1')
-    parser.add_argument('--logID',dest='logID',type=str,default='0')
+    parser.add_argument('--logID',dest='logID',type=str,default=str(uuid.uuid1())[:6])
     parser.add_argument('--objName',dest='objName',type=str,default='')
-    parser.add_argument('--imgDir',dest='imgDir',type=str)
-    parser.add_argument('--modelList',dest='modelList',default="M1,M2,M3,M4,M5,M6,M7,M8,M9")
+    #
     args = parser.parse_args()
     return args
+
+
+def get_json_dict(json_path):
+    img_name_json_dict = {}
+    #
+    name_info = JsonUtil.load_data_from_json_file(json_path)
+    for each in name_info:
+        img_name_json_dict[each["originFileName"]] = each["fileName"]
+        #img_name_json_dict[each["fileName"]] = each["originFileName"]
+    return img_name_json_dict
 
 
 def screen(y, img):
@@ -769,7 +777,9 @@ def model_dete(img_path, model_dict, model_list=None):
     save_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/res"
     each_save_name = os.path.split(img_path)[1]
     each_save_path = os.path.join(save_dir, each_save_name)
+    each_save_path_xml = os.path.join(save_dir, each_save_name[:-4] + '.xml')
     dete_res_all.draw_dete_res(each_save_path)
+    dete_res_all.save_to_xml(each_save_path_xml)
 
     # empty cache
     torch.cuda.empty_cache()
@@ -781,17 +791,30 @@ def model_dete(img_path, model_dict, model_list=None):
 if __name__ == '__main__':
 
     args = parse_args()
+
+    # input: (1) model_list (str)
+
+    # output (1) csv, log  | programe.log
+
+    # fixme 同一个位置只能输出一个框，按照重要性进行排序
     
     # ---------------------------
-    #img_dir = args.img_dir 
-    img_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/inputImg"
-    log_path = r'/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/test.log'
-    csv_path = r'/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/test.csv'
+    img_dir = args.imgDir.strip()
+    json_path = args.jsonPath
+    output_dir = args.outputDir.strip()
+    log_path = os.path.join(output_dir, "log")
+    csv_path = os.path.join(output_dir, "result.csv")
+    # ---------------------------
+    print('-'*50)
+    print("* {0} : {1}".format("img_dir", img_dir))
+    print("* {0} : {1}".format("json_path", json_path))
+    print("* {0} : {1}".format("log_path", log_path))
+    print("* {0} : {1}".format("csv_path", csv_path))
+    print('-'*50)
     # ---------------------------
 
-
-    # todo 根据得到的 M1,M2 等，决定是否使用某些模型
-    # todo 是否需要根据文件名得到指定检测的模型
+    # json path file
+    img_name_json_dict = get_json_dict(json_path)
 
     # model_list
     assign_model_list = args.modelList.strip().split(',')
@@ -812,12 +835,16 @@ if __name__ == '__main__':
 
     # dete
     for each_img_path in img_path_list:
-        # todo 需要映射，文件名，得到新的文件路径
         print(each_img_path)
+        #
         each_img_name = os.path.split(each_img_path)[1]
+        if each_img_name in img_name_json_dict:
+            each_img_chinese_name = img_name_json_dict[each_img_name]
+        else:
+            each_img_chinese_name = " "
         #
         try:
-            each_model_list = get_model_list_from_img_name(each_img_name, assign_model_list)
+            each_model_list = get_model_list_from_img_name(each_img_chinese_name, assign_model_list)
             each_dete_res = model_dete(each_img_path, model_dict, each_model_list)
             dete_log.add_csv_info(each_dete_res, each_img_name)
         except Exception as e:

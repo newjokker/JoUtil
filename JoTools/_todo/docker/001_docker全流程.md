@@ -45,9 +45,23 @@
     
 ### 保存
 
-* 容器 ==> 镜像，docker commit 
+* 容器 ==> 镜像，docker commit CONTAINER_ID txkj:v3.5.2
+    * 先在容器中 exit
+    * docker ps -a 找到刚被关掉的容器的 ID
+    * docker commit 容器ID txkj:v1.2.3
+    * 完成
 
 * 镜像 ==> tar，docker save -o tar_name image_id ，https://www.runoob.com/docker/docker-save-command.html
+    * 直接保存就行 docker save -o txkj:v1.3.5.2.tar imageID 
+    * 完成
+
+### 新学会
+
+* 在一行命令后面加 & 就能让命令在后台执行，打印还是正常打印 
+
+* jobs , 查看后台运行的命令
+
+* kill -s 2 1% , 关闭 jobs 中查看到的 index 为 1 的任务  
 
 ---
 
@@ -71,6 +85,10 @@
 
 * docker load 
 
+
+### 组合命令
+
+docker run --gpus '"device=0"'  -p 8000:8084 -m 30g  -it txkj:v4.0.0 /bin/bash 
 
 
 

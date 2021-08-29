@@ -9,9 +9,9 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-img_dir = r"E:\data\202104"
-xml_dir = r"E:\data\202104"
-save_dir = r"E:\data\train_data_2021_04"
+img_dir = r"F:\绝缘子数据\202106"
+xml_dir = r"F:\绝缘子数据\202106绝缘子数据标注结果xml"
+save_dir = r"F:\绝缘子数据\jyz_data"
 
 
 save_img_dir = os.path.join(save_dir, 'JPEGImages')

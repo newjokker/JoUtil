@@ -772,14 +772,14 @@ def model_dete(img_path, model_dict, model_list=None):
         
 
     # print
-    #dete_res_all.print_as_fzc_format()
+    dete_res_all.print_as_fzc_format()
 
-    save_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/res"
-    each_save_name = os.path.split(img_path)[1]
-    each_save_path = os.path.join(save_dir, each_save_name)
-    each_save_path_xml = os.path.join(save_dir, each_save_name[:-4] + '.xml')
-    dete_res_all.draw_dete_res(each_save_path)
-    dete_res_all.save_to_xml(each_save_path_xml)
+    # save_dir = r"/home/suanfa-3/ldq/modelManageNewTest/testdir/modeldata/allMerge/v0.0.1_fangtian_mode_2/scripts/res"
+    # each_save_name = os.path.split(img_path)[1]
+    # each_save_path = os.path.join(save_dir, each_save_name)
+    # each_save_path_xml = os.path.join(save_dir, each_save_name[:-4] + '.xml')
+    # dete_res_all.draw_dete_res(each_save_path)
+    # dete_res_all.save_to_xml(each_save_path_xml)
 
     # empty cache
     torch.cuda.empty_cache()

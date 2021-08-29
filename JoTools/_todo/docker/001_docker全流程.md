@@ -88,11 +88,26 @@
 
 ### 组合命令
 
-docker run --gpus '"device=0"'  -p 8000:8084 -m 30g  -it txkj:v4.0.0 /bin/bash 
+* docker run --gpus '"device=0"'  -p 8000:8084 -m 30g  -it txkj:v4.0.0 /bin/bash 
 
 
+### 样板间的实践
 
+* 调度代码跑不了 : 少了 --gpus 参数 ， 查不到 gpu 管理 GPU 的模块就会出现问题
 
+* 保存容器
+    * 先在容器中 exit
+    * docker ps -a 找到刚被关掉的容器的 ID
+    * docker commit 容器ID txkj:v1.2.3
+    * 完成
+    
+* 保存镜像为tar包
+    * 直接保存就行 docker save -o txkj:v1.3.5.2.tar imageID 
+    * 完成
+
+* 映射路径和端口
+    * -v 宿主机输入路径:容器路径
+    * -p 8000:8084(外面访问的端口号:docker中的端口号)
 
 
 

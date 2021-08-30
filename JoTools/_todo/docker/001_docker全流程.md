@@ -63,6 +63,8 @@
 
 * kill -s 2 1% , 关闭 jobs 中查看到的 index 为 1 的任务  
 
+* dockerfile 的编写与使用
+
 ---
 
 ### 常用命令
@@ -109,5 +111,27 @@
     * -v 宿主机输入路径:容器路径
     * -p 8000:8084(外面访问的端口号:docker中的端口号)
 
+* dockerfile 
+    * 文件内部内容
+    * FROM txkj:v3.5.2 
+    * CMD ["/modelManageNewTest/startServe.sh"]
+
+    * build 步奏
+        * 创建一个新的工作目录
+        * cd 进去
+        * docker file 文件拷贝进去，文件名不能修改
+        * 运行 docker build -t txkj:v3.5.3 .			（把目录下面的所有文件拷贝进去）
 
 
+
+* 样板间进入参数
+    * docker run --gpus '"device=0"' -v /home/suanfa-3/ldq/del/transform_gate:/del -p 8000:8084 -m 30g -e MODEL_TYPES=M1,M2,M3,M4,M5,M6,M7,M8,M9 -e POST_LOC=http://127.0.0.1:3232/dete_res  -e NMS=0.3 -e SCORE=0.6 -it txkj:v3.5.2
+
+* docker 中 post 报错的问题
+    * 接受的程序端口要改为 0.0.0.0 这种形式，接受任何机器的推送
+    * docker 里面指定推送的目标服务器，必须使用 192.168.3.101 这种形式
+
+*  
+    
+    
+    

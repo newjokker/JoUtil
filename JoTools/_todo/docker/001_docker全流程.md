@@ -97,6 +97,16 @@
 
 * 调度代码跑不了 : 少了 --gpus 参数 ， 查不到 gpu 管理 GPU 的模块就会出现问题
 
+* tar -> image
+    * docker load -i img_name.tar
+
+* 退出容器并保存
+    * 在容器中 exit 即可
+    * docker ps -a 列出所有没有删除的容器，包括已经暂停的部分
+    * docker commit 容器 image_id , 创建新的 image 
+    * docker image list , 找到新创建的镜像的 id
+    * docker save -o name.tag image_id
+
 * 保存容器
     * 先在容器中 exit
     * docker ps -a 找到刚被关掉的容器的 ID
@@ -122,16 +132,16 @@
         * docker file 文件拷贝进去，文件名不能修改
         * 运行 docker build -t txkj:v3.5.3 .			（把目录下面的所有文件拷贝进去）
 
-
+* 在命令后面加上 & 就能让命令在后台执行
+    * python3 allflow.py &
 
 * 样板间进入参数
-    * docker run --gpus '"device=0"' -v /home/suanfa-3/ldq/del/transform_gate:/del -p 8000:8084 -m 30g -e MODEL_TYPES=M1,M2,M3,M4,M5,M6,M7,M8,M9 -e POST_LOC=http://127.0.0.1:3232/dete_res  -e NMS=0.3 -e SCORE=0.6 -it txkj:v3.5.2
+    * docker run --gpus '"device=0"' -v /home/suanfa-3/ldq/del/transform_gate:/del -p 8000:8084 -m 30g -e MODEL_TYPES=M1,M2,M3,M4,M5,M6,M7,M8,M9 -e POST_LOC=http://192.168.3.101:3232/dete_res  -e NMS=0.3 -e SCORE=0.6 -it txkj:v3.5.2
 
 * docker 中 post 报错的问题
     * 接受的程序端口要改为 0.0.0.0 这种形式，接受任何机器的推送
     * docker 里面指定推送的目标服务器，必须使用 192.168.3.101 这种形式
 
-*  
     
     
     

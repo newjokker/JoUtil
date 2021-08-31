@@ -138,6 +138,9 @@
 * 样板间进入参数
     * docker run --gpus '"device=0"' -v /home/suanfa-3/ldq/del/transform_gate:/del -p 8000:8084 -m 30g -e MODEL_TYPES=M1,M2,M3,M4,M5,M6,M7,M8,M9 -e POST_LOC=http://192.168.3.101:3232/dete_res  -e NMS=0.3 -e SCORE=0.6 -it txkj:v3.5.2
 
+* 方天进入参数
+    * docker run --gpus device=0 -v /home/suanfa-3/ldq/del/fangtian_test/input_dir:/usr/input_picture -v /home/suanfa-3/ldq/del/fangtian_test/output_dir:/usr/output_dir -v /home/suanfa-3/ldq/del/fangtian_test/json_dir:/usr/input_picture_attach -e MODEL_TYPES=M1,M2,M3,M4,M5,M6,M7,M8,M9 -e NMS=0.6 -e SCORE=0.3 -m 30g -it txkj:v0.2.2 /bin/bash
+
 * docker 中 post 报错的问题
     * 接受的程序端口要改为 0.0.0.0 这种形式，接受任何机器的推送
     * docker 里面指定推送的目标服务器，必须使用 192.168.3.101 这种形式

@@ -105,7 +105,7 @@
     * docker ps -a 列出所有没有删除的容器，包括已经暂停的部分
     * docker commit 容器 image_id , 创建新的 image 
     * docker image list , 找到新创建的镜像的 id
-    * docker save -o name.tag image_id
+    * docker save -o name.tag image_id (这边最好不要使用 image_id 否者重新 load 的时候会出现名字为 none none 的情况，应该使用如 txkj:v0.3.7 这样的命名方式)
 
 * 保存容器
     * 先在容器中 exit
@@ -148,3 +148,8 @@
     
     
     
+
+
+
+
+

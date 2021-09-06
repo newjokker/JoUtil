@@ -14,7 +14,7 @@ class CsvUtil(object):
         """
         return_data = []
         #
-        with open(csv_path) as csvfile:
+        with open(csv_path, encoding='utf-8') as csvfile:
             csv_reader = csv.reader(csvfile)
             for row in csv_reader:
                 return_data.append(row)

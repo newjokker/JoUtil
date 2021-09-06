@@ -9,8 +9,8 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-img_dir = r"/home/ldq/tj_dete/train_data/JPEGImages"
-save_dir = r"/home/ldq/tj_dete/train_data/JPEGImages"
+img_dir = r"C:\Users\14271\Desktop\方天测试集准备\xjQX"
+save_dir = r"C:\Users\14271\Desktop\方天测试集准备\xjQX"
 
 
 for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg', '.JPG', '.png', '.PNG']):

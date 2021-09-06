@@ -29,12 +29,12 @@ class RandomUtil(object):
         """random=random.random -> shuffle list x in place; return None.
         Optional arg random is a 0-argument function returning a random
         float in [0.0, 1.0); by default, the standard random.random."""
-        random.shuffle(data)
+        return random.shuffle(data)
 
     @staticmethod
     def randrange(start, stop=None, step=1, _int=int):
         """Choose a random item from range(start, stop[, step])"""
-        random.randrange(start, stop, step=step, _int=_int)
+        return random.randrange(start, stop, step=step, _int=_int)
 
     @staticmethod
     def rand_range_float(minute, maxute, keep_decimal=3):

@@ -10,7 +10,7 @@ class TxtUtil(object):
     @staticmethod
     def read_as_tableread_as_table(txt_path, sep='\t'):
         return_table = []
-        with open(txt_path, 'r') as txt_file:
+        with open(txt_path, 'r', encoding='utf-8') as txt_file:
             for each_line in txt_file:
                 line_elements = []
                 for each_element in each_line.split(sep=sep):

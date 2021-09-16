@@ -19,6 +19,7 @@ import numpy as np
 import threading
 from PIL import Image
 import uuid
+import time
 
 from lib.detect_libs.yolov5Detection import YOLOV5Detection
 from lib.detect_utils.timer import Timer
@@ -943,12 +944,13 @@ def model_dete(img_path, model_dict, model_list=None):
     # print
     dete_res_all.print_as_fzc_format()
 
-    #save_dir = output_dir
-    #each_save_name = os.path.split(img_path)[1]
-    #each_save_path = os.path.join(save_dir, each_save_name)
-    #each_save_path_xml = os.path.join(save_dir, each_save_name[:-4] + '.xml')
-    #dete_res_all.draw_dete_res(each_save_path)
-    #dete_res_all.save_to_xml(each_save_path_xml)
+    save_dir = output_dir
+    os.makedirs(save_dir, exist_ok=True)
+    each_save_name = os.path.split(img_path)[1]
+    each_save_path = os.path.join(save_dir, each_save_name)
+    each_save_path_xml = os.path.join(save_dir, each_save_name[:-4] + '.xml')
+    dete_res_all.draw_dete_res(each_save_path)
+    dete_res_all.save_to_xml(each_save_path_xml)
 
     # empty cache
     torch.cuda.empty_cache()
@@ -958,6 +960,8 @@ def model_dete(img_path, model_dict, model_list=None):
 
 
 if __name__ == '__main__':
+
+    start_time = time.time()
 
     args = parse_args()
 
@@ -1032,6 +1036,12 @@ if __name__ == '__main__':
 
     #
     dete_log.close()
+
+    stop_time = time.time()
+
+    print("use time : {0} s ",format(stop_time - start_time))
+
+
 
     
     

@@ -143,12 +143,13 @@ class FasterDetectionPytorch(detection):
             # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
             img_tensor = torch.from_numpy(im / 255.).permute(2, 0, 1).float().cuda()
             out = self.net([img_tensor])
+            # change status
+            self.status = ModelStatus.WAIT
             # 结果处理并输出
             boxes, labels, scores = out[0]['boxes'], out[0]['labels'], out[0]['scores']
-
             # 清空缓存
             torch.cuda.empty_cache()
-
+            #
             index = 0
             for i in range(len(boxes)):
                 x1, y1, x2, y2 = boxes[i]
@@ -165,7 +166,8 @@ class FasterDetectionPytorch(detection):
             print(e.__traceback__.tb_frame.f_globals["__file__"])
             print(e.__traceback__.tb_lineno)
         finally:
-            self.status = ModelStatus.WAIT
+            pass
+            # self.status = ModelStatus.WAIT
         return res
 
     @try_except()

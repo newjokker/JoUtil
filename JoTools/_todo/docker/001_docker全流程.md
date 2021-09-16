@@ -33,6 +33,8 @@
 * 容器，docker stop CONTAINER_ID
 * 容器，docker start CONTAINER_ID
 
+* Ctrl+P+Q，不停止的情况下退出容器
+
 ### 退出
 
 * 容器，exit
@@ -95,8 +97,15 @@
 
 ### 样板间的实践
 
-* 调度代码跑不了 : 少了 --gpus 参数 ， 查不到 gpu 管理 GPU 的模块就会出现问题
-
+* 调度代码跑不了 : 
+    * 少了 --gpus 参数 ， 查不到 gpu 管理 GPU 的模块就会出现问题
+    * docker 版本太低，不支持 --gpu  参数
+    * 安装 Nvidia_container_Toolkit，参照文件 Nvidia_Container_Toolkit.md
+    
+* image 和 container
+    * docker tag IMAGE_ID REPOSITORY:TAG（仓库：标签） 
+    * docker rename CONTAINER_NAME_OLD  CONTAINER_NAME_NEW
+    
 * tar -> image
     * docker load -i img_name.tar
 

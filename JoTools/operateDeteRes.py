@@ -495,7 +495,7 @@ class OperateDeteRes(object):
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def have_assign_file_path(file_name, file_dir, suffix_list=None):
+    def get_assign_file_path(file_name, file_dir, suffix_list=None):
         """查找支持格式的文件，返回第一个找到的文件路径，找不到的话就返回 None，suffix --> ['.jpg', '.JPG', '.png', '.PNG']"""
 
         if suffix_list is None:
@@ -511,11 +511,10 @@ class OperateDeteRes(object):
     @staticmethod
     def crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=False, exclude_tag_list=None, augment_parameter=None, include_tag_list=None, save_augment=False):
         """将文件夹下面的所有 xml 进行裁剪, save_augment 保存的范围是不是扩展的范围"""
-        # todo 增加裁剪指定类型
         index = 0
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
             each_img_dir, each_img_name = FileOperationUtil.bang_path(each_xml_path)[:2]
-            each_img_path = OperateDeteRes.have_assign_file_path(each_img_name, each_img_dir, suffix_list=['.jpg', '.JPG', '.png', '.PNG'])
+            each_img_path = OperateDeteRes.get_assign_file_path(each_img_name, img_dir, suffix_list=['.jpg', '.JPG', '.png', '.PNG'])
 
             if not each_img_path:
                 continue
@@ -541,9 +540,10 @@ class OperateDeteRes(object):
         # todo 增加裁剪指定类型
         index = 0
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
-            each_img_path = os.path.join(img_dir, os.path.split(each_xml_path)[1][:-3] + 'jpg')
+            each_img_dir, each_img_name = FileOperationUtil.bang_path(each_xml_path)[:2]
+            each_img_path = OperateDeteRes.get_assign_file_path(each_img_name, img_dir, suffix_list=['.jpg', '.JPG', '.png', '.PNG'])
 
-            if not os.path.exists(each_img_path):
+            if not each_img_path:
                 continue
 
             print(index, each_xml_path)
@@ -600,6 +600,9 @@ class OperateDeteRes(object):
 
         for each_xml_path in FileOperationUtil.re_all_file(xml_dir, lambda x: str(x).endswith(".xml")):
             each_img_name = os.path.split(each_xml_path)[1][:-3] + 'jpg'
+
+
+
             each_img_path = os.path.join(img_dir, each_img_name)
             each_save_img_path = os.path.join(save_dir, each_img_name)
             if not os.path.exists(each_img_path):

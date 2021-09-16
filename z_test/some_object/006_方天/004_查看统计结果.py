@@ -21,7 +21,7 @@ for each_xml_path in FileOperationUtil.re_all_file(img_dir):
     have_txkj = False
     have_ok = False
     for each_dete_obj in a:
-        if each_dete_obj.des == "tuxingkeji":
+        if each_dete_obj.des != "tuxingkeji":
             have_txkj = True
         else:
             have_ok = True

@@ -11,14 +11,14 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 img_dir = r"C:\Users\14271\Desktop\del\save_fangtian_res"
 
-save_dir = r"C:\Users\14271\Desktop\del\just_txkj"
+save_dir = r"C:\Users\14271\Desktop\001_有ground_turth结果"
 
 
 res = {}
 
 for each_xml_path in FileOperationUtil.re_all_file(img_dir):
     a = DeteRes(each_xml_path)
-    a.filter_by_func(lambda x:x.des == "tuxingkeji")
+    a.filter_by_func(lambda x:x.des != "tuxingkeji")
     save_path = os.path.join(save_dir, a.file_name[:-4] + '.xml')
     a.save_to_xml(save_path)
 

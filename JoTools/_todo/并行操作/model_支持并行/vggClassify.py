@@ -12,6 +12,15 @@ from ..detect_utils.tryexcept import *
 from ..detect_libs.abstractBase import detection
 from ..detect_utils.cryption import decrypt_file, salt
 
+from enum import Enum, unique
+
+
+class ModelStatus(Enum):
+    INIT = 0
+    RUNNING = 1
+    WAIT = 2
+
+
 
 class VggClassify(detection):
 
@@ -21,6 +30,9 @@ class VggClassify(detection):
         self.readArgs(args)
         self.readCfg()
         self.log = detlog(self.modelName, self.objName, self.logID)
+        #
+        self.status = ModelStatus.INIT
+
 
     def readArgs(self, args):
         self.portNum = args.port
@@ -86,10 +98,21 @@ class VggClassify(detection):
         im = 123 * np.ones((224, 224, 3), dtype=np.uint8)
         self.detect(im, 'warmup.jpg')
 
+
     @timeStamp()
     @try_except()
     @torch.no_grad()
     def detect(self, im, image_name="default.jpg"):
+
+        while True:
+            # 只有等状态为 wait 的时候才进行检测，否则一直等待
+            if self.status == ModelStatus.WAIT or self.status == ModelStatus.INIT:
+                self.status = ModelStatus.RUNNING
+                break
+            else:
+                print("* wait for wait : vggClassify->detect")
+                time.sleep(0.5)
+
         if im is None:
             self.log.info("【Waring】:" + image_name + "  == None !!!")
             return None, 0
@@ -109,9 +132,10 @@ class VggClassify(detection):
 
                 # 清空缓存
                 torch.cuda.empty_cache()
-
+                self.status = ModelStatus.WAIT
                 return pre, proba
             else:
+                self.status = ModelStatus.WAIT
                 return None, 0
 
 
@@ -119,6 +143,16 @@ class VggClassify(detection):
     @try_except()
     @torch.no_grad()
     def detect_new(self, im, image_name="default.jpg"):
+
+        while True:
+            # 只有等状态为 wait 的时候才进行检测，否则一直等待
+            if self.status == ModelStatus.WAIT or self.status == ModelStatus.INIT:
+                self.status = ModelStatus.RUNNING
+                break
+            else:
+                print("* wait for wait : vggClassify->detect_new ")
+                time.sleep(0.5)
+
         if im is None:
             self.log.info("【Waring】:" + image_name + "  == None !!!")
             return None, 0
@@ -128,6 +162,8 @@ class VggClassify(detection):
             img_tensor = torch.from_numpy(img / 255.).permute(2, 0, 1).float().cuda()
             img_tensor = torch.unsqueeze(img_tensor, 0)
             out = self.model(img_tensor)
+
+            # self.status =
 
             if hasattr(out, "data"):
                 # softmax
@@ -139,8 +175,10 @@ class VggClassify(detection):
                 # 清空缓存
                 torch.cuda.empty_cache()
 
+                self.status = ModelStatus.WAIT
                 return self.CLASSES[int(pre)], proba
             else:
+                self.status = ModelStatus.WAIT
                 return None, 0
 
 

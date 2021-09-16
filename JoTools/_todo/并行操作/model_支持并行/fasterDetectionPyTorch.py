@@ -11,6 +11,7 @@ import random
 from Crypto.Cipher import AES
 import struct
 import cv2
+import time
 from ..detect_utils.log import detlog
 from ..detect_utils.tryexcept import try_except, timeStamp
 from ..detect_utils.cryption import salt, decrypt_file
@@ -117,36 +118,54 @@ class FasterDetectionPytorch(detection):
                 res.append([obj, j, int(x1), int(y1), int(x2), int(y2), str(score)])
         return res
 
-
     @timeStamp()
     @torch.no_grad()
     @try_except()
     def detect(self, im, image_name="default.jpg", resize_ratio=1):
         self.log.info('=========================')
         self.log.info(self.modelName + ' detection start')
-        # im 进行 resize，
-        im_height, im_width = im.shape[:2]
-        im = cv2.resize(im, (int(im_width*resize_ratio), int(im_height*resize_ratio)))
-        #im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-        img_tensor = torch.from_numpy(im / 255.).permute(2, 0, 1).float().cuda()
-        out = self.net([img_tensor])
+
+        while True:
+            # 只有等状态为 wait 的时候才进行检测，否则一直等待
+            if self.status == ModelStatus.WAIT or self.status == ModelStatus.INIT:
+                self.status = ModelStatus.RUNNING
+                break
+            else:
+                print("* wait for wait : fasterDetectionPytorch->detect")
+                time.sleep(0.1)
+
         res = []
-        # 结果处理并输出
-        boxes, labels, scores = out[0]['boxes'], out[0]['labels'], out[0]['scores']
 
-        # 清空缓存
-        torch.cuda.empty_cache()
+        try:
+            # im 进行 resize，
+            im_height, im_width = im.shape[:2]
+            im = cv2.resize(im, (int(im_width*resize_ratio), int(im_height*resize_ratio)))
+            # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+            img_tensor = torch.from_numpy(im / 255.).permute(2, 0, 1).float().cuda()
+            out = self.net([img_tensor])
+            # 结果处理并输出
+            boxes, labels, scores = out[0]['boxes'], out[0]['labels'], out[0]['scores']
 
-        index = 0
-        for i in range(len(boxes)):
-            x1, y1, x2, y2 = boxes[i]
-            score = scores[i].item()
-            if score > self.confThresh:
-                index += 1
-                obj = self.CLASSES[labels[i].item()-1]
-                if obj in self.VISIBLE_CLASSES:
-                    # 将 resize 后的数据映射回来
-                    res.append([obj, index, int(x1/resize_ratio), int(y1/resize_ratio), int(x2/resize_ratio), int(y2/resize_ratio), str(score)])
+            # 清空缓存
+            torch.cuda.empty_cache()
+
+            index = 0
+            for i in range(len(boxes)):
+                x1, y1, x2, y2 = boxes[i]
+                score = scores[i].item()
+                if score > self.confThresh:
+                    index += 1
+                    obj = self.CLASSES[labels[i].item()-1]
+                    if obj in self.VISIBLE_CLASSES:
+                        # 将 resize 后的数据映射回来
+                        res.append([obj, index, int(x1/resize_ratio), int(y1/resize_ratio), int(x2/resize_ratio), int(y2/resize_ratio), str(score)])
+        except Exception as e:
+            print("error")
+            print(e)
+            print(e.__traceback__.tb_frame.f_globals["__file__"])
+            print(e.__traceback__.tb_lineno)
+        finally:
+            self.status = ModelStatus.WAIT
         return res
 
     @try_except()

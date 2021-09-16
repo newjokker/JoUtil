@@ -534,7 +534,7 @@ def model_dete(img_path, model_dict, model_list=None):
                     # rust
                     if new_label in ["yt", "zd_yt"]:
                         crop_array_rust = dete_res_fzc.get_sub_img_by_dete_obj(each_dete_obj, RGB=False)
-                        rust_index, rust_f = model_fzc_rust.detect(crop_array_rust)
+                        rust_index, rust_f = model_fzc_rust.detect_fzc(crop_array_rust)
                         rust_label = ["fzc_normal","fzc_rust"][int(rust_index)]
                         rust_f = float(rust_f)
                         # 
@@ -597,7 +597,7 @@ def model_dete(img_path, model_dict, model_list=None):
                 model_kkxQuiting = model_dict["model_kkxQuiting"]
 
             # kkxTC_1
-            kkxTC_1_out = model_kkxTC_1.detect(im, name)
+            kkxTC_1_out = model_kkxTC_1.detect_fzc(im, name)
             if len(kkxTC_1_out[0]) > 0:
                 voc_labels = model_kkxTC_1.post_process(*kkxTC_1_out)
                 # MYLOG.info("detect result:", voc_labels)
@@ -630,7 +630,7 @@ def model_dete(img_path, model_dict, model_list=None):
                 #each_sub_array = kkxTC_1_dete_res.get_sub_img_by_dete_obj(each_dete_obj,RGB=True)
                 each_sub_array = kkxTC_1_dete_res.get_sub_img_by_dete_obj_from_crop(each_dete_obj, RGB=False)
                 # 小金具定位检测结果集合 on a ljc martrix-cap
-                kkxTC_2_out = model_kkxTC_2.detect(each_sub_array, name)
+                kkxTC_2_out = model_kkxTC_2.detect_fzc(each_sub_array, name)
                 if len(kkxTC_2_out[0]) > 0:
                     voc_labels = model_kkxTC_2.post_process(*kkxTC_2_out)
                     ## 过滤最小尺寸 ##
@@ -687,7 +687,7 @@ def model_dete(img_path, model_dict, model_list=None):
    
                 #print("* ", label, prob)
    
-                label, prob = model_kkxTC_3.detect(each_im, 'resizedName')
+                label, prob = model_kkxTC_3.detect_fzc(each_im, 'resizedName')
                 label = str(label)
                 each_dete_obj.conf = float(prob)
                 each_dete_obj.des = each_dete_obj.tag
@@ -722,7 +722,7 @@ def model_dete(img_path, model_dict, model_list=None):
                     if "kkxQuiting" in model_list:
                         # 0:销脚可见 1:退出 2:销头销脚正对
                         if each_dete_obj.tag in ["Xnormal"]:
-                            label, prob = model_kkxQuiting.detect(each_im, 'resizedName')
+                            label, prob = model_kkxQuiting.detect_fzc(each_im, 'resizedName')
                             if label == '1' and prob > 0.5:
                                 new_dete_obj = each_dete_obj.deep_copy()
                                 new_dete_obj.tag = 'kkxTC'
@@ -769,7 +769,7 @@ def model_dete(img_path, model_dict, model_list=None):
             # ljc rust 2
             for each_dete_obj in dete_res_ljc:
                 each_im = dete_res_ljc.get_sub_img_by_dete_obj(each_dete_obj)
-                tag, conf = model_ljc_rust_2.detect(each_im)
+                tag, conf = model_ljc_rust_2.detect_fzc(each_im)
                 # logic
                 # fixme screen ???
                 tag = screen(tag, each_im)
@@ -808,14 +808,14 @@ def model_dete(img_path, model_dict, model_list=None):
             xjQX_dete_res = DeteRes()
             #xjQX_dete_res.img_path = data['path']
 
-            detectBoxes = model_xjQX_1.detect(im, name)
+            detectBoxes = model_xjQX_1.detect_fzc(im, name)
             results = model_xjQX_1.postProcess(im, name, detectBoxes)
             
             # 
             for xjBox in results:
                 resizedName = xjBox['resizedName']
                 resizedImg = im[xjBox['ymin']:xjBox['ymax'],xjBox['xmin']:xjBox['xmax']]
-                segImage = model_xjQX_2.detect(resizedImg,resizedName)
+                segImage = model_xjQX_2.detect_fzc(resizedImg, resizedName)
                 result = model_xjQX_2.postProcess(segImage,resizedName,xjBox)
                 
                 # add obj
@@ -881,7 +881,7 @@ def model_dete(img_path, model_dict, model_list=None):
 
             for each_dete_obj in jyhqx_1_dete_res:
                 each_im = dete_res.get_sub_img_by_dete_obj(each_dete_obj)
-                a = model_jyhqx_2.detect(each_im, name)
+                a = model_jyhqx_2.detect_fzc(each_im, name)
                 #
                 if len(a) < 1:
                     # dete_res.del_dete_obj(each_dete_obj)
@@ -904,7 +904,7 @@ def model_dete(img_path, model_dict, model_list=None):
                 im = jyhqx_1_dete_res.get_sub_img_by_dete_obj(each_dete_obj, RGB=False)
                 # print(dete_res_3.width,dete_res_3.height)
                 x_add, y_add = each_dete_obj.x1, each_dete_obj.y1
-                seg_image = model_jyhqx_3.detect(im, 'resizedName')
+                seg_image = model_jyhqx_3.detect_fzc(im, 'resizedName')
                 result = model.postProcess(seg_image, 'resizedName')
 
                 # fixme 看一下这一步是不是需要

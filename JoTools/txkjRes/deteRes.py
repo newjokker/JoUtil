@@ -97,6 +97,10 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'parse_auto',                          # 是否自动解析信息（例，当给对象的 img_path 属性赋值的时候，是否自动读取图像的信息，并保存在对象中）
 """
 
+
+# todo 将 self.img 从 PIL 结构保存为 ndarry 结构，使用空间换取时间
+
+
 class DeteRes(ResBase, ABC):
     """检测结果"""
 

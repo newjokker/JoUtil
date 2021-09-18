@@ -11,6 +11,10 @@ try:
 except Exception as e:
     print("no models redis")
 
+
+import matplotlib.pyplot as plt
+
+
 class ResBase():
 
     def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, redis_conn_info=None, img_redis_key=None):

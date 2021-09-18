@@ -9,9 +9,9 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-img_dir = r"C:\Users\14271\Desktop\方天测试集准备\nc"
-xml_dir = r"C:\Users\14271\Desktop\方天测试集准备\nc"
-save_dir = r"C:\Users\14271\Desktop\方天测试集准备\nc"
+img_dir = r"E:\jyz_dete_niaofen\pic"
+xml_dir = r"E:\jyz_dete_niaofen\xml"
+save_dir = r"E:\jyz_dete_niaofen\train_data"
 
 
 save_img_dir = os.path.join(save_dir, 'JPEGImages')

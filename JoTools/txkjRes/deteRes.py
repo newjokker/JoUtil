@@ -100,6 +100,8 @@ from ..utils.DecoratorUtil import DecoratorUtil
 
 # todo 将 self.img 从 PIL 结构保存为 ndarry 结构，使用空间换取时间
 
+# todo 查看图片三个波段反了是因为，用的 cv2.imwrite() 保存的图片
+
 
 class DeteRes(ResBase, ABC):
     """检测结果"""

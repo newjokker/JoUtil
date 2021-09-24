@@ -36,7 +36,10 @@
 
 * txkj_v0.3.7.5 增加 jyhQX
 
-* txkj_v0.3.7.6 增加并行脚本，在script 里面，需要修改对应的 lib/detelib/yolov5DetectionPtorch.py
+* txkj_v0.3.8.5 增加超时机制，消耗时间超过图片数目 * 9.5 后面的图片就不检测了；增加文件名对应的机制，找到文件名中的关键字才去检测对应的图片
 
-* txkj_v0.4.1 ：并行测试(del)
+
+---
+
+* txkj_v0.3.7.6 增加并行脚本，在script 里面，需要修改对应的 lib/detelib/yolov5DetectionPtorch.py
 

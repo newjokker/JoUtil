@@ -76,10 +76,14 @@ M_dict = {
 #}
 
 M_model_list ={
+    # 杆塔类
     "M1":["nc"],
     "M2":[],
+    # 绝缘子类
     "M3":["jyzZB", "jyhQX"],
-    "M4":["fzc","xjQX"],
+    # 大尺寸金具类
+    "M4":["fzc",'fzcRust',"xjQX"],
+    # 小尺寸金具类
     "M5":["kkxQuiting", "kkxTC"],
     "M6":[],
     "M7":[],
@@ -88,16 +92,86 @@ M_model_list ={
 }
 
 
+# key_M_dict = {
+#     "杆塔":"M1",
+#     "导地线":"M2",
+#     "绝缘子":"M3",
+#     "大金具":"M4",
+#     "小金具":"M5",
+#     "基础":"M6",
+#     "通道环境":"M7",
+#     "接地装置":"M8",
+#     "附属设施":"M9",
+# }
+
+# key_M_dict = {
+#     "塔头":["M3"],
+#     "塔身":["M1"],
+#     "塔号牌":["M1"],
+#     "杆号牌":["M1"],
+#     "塔基":["M1"],
+#     "导线端挂点":["M3", "M4", "M5"],
+#     "导线挂点":["M3", "M4", "M5"],
+#     "绝缘子":["M3", "M4", "M5"],
+#     "横担端挂点":["M3", "M4", "M5"],
+#     "地线":["M4", "M5"],
+#     "导地线":["M4", "M5"],
+#     #
+#     "杆塔":["M1"],
+#     "大金具":["M4"],
+#     "小金具":["M5"],
+#     "基础":["M6"],
+#     "通道环境":["M7"],
+#     "接地装置":["M8"],
+#     "附属设施":["M9"],
+# }
+
 key_M_dict = {
-    "杆塔":"M1",
-    "导地线":"M2",
-    "绝缘子":"M3",
-    "大金具":"M4",
-    "小金具":"M5",
-    "基础":"M6",
-    "通道环境":"M7",
-    "接地装置":"M8",
-    "附属设施":"M9",
+    "塔头":["jyzZB", "jyhQX"],
+    "塔身":["nc"],
+    "塔号牌":["nc"],
+    "杆号牌":["nc"],
+    "塔基":["nc"],
+    "导线端挂点":["jyzZB", "jyhQX", "fzc", "fzcRust","xjQX", "kkxQuiting", "kkxTC"],
+    "导线挂点":["jyzZB", "jyhQX", "fzc", "fzcRust","xjQX", "kkxQuiting", "kkxTC"],
+    "绝缘子":["jyzZB", "jyhQX", "fzc", "fzcRust","xjQX", "kkxQuiting", "kkxTC"],
+    "横担端挂点":["jyzZB", "jyhQX", "fzc", "fzcRust","xjQX", "kkxQuiting", "kkxTC"],
+    "地线":["fzc", "fzcRust","xjQX", "kkxQuiting", "kkxTC"],
+    "导地线":["fzc", "fzcRust","xjQX", "kkxQuiting", "kkxTC"],
+    "通道":["tongdao_none"],
+    "塔全貌":["taquanmao_none"],
+}
+
+fangtian_dict = {
+
+    '塔全貌': ['基础'],
+
+    '塔头': ['绝缘子'],
+
+    '塔身': ['杆塔', '附属设施'],
+
+    '塔号牌': ['杆塔', '附属设施'],
+
+    '杆号牌': ['杆塔', '附属设施'],
+
+    '塔基': ['杆塔', '基础', '接地'],
+
+    '导线端挂点': ['大金具', '小金具', '导地线', '绝缘子'],
+
+    '导线挂点': ['大金具', '小金具', '导地线', '绝缘子'],
+
+    '绝缘子': ['绝缘子', '小金具', '大金具'],
+
+    '绝缘子串': ['绝缘子', '小金具', '大金具'],
+
+    '横担端挂点': ['大金具', '小金具', '绝缘子'],
+
+    '地线': ['导地线', '小金具', '大金具'],
+
+    '导地线': ['导地线', '小金具', '大金具'],
+
+    '通道': ['通道']
+
 }
 
 tag_code_dict = {
@@ -268,29 +342,56 @@ def screen(y, img):
     return y
 
 
+# def get_model_list_from_img_name(img_name, M_list):
+#     """从文件名中获取 model_list，传入的是文件名不是完整的路径"""
+#
+#     model_set = set()
+#     is_empty = True
+#     for each_key in key_M_dict:
+#     # for each_key in key_M_dict:
+#         if each_key in img_name:
+#             is_empty = False
+#             # if key_M_dict[each_key] in M_list:
+#             for each_model_name in key_M_dict[each_key]:
+#                 model_set.add(each_model_name)
+#     if len(model_set) > 0:
+#         return list(model_set)
+#     elif is_empty:
+#         # 模型名真的不带要检测的关键字信息
+#         # 解析不到文件名中的关键字的，用能使用的所有模型
+#         for key in M_list:
+#             for each_model_name in M_model_list[key]:
+#                 model_set.add(each_model_name)
+#         return model_set
+#     else:
+#         return model_set
+
+
 def get_model_list_from_img_name(img_name, M_list):
     """从文件名中获取 model_list，传入的是文件名不是完整的路径"""
-
     model_set = set()
+    all_model_set = set()
+    for key in M_list:
+        for each_model_name in M_model_list[key]:
+            all_model_set.add(each_model_name)
+
     is_empty = True
     for each_key in key_M_dict:
     # for each_key in key_M_dict:
         if each_key in img_name:
             is_empty = False
-            if key_M_dict[each_key] in M_list:
-                for each_model_name in M_model_list[key_M_dict[each_key]]:
+            # if key_M_dict[each_key] in M_list:
+            for each_model_name in key_M_dict[each_key]:
+                if each_model_name in all_model_set:
                     model_set.add(each_model_name)
     if len(model_set) > 0:
         return list(model_set)
     elif is_empty:
-        # 模型名真的不带要检测的关键字信息
-        # 解析不到文件名中的关键字的，用能使用的所有模型
-        for key in M_list:
-            for each_model_name in M_model_list[key]:
-                model_set.add(each_model_name)
-        return model_set
+        return all_model_set
     else:
         return model_set
+
+
 
 
 def model_restore(args, scriptName, model_list=None):
@@ -971,6 +1072,9 @@ def dete_each_img_Path(each_img_path):
     #
     try:
         each_model_list = get_model_list_from_img_name(each_img_chinese_name, assign_model_list)
+
+
+
         each_dete_res = model_dete(each_img_path, model_dict, each_model_list)
         dete_log.add_csv_info(each_dete_res, each_img_name)
     except Exception as e:

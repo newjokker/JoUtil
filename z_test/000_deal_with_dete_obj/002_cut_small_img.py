@@ -49,9 +49,9 @@ if __name__ == "__main__":
         OperateDeteRes.crop_imgs(args.img_dir, args.xml_dir, args.save_dir, split_by_tag=args.split_by_tag, augment_parameter=augment_parameter,
                                  exclude_tag_list=exclude_tag_list, include_tag_list=include_tag_list)
     else:
-        img_dir = r"C:\Users\14271\Desktop\jyz_demo"
-        xml_dir = r"C:\Users\14271\Desktop\jyz_demo"
-        save_dir = r"C:\Users\14271\Desktop\看 bug\crop_new"
-        OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.1, 0.1, 0.1, 0.1])
+        img_dir = r"F:\20210923_去方天\res\img"
+        xml_dir = r"F:\20210923_去方天\res\xml"
+        save_dir = r"F:\20210923_去方天\res\crop"
+        OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.3, 0.3, 0.3, 0.3])
         # OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.15, 0.15, 0.15, 0.15], save_augment=True, include_tag_list=["bljyz", "tcjyz"])
 

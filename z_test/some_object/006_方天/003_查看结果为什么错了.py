@@ -7,9 +7,9 @@ import numpy as np
 from JoTools.txkjRes.deteRes import DeteRes
 import os
 
-json_path = r"C:\Users\14271\Desktop\del\res.json"
+json_path = r"F:\20210923_去方天\txkj_res\defect20210923 (4).json"
 
-save_dir = r"C:\Users\14271\Desktop\del\save_fangtian_res"
+save_dir = r"F:\20210923_去方天\res\xml"
 
 a = JsonUtil.load_data_from_json_file(json_path)
 
@@ -55,12 +55,11 @@ for i in range(len(task_list)):
                 # if algo_id == "tuxingkeji":
 
                 x_min, y_min, x_max, y_max = each['xMin'], each['yMin'], each['xMax'], each['yMax']
-                code = each['defectType']
+                code = {"3ADC":'lyy', "D220":'yk', '8898':'ft', 'tuxi':'txkj'}[algo_id[:4]] + '_' + each['defectType']
                 box_type = each['boxType']
 
-                if not(algo_id == "tuxingkeji" or box_type == 2):
-                    continue
-
+                # if not(algo_id == "tuxingkeji" or box_type == 2):
+                #     continue
 
                 if code in code_dict:
                     code_dict[code].append(((x_max - x_min)/(y_max - y_min)))

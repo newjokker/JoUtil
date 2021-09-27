@@ -44,6 +44,7 @@ print("time str : {0}".format(time_str))
 print('-'*50)
 
 # ----------------------------------------------------------------------------------------------------------------------
+
 class SaveLog():
 
     def __init__(self, log_path, img_count, csv_path=None):
@@ -110,22 +111,25 @@ while True:
     elif save_log.img_index > save_log.img_count:
         break
 
-    for each_xml_path in FileOperationUtil.re_all_file(res_dir, endswitch=['.xml']):
+    xml_path_list = FileOperationUtil.re_all_file(res_dir, endswitch=['.xml'])
+
+    time.sleep(5)
+
+    for each_xml_path in xml_path_list:
         print("* {0} {1}".format(dete_img_index, each_xml_path))
+        img_name = img_name_dict[FileOperationUtil.bang_path(each_xml_path)[1]]
         try:
             # wait for write end
-            time.sleep(0.01)
+            time.sleep(0.1)
             each_dete_res = DeteRes(each_xml_path)
-            img_name = img_name_dict[FileOperationUtil.bang_path(each_xml_path)[1]]
-            save_log.add_log(img_name)
             save_log.add_csv_info(each_dete_res, img_name)
         except Exception as e:
             print(e)
+            save_log.add_log(img_name)
             if os.path.exists(each_xml_path):
                 os.remove(each_xml_path)
         dete_img_index += 1
 
-    time.sleep(1)
 
 save_log.close()
 

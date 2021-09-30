@@ -10,39 +10,16 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.CsvUtil import CsvUtil
 
 # ----------------------------------------------------------------------------------------------------------------------
-cmd_str_1 = r"python3 scripts/all_models_flow.py --scriptIndex 3-1"
-cmd_str_2 = r"python3 scripts/all_models_flow.py --scriptIndex 3-2"
-cmd_str_3 = r"python3 scripts/all_models_flow.py --scriptIndex 3-3"
-# ----------------------------------------------------------------------------------------------------------------------
 img_dir = r"/usr/input_picture"
 res_dir = r"/usr/output_dir/save_res"
 log_path = r"/usr/output_dir/log"
 csv_path = r"/usr/output_dir/result.csv"
+res_txt_dir = r"/usr/output_dir/res_txt"
 # ----------------------------------------------------------------------------------------------------------------------
-
 obj_name = "_all_flow"
 time_str = str(time.time())[:10]
-
-bug_file_1 = open(os.path.join("./logs", "bug1_" + time_str + obj_name + ".txt"), "w+")
-bug_file_2 = open(os.path.join("./logs", "bug2_" + time_str + obj_name + ".txt"), "w+")
-bug_file_3 = open(os.path.join("./logs", "bug3_" + time_str + obj_name + ".txt"), "w+")
-
-std_file_1 = open(os.path.join("./logs", "std1_" + time_str + obj_name + ".txt"), "w+")
-std_file_2 = open(os.path.join("./logs", "std2_" + time_str + obj_name + ".txt"), "w+")
-std_file_3 = open(os.path.join("./logs", "std3_" + time_str + obj_name + ".txt"), "w+")
-
-pid_1 = subprocess.Popen(cmd_str_1.split(), stdout=std_file_1, stderr=bug_file_1, shell=False)
-time.sleep(30)
-pid_2 = subprocess.Popen(cmd_str_2.split(), stdout=std_file_2, stderr=bug_file_2, shell=False)
-time.sleep(30)
-pid_3 = subprocess.Popen(cmd_str_3.split(), stdout=std_file_3, stderr=bug_file_3, shell=False)
-
-print('-'*50)
-print("pid_1 : {0}".format(pid_1.pid))
-print("pid_2 : {0}".format(pid_2.pid))
-print("time str : {0}".format(time_str))
-print('-'*50)
-
+mul_process_num = 3
+start_time = time.time()
 # ----------------------------------------------------------------------------------------------------------------------
 
 class SaveLog():
@@ -80,7 +57,30 @@ class SaveLog():
         # save csv
         CsvUtil.save_list_to_csv(self.csv_list, self.csv_path)
 
-# ----------------------------------------------------------------------------------------------------------------------
+def check_res_file_num(res_txt_dir, txt_num):
+
+    for i in range(1, txt_num+1):
+        each_txt_path = os.path.join(res_txt_dir, "{0}.txt".format(i))
+        if not os.path.exists(each_txt_path):
+            return False
+    return True
+
+# --------------------------------------- 001 --------------------------------------------------------------------------
+
+for i in range(1, mul_process_num+1):
+    each_cmd_str = r"python3 scripts/all_models_flow.py --scriptIndex {0}-{1}".format(mul_process_num, i)
+    each_bug_file = open(os.path.join("./logs", "bug{0}_".format(i) + time_str + obj_name + ".txt"), "w+")
+    each_std_file = open(os.path.join("./logs", "std1{0}_".format(i) + time_str + obj_name + ".txt"), "w+")
+    each_pid = subprocess.Popen(each_cmd_str.split(), stdout=each_std_file, stderr=each_bug_file, shell=False)
+    print("pid : {0}".format(each_pid.pid))
+
+# --------------------------------------- 002 --------------------------------------------------------------------------
+
+if os.path.exists(res_txt_dir):
+    shutil.rmtree(res_txt_dir)
+    os.makedirs(res_txt_dir, exist_ok=True)
+else:
+    os.makedirs(res_txt_dir, exist_ok=True)
 
 img_name_dict = {}
 img_path_list = list(FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg', '.JPG', '.png', '.PNG']))
@@ -92,10 +92,7 @@ for each_img_path in img_path_list:
 
 img_count = len(img_path_list)
 save_log = SaveLog(log_path, img_count, csv_path)
-# fixme fix 02
 save_log.read_img_list_finshed()
-
-start_time = time.time()
 max_use_time = 9.5 * img_count
 
 dete_img_index = 1
@@ -107,8 +104,10 @@ while True:
     if now_time - start_time > max_use_time:
         break
     # dete end
-    # fixme fix 01
     elif save_log.img_index > save_log.img_count:
+        break
+    # all end
+    elif check_res_file_num(res_txt_dir, mul_process_num):
         break
 
     xml_path_list = FileOperationUtil.re_all_file(res_dir, endswitch=['.xml'])
@@ -120,12 +119,16 @@ while True:
         img_name = img_name_dict[FileOperationUtil.bang_path(each_xml_path)[1]]
         try:
             # wait for write end
-            time.sleep(0.1)
             each_dete_res = DeteRes(each_xml_path)
+            img_name = img_name_dict[FileOperationUtil.bang_path(each_xml_path)[1]]
+            save_log.add_log(img_name)
             save_log.add_csv_info(each_dete_res, img_name)
+            if os.path.exists(each_xml_path):
+                os.remove(each_xml_path)
         except Exception as e:
             print(e)
             save_log.add_log(img_name)
+            print('-'*50 , 'error' , '-'*50)
             if os.path.exists(each_xml_path):
                 os.remove(each_xml_path)
         dete_img_index += 1
@@ -137,12 +140,5 @@ end_time = time.time()
 img_count = len(img_path_list)
 use_time = end_time - start_time
 print("* check img {0} use time {1} {2} s/pic".format(img_count, use_time, use_time/img_count))
-
-
-
-
-
-
-
 
 

@@ -328,7 +328,6 @@ def get_json_dict(json_path):
         #img_name_json_dict[each["fileName"]] = each["originFileName"]
     return img_name_json_dict
 
-
 def screen(y, img):
     #screen brightness
     _, _, v = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))
@@ -340,32 +339,6 @@ def screen(y, img):
     if blurry<200:
         y='0'
     return y
-
-
-# def get_model_list_from_img_name(img_name, M_list):
-#     """从文件名中获取 model_list，传入的是文件名不是完整的路径"""
-#
-#     model_set = set()
-#     is_empty = True
-#     for each_key in key_M_dict:
-#     # for each_key in key_M_dict:
-#         if each_key in img_name:
-#             is_empty = False
-#             # if key_M_dict[each_key] in M_list:
-#             for each_model_name in key_M_dict[each_key]:
-#                 model_set.add(each_model_name)
-#     if len(model_set) > 0:
-#         return list(model_set)
-#     elif is_empty:
-#         # 模型名真的不带要检测的关键字信息
-#         # 解析不到文件名中的关键字的，用能使用的所有模型
-#         for key in M_list:
-#             for each_model_name in M_model_list[key]:
-#                 model_set.add(each_model_name)
-#         return model_set
-#     else:
-#         return model_set
-
 
 def get_model_list_from_img_name(img_name, M_list):
     """从文件名中获取 model_list，传入的是文件名不是完整的路径"""
@@ -390,9 +363,6 @@ def get_model_list_from_img_name(img_name, M_list):
         return all_model_set
     else:
         return model_set
-
-
-
 
 def model_restore(args, scriptName, model_list=None):
     """模型预热"""
@@ -491,7 +461,6 @@ def model_restore(args, scriptName, model_list=None):
         model_dict["model_jyhqx_3"] = model_jyhQX_3
 
     return model_dict
-
 
 def model_dete(img_path, model_dict, model_list=None):
     """进行模型检测"""
@@ -1059,7 +1028,6 @@ def model_dete(img_path, model_dict, model_list=None):
     torch.cuda.empty_cache()
     
     return dete_res_all
-
 
 def dete_each_img_Path(each_img_path):
 

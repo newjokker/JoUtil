@@ -40,6 +40,14 @@
 
 * txkj_v0.3.9.2 增加多进程机制，在一个 GPU 中起多套模型，同时跑（需要优化的是，在解密模型的时候可能会报错，所以模型要错开启动）
 
+* txkj_v0.3.9.4 修改 abs~_detection.py 支持多线程，
+
+* txkj_v0.4.0.1 开始重头打包模型，控制模型的大小，准备安装 docker
+
+* txkj_v0.4.1.1 ，docker pull pytorch/pytorch:1.5-cuda10.1-cudnn7-runtime
+
+*
+
 ---
 
 * txkj_v0.3.7.6 增加并行脚本，在script 里面，需要修改对应的 lib/detelib/yolov5DetectionPtorch.py

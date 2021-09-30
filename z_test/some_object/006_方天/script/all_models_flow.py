@@ -20,7 +20,6 @@ import threading
 from PIL import Image
 import uuid
 import time
-
 from lib.detect_libs.yolov5Detection import YOLOV5Detection
 from lib.detect_utils.timer import Timer
 from lib.detect_libs.fasterDetectionPyTorch import FasterDetectionPytorch
@@ -48,180 +47,8 @@ from lib.detect_libs.r2cnnPytorchDetection import R2cnnDetection
 from lib.detect_libs.jyhDeeplabDetection import jyhDeeplabDetection
 import judge_angle_fun
 
-
-M_dict = {
-    "M1":"杆塔类",
-    "M2":"导地线类",
-    "M3":"绝缘子类",
-    "M4":"大尺寸金具类",
-    "M5":"小尺寸金具类",
-    "M6":"基础类",
-    "M7":"通道环境类",
-    "M8":"接地装置类",
-    "M9":"附属设施类"
-}
-
-#M_model_list ={
-#    "M1":["nc"],
-#    "M2":[],
-#    "M3":["jyzZB", "jyhQX"],
-#    "M4":["fzc", "fzcRust", "xjQX", "ljcRust"],
-#    "M5":["kkxQuiting", "kkxTC", "kkxRust"],
-#    "M6":[],
-#    "M7":["waipo"],
-#    "M8":[],
-#    "M9":["fncDK"],
-#}
-
-M_model_list ={
-    "M1":["nc"],
-    "M2":[],
-    "M3":["jyzZB", "jyhQX"],
-    "M4":["fzc","xjQX"],
-    "M5":["kkxQuiting", "kkxTC"],
-    "M6":[],
-    "M7":[],
-    "M8":[],
-    "M9":[],
-}
-
-
-key_M_dict = {
-    "杆塔":"M1",
-    "导地线":"M2",
-    "绝缘子":"M3",
-    "大金具":"M4",
-    "小金具":"M5",
-    "基础":"M6",
-    "通道环境":"M7",
-    "接地装置":"M8",
-    "附属设施":"M9",
-}
-
-tag_code_dict = {
-
-    # --------------------------------------------------------------------------------------------------------------
-    # 开口销缺失
-    "K": "040500013",
-
-    # 开口销缺失
-    "kkxTC": "040500023",
-
-    # 安装不规范
-    "illegal": "040500023",
-
-    # 销钉锈蚀
-    "K_KG_rust": "040500033",
-
-    # 螺母锈蚀
-    "Lm_rust": "040501013",
-    # --------------------------------------------------------------------------------------------------------------
-
-    # 鸟巢蜂巢
-    "nc": "010000021",
-    "fw": "010000021",
-
-    # 玻璃绝缘子自爆
-    "jyzzb": "030100023",
-
-    # 绝缘子污秽
-    "abnormal": "030100011",
-
-    # 均压环倾斜
-    "fail": "030200131",
-
-    # 金具锈蚀
-    "rust": "040000011",
-
-    # 防振锤锈蚀
-    "fzc_rust": "040303031",
-
-    # 防振锤破损
-    #"fzc_broken": "040303021",
-
-    "sg": "040402011",
-
-    # --------------------------------------------------------------------------------------------------------------
-    # 吊塔
-    "TowerCrane": "060800013",
-
-    # 推土机
-    "Bulldozer": "060800023",
-
-    # 挖掘机
-    "Digger": "060800033",
-
-    "CementPumpTruck_yb": "060800033",
-    # --------------------------------------------------------------------------------------------------------------
-
-    # 线夹缺垫片
-    "dp_missed": "040001042",
-
-    # 线夹缺倾斜
-    "XJfail": "040000071",
-
-    # 防鸟刺安装不规范
-    "fncBGF": "070400031",
-
-    # 防鸟刺未打开
-    "weidakai": "070400021",
-
-    # jiedi
-    "050000011": "050000011",
-    "050001012": "050001012",
-
-    # jichu
-    "000000181": "000000051",
-    "000000151": "000000151",
-    "000000081": "000000081",
-    "000000051": "000000051",
-}
-
-
-def xml_to_csv(xml_dir, csv_save_path):
-    """将保存的 xml 文件信息存放在 csv 文件中"""
-    csv_list = [['filename', 'code', 'score', 'xmin', 'ymin', 'xmax', 'ymax']]
-
-
-    CsvUtil.save_list_to_csv(csv_list, csv_save_path)
-
-
-class SaveLog():
-
-    def __init__(self, log_path, img_count, csv_path=None):
-        self.log_path = log_path
-        self.img_count = img_count
-        self.img_index = 1
-        self.csv_path = csv_path
-        self.csv_list = [['filename', 'name', 'score', 'xmin', 'ymin', 'xmax', 'ymax']]
-        # empty log
-        if os.path.exists(self.log_path):
-            os.remove(self.log_path)
-
-    def add_log(self, img_name):
-        self.log = open(self.log_path, 'a')
-        self.log.write("process:{0}/{1} {2}\n".format(self.img_index, self.img_count, img_name))
-        self.img_index += 1
-        self.log.close()
-
-    def add_csv_info(self, dete_res, img_name):
-        #
-        for dete_obj in dete_res:
-            if dete_obj.tag in tag_code_dict:
-                each_code = tag_code_dict[dete_obj.tag]
-                self.csv_list.append([img_name, each_code, dete_obj.conf, dete_obj.x1, dete_obj.y1, dete_obj.x2, dete_obj.y2])
-
-    def read_img_list_finshed(self):
-        self.log = open(self.log_path, 'a')
-        self.log.write("Loading Finished\n")
-        self.log.close()
-
-    def close(self):
-        self.log = open(self.log_path, 'a')
-        self.log.write("---process complete---\n")
-        self.log.close()
-        # save csv
-        CsvUtil.save_list_to_csv(self.csv_list, self.csv_path)
+#
+from .model_data import M_dict, tag_code_dict, key_M_dict, M_model_list
 
 
 def parse_args():
@@ -231,6 +58,8 @@ def parse_args():
     parser.add_argument('--modelList',dest='modelList',default="M1,M2,M3,M4,M5,M6,M7,M8,M9")
     parser.add_argument('--jsonPath',dest='jsonPath', default=r"/usr/input_picture_attach/pictureName.json")
     parser.add_argument('--outputDir',dest='outputDir', default=r"/usr/output_dir")
+    # 
+    parser.add_argument('--scriptIndex',dest='scriptIndex', default=r"1-1")
     #
     parser.add_argument('--gpuID', dest='gpuID',type=int,default=0)
     parser.add_argument('--port',dest='port',type=int,default=45452)
@@ -248,8 +77,7 @@ def get_json_dict(json_path):
     #
     name_info = JsonUtil.load_data_from_json_file(json_path)
     for each in name_info:
-        img_name_json_dict[each["originFileName"]] = each["fileName"]
-        #img_name_json_dict[each["fileName"]] = each["originFileName"]
+        img_name_json_dict[each["fileName"]] = each["originFileName"]
     return img_name_json_dict
 
 
@@ -268,25 +96,25 @@ def screen(y, img):
 
 def get_model_list_from_img_name(img_name, M_list):
     """从文件名中获取 model_list，传入的是文件名不是完整的路径"""
-
     model_set = set()
+    all_model_set = set()
+    for key in M_list:
+        for each_model_name in M_model_list[key]:
+            all_model_set.add(each_model_name)
+
     is_empty = True
     for each_key in key_M_dict:
     # for each_key in key_M_dict:
         if each_key in img_name:
             is_empty = False
-            if key_M_dict[each_key] in M_list:
-                for each_model_name in M_model_list[key_M_dict[each_key]]:
+            # if key_M_dict[each_key] in M_list:
+            for each_model_name in key_M_dict[each_key]:
+                if each_model_name in all_model_set:
                     model_set.add(each_model_name)
     if len(model_set) > 0:
         return list(model_set)
     elif is_empty:
-        # 模型名真的不带要检测的关键字信息
-        # 解析不到文件名中的关键字的，用能使用的所有模型
-        for key in M_list:
-            for each_model_name in M_model_list[key]:
-                model_set.add(each_model_name)
-        return model_set
+        return all_model_set
     else:
         return model_set
 
@@ -298,7 +126,6 @@ def model_restore(args, scriptName, model_list=None):
     
     if model_list is None:
         model_list = ['nc' ,'jyzZB', 'fzc', 'fzcRust', 'ljcRust', 'fncDK', 'kkxTC', 'kkxQuiting', 'kkxRust', 'waipo', 'xjQX', 'jyhQX']
-    
      
     if "xjQX" in model_list:
         model_xjQX_1 = ljcR2cnnDetection(args, "ljjxj", scriptName)
@@ -315,8 +142,7 @@ def model_restore(args, scriptName, model_list=None):
         model_jyzZB_2.model_restore()
         model_dict["model_jyzZB_1"] = model_jyzZB_1
         model_dict["model_jyzZB_2"] = model_jyzZB_2
-       
-    
+
     if "nc" in model_list:
         model_nc = YOLOV5Detection(args, "nc", scriptName)
         model_nc.model_restore()
@@ -330,19 +156,16 @@ def model_restore(args, scriptName, model_list=None):
         model_dict["model_fzc_1"] = model_fzc_1
         model_dict["model_fzc_2"] = model_fzc_2
         
-        
     if "fzcRust" in model_list:
         model_fzc_rust = ClsDetectionPyTorch(args, "fzc_rust", scriptName)
         model_fzc_rust.model_restore()
         model_dict["model_fzc_rust"] = model_fzc_rust
-    
-    
+
     if "fncDK" in model_list:
         model_fnc = YOLOV5Detection(args, "fnc", scriptName)
         model_fnc.model_restore()
         model_dict["model_fnc"] = model_fnc
-        
-        
+
     if "kkxTC" in model_list or "kkxQuiting" in model_list or "kkxRust" in model_list:
         model_kkxTC_1 = LjcDetection(args, "kkxTC_ljc", scriptName)
         model_kkxTC_1.model_restore()
@@ -535,7 +358,7 @@ def model_dete(img_path, model_dict, model_list=None):
                     # rust
                     if new_label in ["yt", "zd_yt"]:
                         crop_array_rust = dete_res_fzc.get_sub_img_by_dete_obj(each_dete_obj, RGB=False)
-                        rust_index, rust_f = model_fzc_rust.detect_fzc(crop_array_rust)
+                        rust_index, rust_f = model_fzc_rust.detect(crop_array_rust)
                         rust_label = ["fzc_normal","fzc_rust"][int(rust_index)]
                         rust_f = float(rust_f)
                         # 
@@ -598,7 +421,7 @@ def model_dete(img_path, model_dict, model_list=None):
                 model_kkxQuiting = model_dict["model_kkxQuiting"]
 
             # kkxTC_1
-            kkxTC_1_out = model_kkxTC_1.detect_fzc(im, name)
+            kkxTC_1_out = model_kkxTC_1.detect(im, name)
             if len(kkxTC_1_out[0]) > 0:
                 voc_labels = model_kkxTC_1.post_process(*kkxTC_1_out)
                 # MYLOG.info("detect result:", voc_labels)
@@ -631,7 +454,7 @@ def model_dete(img_path, model_dict, model_list=None):
                 #each_sub_array = kkxTC_1_dete_res.get_sub_img_by_dete_obj(each_dete_obj,RGB=True)
                 each_sub_array = kkxTC_1_dete_res.get_sub_img_by_dete_obj_from_crop(each_dete_obj, RGB=False)
                 # 小金具定位检测结果集合 on a ljc martrix-cap
-                kkxTC_2_out = model_kkxTC_2.detect_fzc(each_sub_array, name)
+                kkxTC_2_out = model_kkxTC_2.detect(each_sub_array, name)
                 if len(kkxTC_2_out[0]) > 0:
                     voc_labels = model_kkxTC_2.post_process(*kkxTC_2_out)
                     ## 过滤最小尺寸 ##
@@ -688,7 +511,7 @@ def model_dete(img_path, model_dict, model_list=None):
    
                 #print("* ", label, prob)
    
-                label, prob = model_kkxTC_3.detect_fzc(each_im, 'resizedName')
+                label, prob = model_kkxTC_3.detect(each_im, 'resizedName')
                 label = str(label)
                 each_dete_obj.conf = float(prob)
                 each_dete_obj.des = each_dete_obj.tag
@@ -723,7 +546,7 @@ def model_dete(img_path, model_dict, model_list=None):
                     if "kkxQuiting" in model_list:
                         # 0:销脚可见 1:退出 2:销头销脚正对
                         if each_dete_obj.tag in ["Xnormal"]:
-                            label, prob = model_kkxQuiting.detect_fzc(each_im, 'resizedName')
+                            label, prob = model_kkxQuiting.detect(each_im, 'resizedName')
                             if label == '1' and prob > 0.5:
                                 new_dete_obj = each_dete_obj.deep_copy()
                                 new_dete_obj.tag = 'kkxTC'
@@ -760,7 +583,7 @@ def model_dete(img_path, model_dict, model_list=None):
             # ljc rust 1
             dete_res_ljc = model_ljc_rust_1.detectSOUT(path=data['path'], image_name=name)
             #print("ljc rust 001 start")
-            dete_res_ljc.print_as_fzc_format()
+            #dete_res_ljc.print_as_fzc_format()
             #print("ljc rust 001 end")
             dete_res_ljc.do_nms(0.3, ignore_tag=True)
             #kkxTC_1_save_dir = model_kkxTC_1.resizedImgPath
@@ -770,7 +593,7 @@ def model_dete(img_path, model_dict, model_list=None):
             # ljc rust 2
             for each_dete_obj in dete_res_ljc:
                 each_im = dete_res_ljc.get_sub_img_by_dete_obj(each_dete_obj)
-                tag, conf = model_ljc_rust_2.detect_fzc(each_im)
+                tag, conf = model_ljc_rust_2.detect(each_im)
                 # logic
                 # fixme screen ???
                 tag = screen(tag, each_im)
@@ -809,14 +632,14 @@ def model_dete(img_path, model_dict, model_list=None):
             xjQX_dete_res = DeteRes()
             #xjQX_dete_res.img_path = data['path']
 
-            detectBoxes = model_xjQX_1.detect_fzc(im, name)
+            detectBoxes = model_xjQX_1.detect(im, name)
             results = model_xjQX_1.postProcess(im, name, detectBoxes)
             
             # 
             for xjBox in results:
                 resizedName = xjBox['resizedName']
                 resizedImg = im[xjBox['ymin']:xjBox['ymax'],xjBox['xmin']:xjBox['xmax']]
-                segImage = model_xjQX_2.detect_fzc(resizedImg, resizedName)
+                segImage = model_xjQX_2.detect(resizedImg,resizedName)
                 result = model_xjQX_2.postProcess(segImage,resizedName,xjBox)
                 
                 # add obj
@@ -881,8 +704,8 @@ def model_dete(img_path, model_dict, model_list=None):
             # ----------------------------------------------------------------------------------------------------------
 
             for each_dete_obj in jyhqx_1_dete_res:
-                each_im = dete_res.get_sub_img_by_dete_obj(each_dete_obj)
-                a = model_jyhqx_2.detect_fzc(each_im, name)
+                each_im = jyhqx_1_dete_res.get_sub_img_by_dete_obj(each_dete_obj)
+                a = model_jyhqx_2.detect(each_im, name)
                 #
                 if len(a) < 1:
                     # dete_res.del_dete_obj(each_dete_obj)
@@ -905,8 +728,8 @@ def model_dete(img_path, model_dict, model_list=None):
                 im = jyhqx_1_dete_res.get_sub_img_by_dete_obj(each_dete_obj, RGB=False)
                 # print(dete_res_3.width,dete_res_3.height)
                 x_add, y_add = each_dete_obj.x1, each_dete_obj.y1
-                seg_image = model_jyhqx_3.detect_fzc(im, 'resizedName')
-                result = model.postProcess(seg_image, 'resizedName')
+                seg_image = model_jyhqx_3.detect(im, 'resizedName')
+                result = model_jyhqx_3.postProcess(seg_image, 'resizedName')
 
                 # fixme 看一下这一步是不是需要
                 if not result:
@@ -931,25 +754,24 @@ def model_dete(img_path, model_dict, model_list=None):
             dete_res_all += jyhqx_1_dete_res
 
             # ----------------------------------------------------------------------------------------------------------
-
-
-
-
         except Exception as e:
             print("error")
             print(e)
             print(e.__traceback__.tb_frame.f_globals["__file__"])
             print(e.__traceback__.tb_lineno)
-
-    # print
+    
+    # filter by tags
+    dete_res_all.filter_by_tags(need_tag=list(tag_code_dict.keys()))
+    # update tags 
+    dete_res_all.update_tags(tag_code_dict)
+    # save xml 
     dete_res_all.print_as_fzc_format()
-
-    save_dir = output_dir
+    save_dir = os.path.join(output_dir, "save_res")
     os.makedirs(save_dir, exist_ok=True)
     each_save_name = os.path.split(img_path)[1]
     each_save_path = os.path.join(save_dir, each_save_name)
     each_save_path_xml = os.path.join(save_dir, each_save_name[:-4] + '.xml')
-    dete_res_all.draw_dete_res(each_save_path)
+    #dete_res_all.draw_dete_res(each_save_path)
     dete_res_all.save_to_xml(each_save_path_xml)
 
     # empty cache
@@ -961,28 +783,26 @@ def model_dete(img_path, model_dict, model_list=None):
 
 if __name__ == '__main__':
 
-    start_time = time.time()
-
     args = parse_args()
 
-    # input: (1) model_list (str)
+    start_time = time.time()
 
-    # output (1) csv, log  | programe.log
-
-    # fixme 同一个位置只能输出一个框，按照重要性进行排序
-    
     # ---------------------------
     img_dir = args.imgDir.strip()
     json_path = args.jsonPath
     output_dir = args.outputDir.strip()
     log_path = os.path.join(output_dir, "log")
     csv_path = os.path.join(output_dir, "result.csv")
+    #
+    script_num, script_index = args.scriptIndex.strip().split('-')
+    script_num, script_index = int(script_num), int(script_index)
     # ---------------------------
     print('-'*50)
     print("* {0} : {1}".format("img_dir", img_dir))
     print("* {0} : {1}".format("json_path", json_path))
     print("* {0} : {1}".format("log_path", log_path))
     print("* {0} : {1}".format("csv_path", csv_path))
+    print("* script_num-script_index : {0}-{1}".format(script_num, script_index))
     print('-'*50)
     # ---------------------------
 
@@ -995,60 +815,46 @@ if __name__ == '__main__':
     # get img
     img_path_list = list(FileOperationUtil.re_all_file(img_dir, lambda x:str(x).endswith(('.jpg', '.JPG', '.png', '.PNG'))))
 
-    # init log
-    dete_log = SaveLog(log_path, len(img_path_list), csv_path)
-    dete_log.read_img_list_finshed()
-
     # warm up
     print("* start warm model ")
     scriptName = os.path.basename(__file__).split('.')[0]
     #
-    # all_model_list = ['nc' ,'jyzZB', 'fzc', 'fzcRust', 'ljcRust', 'fncDK', 'kkxTC', 'kkxQuiting', 'kkxRust', 'waipo', 'xjQX']
-    # all_model_list = ['nc' ,'jyzZB', 'fzc', 'fzcRust', 'kkxTC', 'kkxQuiting', 'xjQX', 'jyhQX']
-    all_model_list = ['jyhQX']
+    all_model_list = ['nc' ,'jyzZB', 'fzc', 'fzcRust', 'kkxTC', 'kkxQuiting', 'xjQX', 'jyhQX']
 
     model_dict = model_restore(args, scriptName, all_model_list)
     print("* warm model success ")
 
+    # max use time
+    max_use_time = 9.5 * len(img_path_list)
+
     # dete
-    for each_img_path in img_path_list:
-        print(each_img_path)
-        #
+    for each_img_index in range(script_index-1, len(img_path_list), script_num):
+        each_img_path = img_path_list[each_img_index]
         each_img_name = os.path.split(each_img_path)[1]
         if each_img_name in img_name_json_dict:
             each_img_chinese_name = img_name_json_dict[each_img_name]
         else:
-            each_img_chinese_name = " "
+            each_img_chinese_name = each_img_name
         #
         try:
+            # over time continue 
             each_model_list = get_model_list_from_img_name(each_img_chinese_name, assign_model_list)
-            print("* each_model_list ：{0}".format(each_model_list))
             each_dete_res = model_dete(each_img_path, model_dict, each_model_list)
-            dete_log.add_csv_info(each_dete_res, each_img_name)
         except Exception as e:
             print(e)
             print(e.__traceback__.tb_frame.f_globals["__file__"])
             print(e.__traceback__.tb_lineno)
 
-        dete_log.add_log(each_img_name)
-        #
-        print('-'*50)
+    end_time = time.time()
+    # add file to output_dir
+    res_txt = os.path.join(output_dir, "res_txt")
+    os.makedirs(res_txt, exist_ok=True)
+    txt_path = os.path.join(res_txt, "{0}.txt".format(script_index))
 
-    #
-    dete_log.close()
+    # send a signal dete success
+    with open(txt_path, 'w') as txt_file:
+        txt_file.write('done')
 
-    stop_time = time.time()
-
-    print("use time : {0} s ",format(stop_time - start_time))
-
+    print("* check img {0} use time {1}".format(len(img_path_list), end_time - start_time))
 
 
-    
-    
-        
-        
-        
-        
-        
-        
-        

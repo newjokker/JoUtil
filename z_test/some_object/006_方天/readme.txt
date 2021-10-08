@@ -46,9 +46,20 @@
 
 * txkj_v0.4.1.1 ，docker pull pytorch/pytorch:1.5-cuda10.1-cudnn7-runtime
 
-*
+* fangtian_v0.4.1.3，完成全部模型需要的环境，模型还未放进去，[将代码放在docker外面可能会导致代码运行速度非常慢]
+
+* fangtian_v0.4.1.4，模型放到根目录下了，模型加环境大小为 12.4G
+
+* todo 确认新修改的模型中解决了未生成文件夹就报 bug 的问题
+
+
 
 ---
 
 * txkj_v0.3.7.6 增加并行脚本，在script 里面，需要修改对应的 lib/detelib/yolov5DetectionPtorch.py
+
+
+
+
+
 

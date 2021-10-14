@@ -7,9 +7,9 @@ from JoTools.utils.CsvUtil import CsvUtil
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
-csv_path = r"C:\Users\14271\Desktop\check_res\002_result.csv"
-img_dir = r"C:\Users\14271\Desktop\check_res\input_dir"
-save_dir = r"C:\Users\14271\Desktop\check_res\xml"
+csv_path = r"C:\Users\14271\Desktop\cut_img\result.csv"
+img_dir = r"C:\Users\14271\Desktop\cut_img\img"
+save_dir = r"C:\Users\14271\Desktop\cut_img\xml"
 
 
 def find_img_path_from_name(img_path_list, img_name):

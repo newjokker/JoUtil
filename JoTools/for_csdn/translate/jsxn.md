@@ -1,22 +1,26 @@
-# bride
+# corpse bride
+
+[00:01:53]
 
 - Good morning. - Good morning.
 
-Here ye, here ye, 10 minutes to go till Van Dort's wedding rehearsal.
+Here ye, here ye, 10 minutes to go till Van Dort's **wedding rehearsal**.
 
 Watch it!
+
+[00:02:28]
 
 - It's a beautiful day - It's a rather nice day
 
 A day for a glorious wedding
 
-A rehearsal, my dear To be perfectly clear
-
+A **rehearsal**, my dear To be perfectly clear
+ 
 A rehearsal for a glorious wedding
 
-Assuming nothing happens that we don 't really know
+**Assuming** nothing happens that we don't really know
 
-That nothing unexpected interferes with the show
+That nothing  **unexpected interferes** with the show
 
 And that's why everything. Every last little thing
 
@@ -26,25 +30,27 @@ Every single, tiny, microscopic little thing must go
 
 - According to plan - Our family carried
 
-Elevated to the heights of society
+**Elevated to** the heights of society
 
-- To the costume balls - In the hallowed halls
+- To the **costume balls** - In the **hallowed halls**
 
-Rubbing elbows with the finest
+**Rubbing elbows with the finest**
 
-Having crumpets with her highness
+**Having crumpets with her highness**
 
 We'll be there, we'll be seen having tea with the queen
 
 We'll forget everything that we 've ever, ever been
 
-- Blimey! It's my dress is caught. - Begging your pardon, ma' am.
+- Blimey! It's my dress **is caught**. - **Begging your pardon**, ma' am.
 
 - Come on, dear. - It's not me. It's my dress is caught.
 
 Where is Victor? We might be late.
 
-Fish merchants.
+[00:03:30]
+
+**Fish merchants**.
 
 - It's a terrible day - Now, don 't be that way
 
@@ -52,21 +58,19 @@ It's a terrible day for a wedding
 
 It's a sad, sad state of affairs we're in
 
-That has led to this ominous wedding
+That has led to this **ominous wedding**
 
 How could our family have come to this?
 
-To marry off our daughter to the nouveau riche
+To marry off our daughter to the **nouveau riche**
 
-- They're so common - So coarse
+- They're so common - **So coarse**
 
 - Oh, it couldn 't be worse - Couldn 't be worse? I'm afraid I disagree
 
-They could be land-rich, Bankrupt aristocracy
+They could be land-rich, **Bankrupt aristocracy**
 
-Without a penny to their name
-
-Just like you and me
+**Without a penny to their name** Just like you and me
 
 Oh, dear.
 
@@ -78,13 +82,13 @@ Every single, tiny, microscopic little thing must go
 
 - According to plan - Our family led
 
-From the depths of deepest poverty
+From the depths of **deepest poverty**
 
-- To the noble realm - Of our ancestry
+- To the noble realm - Of our **ancestry**
 
 And who would have guessed in a million years
 
-- That our daughter with a face - Of an otter in disgrace
+- That our daughter with a face - **Of an otter in disgrace**
 
 Would provide our ticket to a rightful place
 
@@ -100,27 +104,29 @@ Surely you must a little?
 
 - Of course not. - Of course not.
 
-Get those corsets laced properly.
+Get those **corsets laced properly**.
 
-I can hear you speak without gasping.
+I can hear you speak without **gasping**.
 
-You've certainly hooked a winner this time, Victor.
+[00:05:18]
 
-- Now, all you have to do is reel her in. - I'm already reeling, Mother.
+You've certainly **hooked a winner** this time, Victor.
+
+- Now, all you have to do is **reel her in**. - I'm already **reeling**, Mother.
 
 Shouldn't Victoria Everglot be marrying a lord or something?
 
-Oh, nonsense! We're every bit as good as the Everglots.
+Oh, **nonsense**! We're every bit as good as the Everglots.
 
-I always knew I deserved better than a fish merchant's life.
+I always knew I deserved better than a **fish merchant's** life.
 
 But I've never even spoken to her.
 
-Well, at least we have that in our favor.
+Well, at least **we have that in our favor**.
 
-Mayhew! Silence that blasted coughing.
+Mayhew! Silence that **blasted coughing**.
 
-Marriage is a partnership, a little tit for tat.
+Marriage is a **partnership**, **a little tit for tat**.
 
 You'd think a lifetime watching us...
 
@@ -138,17 +144,19 @@ Every single, tiny, microscopic little thing must go
 
 According to plan
 
+[00:06:23]
+
 Look at the way you're standing.
 
-You look like you got rickets or something...
+You look like you got **rickets** or something...
 
-Oh, my goodness. Oh, such grandeur! Such impeccable taste!
+Oh, my goodness. Oh, **such grandeur**! **Such impeccable taste**!
 
-Oh, beautiful, innit?
+Oh, beautiful, **innit**?
 
 It's not as big as our place, dear.
 
-- Bit shabby really, isn't it? - Shut up.
+- Bit **shabby** really, isn't it? - Shut up.
 
 Lord and Lady Everglot...
 
@@ -164,17 +172,19 @@ Well, hello. What a pleasure. Welcome to our home.
 
 Thank you.
 
-We'll be taking tea in the west drawing room.
+We'll be taking tea in the west **drawing room**.
 
 Oh, do come this way, it's just through there.
 
-Oh, I love what you've done with the place. Who is your decorator?
+Oh, I love what you've done with the place. Who is your **decorator**?
 
-Nice tiles, shame about the drapes.
+Nice **tiles**, shame about the **drapes**.
 
 My husband says such foolish things. Ignore him.
 
 Yes, it's usually best.
+
+[00:09:08]
 
 - Do forgive me. - You play beautifully.
 
@@ -186,15 +196,15 @@ Excuse me.
 
 Mother won't let me near the piano.
 
-Music is improper for a young lady.
+Music is **improper** for a young lady.
 
-Too passionate, she says.
+Too **passionate**, she says.
 
 If I may ask, Miss Everglot...
 
 where is your chaperon?
 
-Perhaps, in view of the circumstances...
+Perhaps, **in view of the circumstances**...
 
 you could call me Victoria.
 
@@ -208,7 +218,7 @@ M... M...
 
 - Married. - Yes. Married.
 
-Since I was a child, I've dreamt of my wedding day.
+Since I was a child, I've **dreamt** of my wedding day.
 
 I always hoped to find someone I was deeply in love with.
 
@@ -220,17 +230,19 @@ No. No, not at all, no.
 
 Oh, dear. I'm sorry.
 
-What impropriety is this?
+[00:10:31]
+
+What **impropriety** is this?
 
 You shouldn't be alone together.
 
 Here it is, one minute before 5, and you're not at the rehearsal.
 
-Pastor Galswells is waiting. Come at once.
+**Pastor Galswells** is waiting. **Come at once**.
 
 Master Van Dort, from the beginning. Again.
 
-"With this hand, I will lift your sorrows.
+"With this hand, I will lift your **sorrows**.
 
 Your cup will never empty, for I will be your wine.
 
@@ -246,7 +258,7 @@ This candle...
 
 This candle...
 
-- Shall I get up there and do it for him? - Don't get all aflutter, dear.
+- Shall I get up there and do it for him? - **Don't get all aflutter**, dear.
 
 With this candle...
 
@@ -314,6 +326,8 @@ Young man, learn your vows.
 
 Well, he's quite the catch, isn't he?
 
+[00:14:38]
+
 Oh, Victoria.
 
 She must think I'm such a fool. This day couldn't get any worse.
@@ -370,7 +384,9 @@ I do.
 
 You may kiss the bride.
 
-- A new arrival. - He must've fainted.
+[00:18:57]
+
+- A new arrival. - He must've **fainted**.
 
 - Are you all right? - What? What happened?
 
@@ -382,9 +398,9 @@ A toast, then.
 
 To the newlyweds.
 
-Newlyweds?
+**Newlyweds**?
 
-In the woods, you said your vows so perfectly.
+**In the woods**, you said your vows so perfectly.
 
 I did?
 
@@ -392,23 +408,25 @@ I did.
 
 Wake up! Wake up! Wake up!
 
-Coming through, coming through.
+**Coming through**, coming through.
 
-My name is Paul, I am the head waiter.
+My name is Paul, I am the **head waiter**.
 
-I will be creating your wedding feast.
+I will be **creating your wedding feast**.
 
-Wedding feast! I'm salivating.
+Wedding feast! I'm **salivating**.
 
-Maggots.
+**Maggots**.
 
 Keep away!
 
-I've got a... I've got a dwarf.
+I've got a... I've got a **dwarf**.
 
 And I'm not afraid to use him. I want some questions. Now!
 
 - Answers. I think you mean "answers." - Thank you, yes, answers.
+
+[00:20:13]
 
 I need answers. What's going on here? Where am l?
 
@@ -418,9 +436,9 @@ Well, that's kind of a long story.
 
 What a story it is.
 
-A tragic tale of romance, passion...
+A **tragic tale** of **romance**, **passion**...
 
-and murder most foul.
+and murder most **foul**.
 
 This is gonna be good.
 

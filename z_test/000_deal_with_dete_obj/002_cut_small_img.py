@@ -49,9 +49,9 @@ if __name__ == "__main__":
         OperateDeteRes.crop_imgs(args.img_dir, args.xml_dir, args.save_dir, split_by_tag=args.split_by_tag, augment_parameter=augment_parameter,
                                  exclude_tag_list=exclude_tag_list, include_tag_list=include_tag_list)
     else:
-        img_dir = r"C:\Users\14271\Desktop\cut_img\img"
-        xml_dir = r"C:\Users\14271\Desktop\cut_img\xml"
-        save_dir = r"C:\Users\14271\Desktop\cut_img\crop"
-        OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.3, 0.3, 0.3, 0.3])
+        img_dir = r"C:\Users\14271\Desktop\fangtian_fix_model\fangtian_test_data\nc_kkx"
+        xml_dir = r"C:\Users\14271\Desktop\fangtian_test\005_xml"
+        save_dir = r"C:\Users\14271\Desktop\fangtian_test\005_crop"
+        OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.1, 0.1, 0.1, 0.1])
         # OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.15, 0.15, 0.15, 0.15], save_augment=True, include_tag_list=["bljyz", "tcjyz"])
 

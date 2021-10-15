@@ -239,29 +239,34 @@ if __name__ == "__main__":
     salt = 'txkj2019'
     bkey32 = "{: <32}".format(salt).encode("utf-8")
 
-    args = args_parse()
+    # args = args_parse()
+    #
+    # operations = {
+    #     'en':  single_project_models_encrypt,       # 加密单个模型
+    #     'de': single_project_models_decrypt,        # 解密单个模型
+    #     'csrc': single_project_srcmodels_clear,     # 删除未加密的模型文件
+    #     'cdst': single_project_dstmodels_clear,     # 删除加密的模型文件
+    # }
+    # op_name = {
+    #     'en': 'encrypt',
+    #     'de': 'decrypt',
+    #     'csrc': 'clear src',
+    #     'cdst': 'clear dst',
+    # }
+    # operation = operations[args.operation]
+    #
+    # #修改点1：工程文件夹路径
+    # BGL_dir = '/root/BGL-Release/BGL-platform/testdir/modeldata'
+    #
+    # #修改点2：需要加密的工程
+    # project_name_list = ['kkxTC']
+    #
+    # main(BGL_dir, project_name_list, operation)
 
-    operations = {
-        'en':  single_project_models_encrypt,       # 加密单个模型
-        'de': single_project_models_decrypt,        # 解密单个模型
-        'csrc': single_project_srcmodels_clear,     # 删除未加密的模型文件
-        'cdst': single_project_dstmodels_clear,     # 删除加密的模型文件
-    }
-    op_name = {
-        'en': 'encrypt',
-        'de': 'decrypt',
-        'csrc': 'clear src',
-        'cdst': 'clear dst',
-    }
-    operation = operations[args.operation]
-
-    #修改点1：工程文件夹路径
-    BGL_dir = '/root/BGL-Release/BGL-platform/testdir/modeldata'
-
-    #修改点2：需要加密的工程
-    project_name_list = ['kkxTC']
-
-    main(BGL_dir, project_name_list, operation)
+    model_dir = r""
+    model_name = ""
+    ext = ""
+    single_model_encrypt(model_dir, model_name, ext)
 
 
 

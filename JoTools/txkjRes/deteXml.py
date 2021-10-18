@@ -207,3 +207,9 @@ def save_to_xml_wh_format(xml_info, xml_path):
     """按照武汉的格式保存 xml """
     a = ParseXml()
     a.save_to_xml_wh_format(save_path=xml_path, assign_xml_info=xml_info)
+
+
+def parse_xml_as_txt(xml_path):
+    """使用读取存文本的方式读取 xml """
+    pass
+

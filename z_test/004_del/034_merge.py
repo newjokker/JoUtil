@@ -12,6 +12,6 @@ a.do_nms(0.3)
 
 print(len(a))
 
-
+a.print_as_fzc_format()
 
 

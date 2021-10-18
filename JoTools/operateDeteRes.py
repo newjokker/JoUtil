@@ -804,6 +804,8 @@ class OperateTrainData(object):
 class PR_chat():
     """PR曲线图表，自动出 excel 里面有 PR 曲线表"""
 
+    # todo 支持多个标签的 pr 曲线，
+
 
 
 

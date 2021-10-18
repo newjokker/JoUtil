@@ -556,7 +556,6 @@ class OperateDeteRes(object):
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    @DecoratorUtil.time_this
     def get_class_count(xml_folder, print_count=False, filter_func=None):
         """查看 voc xml 的标签"""
         xml_info, name_dict = [], {}

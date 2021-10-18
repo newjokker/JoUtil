@@ -4,7 +4,6 @@
 
 from ..utils.XmlUtil import XmlUtil
 
-
 # fixme 重写这个函数，速度更快
 
 class ParseXml(object):
@@ -189,7 +188,6 @@ class ParseXml(object):
 
         # 保存 xml 到文件
         XmlUtil.save_xml(root, save_path)
-
 
 def parse_xml(xml_path):
     """简易的函数使用版本"""

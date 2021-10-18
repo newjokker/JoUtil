@@ -12,7 +12,7 @@ from .txkjRes.deteAngleObj import DeteAngleObj
 from .txkjRes.deteObj import DeteObj
 from .utils.DecoratorUtil import DecoratorUtil
 from .utils.FileOperationUtil import FileOperationUtil
-from .txkjRes.deteXml import parse_xml
+from .txkjRes.deteXml import parse_xml, parse_xml_as_txt
 from .utils.NumberUtil import NumberUtil
 from .txkjRes.resTools import ResTools
 from .txkjRes.deteObj import DeteObj
@@ -556,6 +556,7 @@ class OperateDeteRes(object):
     # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
+    @DecoratorUtil.time_this
     def get_class_count(xml_folder, print_count=False, filter_func=None):
         """查看 voc xml 的标签"""
         xml_info, name_dict = [], {}
@@ -563,7 +564,8 @@ class OperateDeteRes(object):
         xml_list = FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml'))
         #
         for xml_index, each_xml_path in enumerate(xml_list):
-            each_xml_info = parse_xml(each_xml_path)
+            # each_xml_info = parse_xml(each_xml_path)
+            each_xml_info = parse_xml_as_txt(each_xml_path)
             xml_info.append(each_xml_info)
             for each_name in each_xml_info['object']:
                 if each_name['name'] not in name_dict:

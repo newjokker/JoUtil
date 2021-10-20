@@ -104,6 +104,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
 
 # todo 查看图片三个波段反了是因为，用的 cv2.imwrite() 保存的图片
 
+# todo crop_dete_obj 等于 crop_and_save 不用把同样的功能实现两遍
 
 class DeteRes(ResBase, ABC):
     """检测结果"""
@@ -338,6 +339,7 @@ class DeteRes(ResBase, ABC):
         # todo 会生成两个文件 （1）classes.txt 存放类别信息 （2）文件名.txt 存放标注信息，tag mx my w h , mx my 为中心点坐标
         pass
 
+    @DecoratorUtil.time_this
     def crop_dete_obj(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
@@ -403,6 +405,75 @@ class DeteRes(ResBase, ABC):
             # each_crop.save(each_save_path, quality=95)
             each_crop.save(each_save_path)
 
+    @DecoratorUtil.time_this
+    def crop_dete_obj_new(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
+        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
+        * augment_parameter = [0.5, 0.5, 0.2, 0.2]
+        """
+        # fixme 存储 crop 存的文件夹，
+
+        if self.img_ndarry is None:
+            self.img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+        #
+        if assign_img_name is not None:
+            img_name = assign_img_name
+        else:
+            if self.file_name:
+                img_name = os.path.split(self.file_name)[1][:-4]
+            elif self.img_path is not None :
+                img_name = os.path.split(self.img_path)[1][:-4]
+            else:
+                raise ValueError("need self.img_path or assign_img_name")
+
+        tag_count_dict = {}
+        #
+        for each_obj in self._alarms:
+            # 只支持正框的裁切
+            if not isinstance(each_obj, DeteObj):
+                continue
+            # 截图的区域
+            bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
+            # 排除掉不需要保存的 tag
+            if include_tag_list is not None:
+                if each_obj.tag not in include_tag_list:
+                    continue
+
+            if not exclude_tag_list is None:
+                if each_obj.tag in exclude_tag_list:
+                    continue
+
+            # 计算这是当前 tag 的第几个图片
+            if each_obj.tag not in tag_count_dict:
+                tag_count_dict[each_obj.tag] = 0
+            else:
+                tag_count_dict[each_obj.tag] += 1
+            # 图片扩展
+            if augment_parameter is not None:
+                bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
+
+            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
+            if split_by_tag is True:
+                each_save_dir = os.path.join(save_dir, each_obj.tag)
+                if not os.path.exists(each_save_dir):
+                    os.makedirs(each_save_dir)
+            else:
+                each_save_dir = save_dir
+
+            # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
+            each_name_str = each_obj.get_name_str()
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
+            #
+            each_obj.crop_path = each_save_path
+            #
+            # each_crop = self.img.crop(bndbox)
+
+            each_crop = self.img_ndarry[bndbox[1]:bndbox[3], bndbox[0]:bndbox[2], :]
+            cv2.imencode(each_save_path, each_crop)[1].tofile(each_save_path)
+
+            # 保存截图
+            # each_crop.save(each_save_path, quality=95)
+            # each_crop.save(each_save_path)
+
     def _parse_txt_info(self, classes_path, record_path):
         """解析 txt 信息"""
         # todo txt 信息中不包含图像的大小，波段数等信息，保存和读取 txt 标注的信息比较鸡肋
@@ -444,6 +515,7 @@ class DeteRes(ResBase, ABC):
         assign_dete_obj = self.get_dete_obj_by_id(assign_id=assign_id)
         return self.get_sub_img_by_dete_obj(assign_dete_obj, augment_parameter, RGB=RGB, assign_shape_min=assign_shape_min)
 
+    @DecoratorUtil.time_this
     def get_sub_img_by_dete_obj(self, assign_dete_obj, augment_parameter=None, RGB=True, assign_shape_min=False):
         """根据指定的 deteObj """
 
@@ -484,6 +556,48 @@ class DeteRes(ResBase, ABC):
         else:
             return cv2.cvtColor(im_array, cv2.COLOR_RGB2BGR)
 
+    @DecoratorUtil.time_this
+    def get_sub_img_by_dete_obj_new(self, assign_dete_obj, augment_parameter=None, RGB=True, assign_shape_min=False):
+        """根据指定的 deteObj """
+
+        if self.img_ndarry is None:
+            self.img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+
+        if isinstance(assign_dete_obj, DeteObj):
+            if augment_parameter is None:
+                crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
+            else:
+                crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
+                crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
+            # img_crop = self.img.crop(crop_range)
+            img_crop = self.img_ndarry[crop_range[1]: crop_range[3], crop_range[0]: crop_range[2], :]
+
+        # elif isinstance(assign_dete_obj, DeteAngleObj):
+        #     if augment_parameter is None:
+        #         crop_array = ResTools.crop_angle_rect(np.array(self.img), ((assign_dete_obj.cx, assign_dete_obj.cy), (assign_dete_obj.w, assign_dete_obj.h), assign_dete_obj.angle))
+        #     else:
+        #         w = assign_dete_obj.w * (1+augment_parameter[0])
+        #         h = assign_dete_obj.h * (1+augment_parameter[1])
+        #         crop_array = ResTools.crop_angle_rect(np.array(self.img), ((assign_dete_obj.cx, assign_dete_obj.cy), (w, h), assign_dete_obj.angle))
+        #     # BGR -> RGB
+        #     img_crop = Image.fromarray(crop_array)
+        # else:
+        #     raise ValueError("not support assign_dete_obj's type : ".format(type(assign_dete_obj)))
+        #
+        # # change size
+        # if assign_shape_min:
+        #     w, h = img_crop.width, img_crop.height
+        #     ratio = assign_shape_min/min(w, h)
+        #     img_crop = img_crop.resize((int(ratio*w), int(ratio*h)))
+
+        # Image --> array
+        # im_array = np.array(img_crop)
+        # change chanel order
+        if RGB:
+            return img_crop
+        else:
+            return cv2.cvtColor(img_crop, cv2.COLOR_RGB2BGR)
+
     @staticmethod
     def get_sub_img_by_dete_obj_from_crop(assign_dete_obj, RGB=True, assign_shape_min=False):
         """根据指定的 deteObj 读取裁剪的 小图"""
@@ -494,6 +608,19 @@ class DeteRes(ResBase, ABC):
         for each_dete_obj in self:
             each_dete_obj.del_crop_img()
 
+    @DecoratorUtil.time_this
+    def get_img_array_new(self, RGB=True):
+        """获取self.img对应的矩阵信息"""
+
+        if self.img_ndarry is None:
+            self.img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+
+        if RGB:
+            return cv2.cvtColor(self.img_ndarry, cv2.COLOR_RGB2BGR)
+        else:
+            return self.img_ndarry
+
+    @DecoratorUtil.time_this
     def get_img_array(self, RGB=True):
         """获取self.img对应的矩阵信息"""
         if not self.img:
@@ -915,6 +1042,78 @@ class DeteRes(ResBase, ABC):
         if not self.img:
             raise ValueError ("need img_path or img")
 
+        #
+        if assign_img_name is not None:
+            img_name = assign_img_name
+        else:
+            if self.img_path is not None :
+                img_name = os.path.split(self.img_path)[1][:-4]
+            else:
+                raise ValueError("need self.img_path or assign_img_name")
+
+        tag_count_dict = {}
+        #
+        for each_obj in self._alarms:
+            # 只支持正框的裁切
+            if not isinstance(each_obj, DeteObj):
+                continue
+            # 截图的区域
+            bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
+            # 排除掉不需要保存的 tag
+            if include_tag_list is not None:
+                if each_obj.tag not in include_tag_list:
+                    continue
+
+            if not exclude_tag_list is None:
+                if each_obj.tag in exclude_tag_list:
+                    continue
+
+            # 计算这是当前 tag 的第几个图片
+            if each_obj.tag not in tag_count_dict:
+                tag_count_dict[each_obj.tag] = 0
+            else:
+                tag_count_dict[each_obj.tag] += 1
+            # 图片扩展
+            if augment_parameter is not None:
+                bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
+
+            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
+            if split_by_tag is True:
+                each_save_dir = os.path.join(save_dir, each_obj.tag)
+                if not os.path.exists(each_save_dir):
+                    os.makedirs(each_save_dir)
+            else:
+                each_save_dir = save_dir
+
+            # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
+            if save_augment:
+                each_name_str = each_obj.get_name_str(assign_loc=bndbox)
+            else:
+                each_name_str = each_obj.get_name_str()
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
+
+            try:
+                # todo 对 bndbox 的范围进行检查
+                each_crop = self.img.crop(bndbox)
+                # 对截图的图片自定义操作, 可以指定缩放大小之类的
+                if method is not None:
+                    each_crop = method(each_crop)
+                # 保存截图
+                # each_crop.save(each_save_path, quality=95)
+                each_crop.save(each_save_path)
+            except Exception as e:
+                # 当遇到错误的图片会报错，
+                # todo 图片损坏使用 cv2.crop 截取图片不会报错，是否考虑使用 cv2 的截图获取部分破损的图片
+                print(e)
+
+    def crop_and_save_new(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None, save_augment=False):
+        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
+        * augment_parameter = [0.5, 0.5, 0.2, 0.2]
+        * save_augment 是否保存为扩展后的范围，还是之前的范围
+        """
+
+        if self.img_ndarry is None:
+            self.img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
         #
         if assign_img_name is not None:
             img_name = assign_img_name

@@ -44,14 +44,15 @@ if __name__ == "__main__":
 
     else:
 
-        dete_res_standard = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\Annotations"
-        dete_res_customized = r"C:\Users\14271\Desktop\finally_test"
-        assign_img_path = r"C:\data\fzc_优化相关资料\dataset_fzc\000_0_标准测试集\JPEGImages"
-        save_path= r"C:\Users\14271\Desktop\del\v1.2.5.0_new"
+        dete_res_standard = r"C:\Users\14271\Desktop\new_gt"
+        # dete_res_customized = r"C:\Users\14271\Desktop\fzcRust_v1.1.1.0"
+        dete_res_customized = r"C:\Users\14271\Desktop\fzcRust_v1.0.3.0"
+        assign_img_path = r""
+        save_path= r""
 
         a.iou_thershold = 0.3
         # 计算各种情况的目标个数
-        res = a.cal_model_acc(standard_xml_dir=dete_res_standard, customized_xml_dir=dete_res_customized, assign_img_dir=assign_img_path, save_dir=save_path, save_img=False, save_xml=True, assign_conf=0.3)
+        res = a.cal_model_acc(standard_xml_dir=dete_res_standard, customized_xml_dir=dete_res_customized, assign_img_dir=assign_img_path, save_dir=save_path, save_img=False, save_xml=True, assign_conf=0.8)
         # 计算正确率，召回率
         res_2 = a.cal_acc_rec(res)
 

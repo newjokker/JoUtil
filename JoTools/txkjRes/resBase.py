@@ -33,6 +33,7 @@ class ResBase():
         self.redis_conn_info = redis_conn_info
         self.img_redis_key = img_redis_key
         #
+        self.img_ndarry = None                              # 矩阵数据 ndarry
 
     @abstractmethod
     def save_to_xml(self, save_path, assign_alarms=None):

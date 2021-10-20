@@ -31,17 +31,22 @@ from JoTools.utils.RandomUtil import RandomUtil
 #     "fs": "fzc",
 # }
 
+# up_dict = {
+#     "fzc_normal": "normal",
+#     "fzc_rust": "rust",
+# }
+
 up_dict = {
-    "fzc_broken": "fzc",
-    "Fnormal": "fzc",
+    "normal": "fzc_normal",
+    "rust":"fzc_rust",
 }
 
 # up_dict = {"extra": "Fnormal", "UGuaHuan":"Fnormal"}
 
 # up_dict = {"Fnormal": "fzc", "fzc_broken":"fzc"}
 
-xml_dir = r"/home/suanfa-4/ldq/001_train_data/fzc_test/Annotations"
-save_dir = r"/home/suanfa-4/ldq/001_train_data/fzc_test/Annotations"
+xml_dir = r"C:\Users\14271\Desktop\fzc_rust_grounf_truth"
+save_dir = r"C:\Users\14271\Desktop\new_gt"
 
 
 OperateDeteRes.get_class_count(xml_dir, print_count=True)

@@ -44,6 +44,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'del_dete_obj',                        # [*]删除指定 dete obj
  'del_sub_img_from_crop',               # [*]删除保存的截图，DeteObj crop_path 属性记录了截图的位置
  'do_augment',                          # 框的扩增（上下左右）
+ 'do_func',                             # 做指定的操作
  'do_nms',                              # [*]对框之间做 nms 
  'do_nms_center_point',                 # 对框之间做 center nms
  'do_nms_in_assign_tags',               # 在指定几种 tag 之间做 nms 
@@ -728,6 +729,11 @@ class DeteRes(ResBase, ABC):
         # 保存图片，解决保存中文乱码问题
         cv2.imencode('.jpg', img)[1].tofile(save_path)
         return color_dict
+
+    def do_func(self, assign_func):
+        """对所有元素进行指定操作"""
+        for each_dete_obj in self._alarms:
+            assign_func(each_dete_obj)
 
     def do_nms(self, threshold=0.1, ignore_tag=False):
         """对结果做 nms 处理，"""

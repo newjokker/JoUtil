@@ -24,6 +24,8 @@
     * docker load -i img_name.tar，
     * docker import /root/tomcat.tar jokker_test:v1，import 可以起名，load 不行
     
+* docker attach，进入退出了但是还在运行的容器
+    
 * 镜像，实例化容器，docker run -id --name CONTAINER_NAME  IMAGE_ID /bin/bash
 
 * 容器，docker exec -it CONTAINER_ID  /bin/bash

@@ -560,7 +560,7 @@ class OperateDeteRes(object):
         """查看 voc xml 的标签"""
         xml_info, name_dict = [], {}
         # 遍历 xml 统计 xml 信息
-        xml_list = FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml'))
+        xml_list = list(FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml')))
         #
         for xml_index, each_xml_path in enumerate(xml_list):
             # each_xml_info = parse_xml(each_xml_path)
@@ -583,6 +583,7 @@ class OperateDeteRes(object):
                 tb.add_row((each_name, name_dict[each_name]))
                 sum += name_dict[each_name]
             tb.add_row(('sum', sum))
+            tb.add_row(('file', len(list(xml_list))))
             print(tb)
 
         return name_dict

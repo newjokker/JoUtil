@@ -562,38 +562,23 @@ class DeteRes(ResBase, ABC):
         """根据指定的 deteObj """
 
         if self.img_ndarry is None:
-            self.img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            # self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_RGB2BGR)
 
-        if isinstance(assign_dete_obj, DeteObj):
-            if augment_parameter is None:
-                crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
-            else:
-                crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
-                crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
-            # img_crop = self.img.crop(crop_range)
-            img_crop = self.img_ndarry[crop_range[1]: crop_range[3], crop_range[0]: crop_range[2], :]
+        if augment_parameter is None:
+            crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
+        else:
+            crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
+            crop_range = ResTools.region_augment(crop_range, [self.width, self.height], augment_parameter=augment_parameter)
 
-        # elif isinstance(assign_dete_obj, DeteAngleObj):
-        #     if augment_parameter is None:
-        #         crop_array = ResTools.crop_angle_rect(np.array(self.img), ((assign_dete_obj.cx, assign_dete_obj.cy), (assign_dete_obj.w, assign_dete_obj.h), assign_dete_obj.angle))
-        #     else:
-        #         w = assign_dete_obj.w * (1+augment_parameter[0])
-        #         h = assign_dete_obj.h * (1+augment_parameter[1])
-        #         crop_array = ResTools.crop_angle_rect(np.array(self.img), ((assign_dete_obj.cx, assign_dete_obj.cy), (w, h), assign_dete_obj.angle))
-        #     # BGR -> RGB
-        #     img_crop = Image.fromarray(crop_array)
-        # else:
-        #     raise ValueError("not support assign_dete_obj's type : ".format(type(assign_dete_obj)))
-        #
+        img_crop = self.img_ndarry[crop_range[1]: crop_range[3], crop_range[0]: crop_range[2], :]
+
         # # change size
         # if assign_shape_min:
-        #     w, h = img_crop.width, img_crop.height
+        #     w, h = img_crop.shape[:2]
         #     ratio = assign_shape_min/min(w, h)
         #     img_crop = img_crop.resize((int(ratio*w), int(ratio*h)))
 
-        # Image --> array
-        # im_array = np.array(img_crop)
-        # change chanel order
         if RGB:
             return img_crop
         else:
@@ -1044,6 +1029,10 @@ class DeteRes(ResBase, ABC):
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         * save_augment 是否保存为扩展后的范围，还是之前的范围
         """
+
+        if len(self._alarms) == 0:
+            # 要是没有可以剪切的要素就不浪费时间进行剪切了
+            return
 
         if not self.img:
             raise ValueError ("need img_path or img")

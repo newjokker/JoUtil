@@ -895,7 +895,8 @@ class DeteRes(ResBase, ABC):
         """删除指定的一个 deteObj"""
         for each_dete_obj in self._alarms:
             if each_dete_obj == assign_dete_obj:
-                del each_dete_obj
+                # del each_dete_obj # 使用 del 删除不了
+                self._alarms.remove(each_dete_obj)
                 # break or not
                 if not del_all:
                     return

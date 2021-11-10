@@ -37,6 +37,17 @@ class DeteAngleObj(object):
         else:
             return False
 
+    def init_from_four_point(self, p0, p1, p2, p3, tag, conf=-1, assign_id=-1, describe:str=""):
+        """从四个点进行初始化"""
+        # cal center point
+        cx = (p0[0] + p1[0] + p2[0] + p3[0])/4
+        cy = (p0[1] + p1[1] + p2[1] + p3[1])/4
+        # cal angle
+        angle = math.atan((p1[1]-p0[1])/p1[0]-p0[0])
+
+
+
+
     def do_offset(self, offset_x, offset_y):
         """对结果进行偏移"""
         self.cx += offset_x

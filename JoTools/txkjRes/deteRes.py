@@ -893,7 +893,7 @@ class DeteRes(ResBase, ABC):
 
     def del_dete_obj(self, assign_dete_obj, del_all=False):
         """删除指定的一个 deteObj"""
-        for each_dete_obj in self._alarms:
+        for each_dete_obj in copy.deepcopy(self._alarms):
             if each_dete_obj == assign_dete_obj:
                 # del each_dete_obj # 使用 del 删除不了
                 self._alarms.remove(each_dete_obj)

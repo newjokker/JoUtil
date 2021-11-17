@@ -3,6 +3,12 @@
 
 import math
 
+import numpy as np
+
+
+
+np.load()
+
 # p0 = [0, 0]
 # p1 = [2, 0]
 # p2 = [2, 1]

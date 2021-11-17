@@ -2,8 +2,6 @@
 # -*- author: jokker -*-
 
 
-
-
 import PySimpleGUI as sg
 
 # sg.theme('DarkAmber')   # Add a touch of color

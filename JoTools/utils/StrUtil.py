@@ -46,10 +46,19 @@ class StrUtil(object):
         trantab = str.maketrans(in_tab, out_tab)  # 制作翻译表
         return translate_str.translate(trantab)
 
+    @staticmethod
+    def contain_zh(strs):
+        for _char in strs:
+            if '\u4e00' <= _char <= '\u9fa5':
+                return True
+        return False
 
 if __name__ == "__main__":
 
     a = np.array([[1,2,3], [4,5,6], [7,8,9]])
+
+    print(StrUtil.contain_zh("123456a好的sdd"))
+
 
 
 

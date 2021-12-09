@@ -12,7 +12,7 @@ import struct
 class BytesUtil(object):
 
     @staticmethod
-    def read_from_bytes_file(file_path, assign_struct, is_loop=False):
+    def read_from_bytes_file(file_path, assign_struct:list, is_loop=False):
         """从二进制文件中读取需要的信息"""
         # assign_struct, (('i', 20), ('f', 512), ('c', 20))
 
@@ -24,6 +24,7 @@ class BytesUtil(object):
             while True:
                 for each_part in assign_struct:
                     # --------------------------------------------------
+                    # print(each_part)
                     struct_str = each_part[0] * each_part[1]
                     if each_part[0] == 'f':
                         read_byte_length = each_part[1] * 4
@@ -80,17 +81,25 @@ class BytesUtil(object):
 
 if __name__ == "__main__":
 
-    # fixme 存储完 str 之后再去存储 int or float 就会出现问题
+    # fixme 存储完 str 之后再去存储 int or float 就会出现问题 (没发现有问题，不知道如何复现)
 
     file_path = r"C:\Users\14271\Desktop\del\human_face.dat"
 
-    # a = BytesUtil.read_from_bytes_file(file_path, (('f', 512), ('c', 20), ('f', 512), ('c', 20)), is_loop=False)
-    a = BytesUtil.read_from_bytes_file(file_path, (('i', 4), ('f', 4), ('c', 6), ('c', 11), ('i', 4), ('c', 7)), is_loop=False)
-    # a = BytesUtil.write_to_bytes_file(file_path, [[1,2,3,4], [1.1,2.2,3.3,4.4], 'jokker', '18761609908', [1,2,3,4]])
-    #
+    # a = BytesUtil.write_to_bytes_file(file_path, [[1, 2, 3, 4], [1.1, 2.2, 3.3, 4.4], 'jokker', '18761609908', [1, 2, 3, 4]])
+    # a = BytesUtil.read_from_bytes_file(file_path, [('i', 4), ('f', 4), ('c', 6), ('c', 11), ('i', 4), ('c', 7)], is_loop=False)
+
+    a = BytesUtil.write_to_bytes_file(file_path, ["start", [1, 2, 3, 4, 5], [1.2, 3.4, 5.6, 7.8, 9.0],  "end", "start", [1, 2, 3, 4, 5], [1.2, 3.4, 5.6, 7.8, 9.0],  "end"])
+
     print(a)
+
+    a = BytesUtil.read_from_bytes_file(file_path, [('c', 5), ('i', 5), ('f', 5), ('c', 3)], is_loop=True)
+
+    #
     for each in a:
         print(each)
+
+    # todo 把获取的 xml 使用现在的格式进行存储
+
 
 
 

@@ -7,7 +7,7 @@ import os
 import threading
 import platform
 from ..utils.FileOperationUtil import FileOperationUtil
-
+from ..utils.StrUtil import StrUtil
 
 
 class VideoUtilCV(object):
@@ -45,7 +45,10 @@ class VideoUtilCV(object):
                 break
 
             try:
-                cv2.imwrite(os.path.join(save_dir, '{0}_{1}.jpg'.format(vedio_name, str(index).rjust(3, '0'))), img[1])  # 将数据写到本地
+                each_save_path = os.path.join(save_dir, '{0}_{1}.jpg'.format(vedio_name, str(index).rjust(3, '0')))
+                if StrUtil.contain_zh(each_save_path):
+                    raise ValueError("save path contain chinese : {0}".format(each_save_path))
+                cv2.imwrite(each_save_path, img[1])  # 将数据写到本地
             except Exception as e:
                 print("error : {0} {1}".format(e, img))
 

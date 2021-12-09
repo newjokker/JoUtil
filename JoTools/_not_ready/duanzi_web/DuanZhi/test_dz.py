@@ -7,7 +7,7 @@ from ReadData.JsonUtil import JsonUtil
 
 
 
-a = JsonUtil.load_data_from_json_file(r"/Z_for_CSDN/duanzi_web/DuanZhi/AuxData/dz.json")
+a = JsonUtil.load_data_from_json_file(r"./AuxData/dz.json")
 
 
 

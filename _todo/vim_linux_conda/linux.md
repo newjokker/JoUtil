@@ -4,6 +4,26 @@
 
 
 
+# -----------------
+
+* 创建用户，查看用户，删除用户，设置用户，
+    * cat /etc/passwd
+    * cat /etc/group
+    * useradd  (P426)
+
+* 安装 anaconda
+* 安装  
+
+
+
+
+
+
+
+
+
+
+
 * man : 查询命令的使用
 
 * alias 

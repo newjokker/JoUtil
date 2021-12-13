@@ -55,6 +55,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'filter_by_func',                      # 使用指定方法对框进行筛除
  'filter_by_mask',                      # 使用掩膜（掩膜内，掩膜外）对框进行筛除
  'filter_by_tags',                      # [*]根据标签类型对框进行筛除
+ 'filter_by_topn',                      # 对deteobj 大小进行排序，根据前 nn 个目标的 1/2 对目标进行过滤
  'get_crop_name_by_id',                 # 获取指定 id 对应的裁剪名（考虑删除该方法） 
  'get_dete_obj_by_id',                  # 获取指定 id 对应的第一个 dete obj
  'get_dete_obj_list_by_func',           # 获取指定方法找到的 dete obj list
@@ -888,6 +889,19 @@ class DeteRes(ResBase, ABC):
                 del_alarms.append(each_dete_obj)
         self._alarms = new_alarms
         return del_alarms
+
+    def filter_by_topn(self, nn):
+        # 远景小目标过滤, 相对小的，从大到小排序，取前nn名的平均值/2作为阈值(籍天明，ljc)
+        obj_area_list = []
+        for dete_obj in self._alarms:
+            obj_area_list.append(dete_obj.get_area())
+        # find threshold
+        threshold = -1
+        obj_area_list.sort(reverse=True)
+        if nn < len(obj_area_list):
+            threshold = np.average(obj_area_list[:nn]) / 2
+        # filter by area
+        self.filter_by_area(threshold)
 
     # ----------------------------------------------- del --------------------------------------------------------------
 

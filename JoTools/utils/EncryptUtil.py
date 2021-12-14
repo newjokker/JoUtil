@@ -33,9 +33,9 @@ class EncryptUtil(object):
 if __name__ == "__main__":
 
 
-    img_path = r"C:\Users\14271\Desktop\rustDebug\test.jpg"
-    save_path = r"C:\Users\14271\Desktop\rustDebug\test_encrypt.jpg"
-    save_path2 = r"C:\Users\14271\Desktop\rustDebug\test_encrypt2.jpg"
+    img_path = r"C:\Users\14271\Desktop\rustDebug\test.xml"
+    save_path = r"C:\Users\14271\Desktop\rustDebug\test_encrypt.xml"
+    save_path2 = r"C:\Users\14271\Desktop\rustDebug\test_encrypt2.xml"
 
 
     key = EncryptUtil.encrypt_file(img_path, save_path)

@@ -937,7 +937,8 @@ class DeteRes(ResBase, ABC):
 
     def union(self, other):
         """就是加法操作"""
-        return self + other
+        dete_res_tmp = self.deep_copy()
+        return dete_res_tmp + other
 
     def difference(self, other):
         """在 self 不在 other 中的"""
@@ -953,15 +954,15 @@ class DeteRes(ResBase, ABC):
 
     def issubset(self, other):
         """是否为子集"""
-        for each_dete_obj in other:
-            if each_dete_obj not in self:
+        for each_dete_obj in self:
+            if each_dete_obj not in other:
                 return False
         return True
 
     def isupperset(self, other):
         """是否为超集"""
-        for each_dete_obj in self:
-            if each_dete_obj not in other:
+        for each_dete_obj in other:
+            if each_dete_obj not in self:
                 return False
         return True
 

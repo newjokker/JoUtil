@@ -922,27 +922,48 @@ class DeteRes(ResBase, ABC):
 
     # ----------------------------------------------- set --------------------------------------------------------------
 
-    def intersection(self):
-        pass
+    def intersection(self, other):
+        dete_res_tmp = self.deep_copy()
+        dete_res_tmp.reset_alarms()
+        #
+        for each_dete_obj in self:
+            if each_dete_obj in other:
+                dete_res_tmp.add_obj_2(each_dete_obj)
+        return dete_res_tmp
 
-    def intersection_update(self):
-        pass
+    def intersection_update(self, other):
+        res = self.intersection(other)
+        self.reset_alarms(res.alarms)
 
-    def union(self):
-        pass
+    def union(self, other):
+        """就是加法操作"""
+        return self + other
 
-    def difference(self):
-        pass
+    def difference(self, other):
+        """在 self 不在 other 中的"""
+        diff_dete_res = self.deep_copy()
+        for each_dete_obj in self:
+            if each_dete_obj in other:
+                diff_dete_res.del_dete_obj(each_dete_obj)
+        return diff_dete_res
 
-    def difference_update(self):
-        pass
+    def difference_update(self, other):
+        res = self.difference(other)
+        self.reset_alarms(res.alarms)
 
-    def issubset(self):
-        pass
+    def issubset(self, other):
+        """是否为子集"""
+        for each_dete_obj in other:
+            if each_dete_obj not in self:
+                return False
+        return True
 
-    def isupperset(self):
-        pass
-
+    def isupperset(self, other):
+        """是否为超集"""
+        for each_dete_obj in self:
+            if each_dete_obj not in other:
+                return False
+        return True
 
     # ----------------------------------------------- del --------------------------------------------------------------
 

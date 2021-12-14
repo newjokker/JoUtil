@@ -84,6 +84,14 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'set_img_to_redis',                    # 将图像存储到redis中
  'update_tags',                         # 更新标签
  # ------------------------
+ 'intersection',                        # 交集
+ 'intersection_update',                 # 交集，更新
+ 'union',                               # 并集
+ 'difference',                          # 差集
+ 'difference_update',                   # 差集，更新
+ 'issubset',                            # 子集
+ 'isupperset',                          # 超集
+ # ------------------------
  '_log',                                # 日志对象（准备自动记录日志使用，还未实现）
  'width',                               # 图像宽度
  'height',                              # 图像高度

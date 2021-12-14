@@ -54,6 +54,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'filter_by_conf',                      # [*]根据框的置信度进行筛除
  'filter_by_func',                      # 使用指定方法对框进行筛除
  'filter_by_mask',                      # 使用掩膜（掩膜内，掩膜外）对框进行筛除
+ 'filter_by_dete_res_mask',             # 将指定 deteres 的每一个对象做一个 mask 进行掩膜操作
  'filter_by_tags',                      # [*]根据标签类型对框进行筛除
  'filter_by_topn',                      # 对deteobj 大小进行排序，根据前 nn 个目标的 1/2 对目标进行过滤
  'get_crop_name_by_id',                 # 获取指定 id 对应的裁剪名（考虑删除该方法） 
@@ -108,6 +109,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
 
 # todo crop_dete_obj 等于 crop_and_save 不用把同样的功能实现两遍
 
+
 class DeteRes(ResBase, ABC):
     """检测结果"""
 
@@ -139,6 +141,12 @@ class DeteRes(ResBase, ABC):
             # 不包含这个元素的时候进行添加
             if each_dete_obj not in self:
                 self._alarms.append(each_dete_obj)
+        return self
+
+    def __sub__(self, other):
+        """DeteRes之间相减"""
+        for each_dete_obj in other:
+            self.del_dete_obj(each_dete_obj)
         return self
 
     def __len__(self):
@@ -879,6 +887,15 @@ class DeteRes(ResBase, ABC):
         self._alarms = new_alarms
         return del_alarms
 
+    def filter_by_dete_res_mask(self, mask_dete_res, cover_index_th=0.5):
+        """将一个 deteRes 作为 mask 过滤 self"""
+        dete_res_temp = DeteRes()
+        for each_dete_obj in mask_dete_res:
+            each_dete_res = self.deep_copy(copy_img=False)
+            each_dete_res.filter_by_mask(each_dete_obj.get_points(), cover_index_th)
+            dete_res_temp += each_dete_res
+        self.reset_alarms(dete_res_temp.alarms)
+
     def filter_by_func(self, func):
         """使用指定函数对 DeteObj 进行过滤"""
         new_alarms, del_alarms = [], []
@@ -902,6 +919,30 @@ class DeteRes(ResBase, ABC):
             threshold = np.average(obj_area_list[:nn]) / 2
         # filter by area
         self.filter_by_area(threshold)
+
+    # ----------------------------------------------- set --------------------------------------------------------------
+
+    def intersection(self):
+        pass
+
+    def intersection_update(self):
+        pass
+
+    def union(self):
+        pass
+
+    def difference(self):
+        pass
+
+    def difference_update(self):
+        pass
+
+    def issubset(self):
+        pass
+
+    def isupperset(self):
+        pass
+
 
     # ----------------------------------------------- del --------------------------------------------------------------
 

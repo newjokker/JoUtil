@@ -35,6 +35,10 @@ class DeteObj(object):
         else:
             return False
 
+    def approximate(self, other, ignore_tag=False, iou_th=0.8):
+        """近似"""
+        pass
+
     def do_offset(self, offset_x, offset_y):
         """对结果进行偏移"""
         self.x1 += offset_x

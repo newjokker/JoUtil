@@ -109,7 +109,26 @@ class PointRes(ResBase):
                 self.alarms.append(new_point)
 
     def _parse_json_str(self):
-        pass
+        a = self.json_dict
+
+        # parse attr
+        self.version = a["version"] if "version" in a else ""
+        self.width = a["imageWidth"] if "imageWidth" in a else ""
+        self.height = a["imageHeight"] if "imageWidth" in a else ""
+        self.file_name = a["imagePath"] if "imagePath" in a else ""
+        self.image_data_bs64 = a["imageData"]
+
+        point_index = 0
+        for each_shape in a["shapes"]:
+            each_shape_type = each_shape["shape_type"]           # 数据的类型 point,
+            #
+            if each_shape_type == 'point':
+                # 解析点
+                point_index += 1
+                each_label = each_shape["label"]
+                each_points_x, each_points_y = each_shape["points"][0]
+                new_point = PointObj(each_points_x, each_points_y, each_label, assign_id=point_index)
+                self.alarms.append(new_point)
 
     def save_to_json_file(self, save_json_path, include_img_data=False):
 
@@ -160,14 +179,18 @@ class PointRes(ResBase):
         if self.flags:
             json_info["flags"] = self.flags
         #
+        shapes = []
         for each_shape in self._alarms:
             each_shape_info = {
                 "label": each_shape.tag,
                 "points": [[each_shape.x, each_shape.y]],
                 "group_id": each_shape.group_id,
                 "shape_type": each_shape.shape_type}
-            json_info["shapes"].append(each_shape_info)
-        return json_info
+            shapes.append(each_shape_info)
+
+        # todo 这边还需要测试和核对，
+        json_dict['shapes'] = JsonUtil.save_data_to_json_str(shapes)
+        return json_dict
 
     def draw_res(self, save_path, radius=3):
         img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)

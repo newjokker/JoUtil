@@ -34,11 +34,12 @@ class HashImageUtil(object):
             # 遍历指定文件夹下面的所有文件
             print("* 更新文件夹 : {0}".format(each_img_dir))
             file_img_list = FileOperationUtil.re_all_file(each_img_dir, lambda x:str(x).endswith((".jpg", ".png", ".JPG", ".PNG")))
-            pb = progressbar.ProgressBar(len(file_img_list)).start()
+            # pb = progressbar.ProgressBar(len(file_img_list)).start()
             for img_index, each_img_path in enumerate(file_img_list):
                 # 计算图片的 md5 值
-                pb.update(img_index+1)
+                # pb.update(img_index+1)
                 # 每 500 张图片保存一下数据库
+                print(img_index, each_img_path)
                 if index % 500 == 0:
                     index += 1
                     # print("* 更新数据库文件")
@@ -55,7 +56,7 @@ class HashImageUtil(object):
                         self.md5_hash_dict[each_file_md5] = each_img_hash
                 except Exception as e:
                     print(e)
-            pb.finish()
+            # pb.finish()
         # 更新本地文件
         self.save_dict_to_pkl()
 
@@ -195,11 +196,10 @@ if __name__ == "__main__":
     a = HashImageUtil()
     # 指定缓存文件存放文件夹
     a.save_num = 1000
-    a.db_save_dir = r"C:\Users\14271\Desktop\del\db_temp"
+    a.db_save_dir = r"C:\Users\14271\Desktop\del\del"
     # 指定数据库文件夹
     a.db_dir_list = [
-        r"C:\data\fzc_优化相关资料\dataset_fzc\001_图片大小转为1280\train_img",
-        r"C:\data\fzc_优化相关资料\dataset_fzc\001_图片大小转为1280\res_img_dir",]
+        r"D:\data\001_fzc_优化相关资料\dataset_fzc\000_0_标准测试集\JPEGImages"]
     # 初始化
     a.do_init()
     a.update_db()

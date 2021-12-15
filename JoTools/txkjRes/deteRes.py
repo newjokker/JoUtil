@@ -145,11 +145,12 @@ class DeteRes(ResBase, ABC):
         if not isinstance(other, DeteRes):
             raise TypeError("should be DeteRes")
 
+        res = self.deep_copy()
         for each_dete_obj in other.alarms:
             # 不包含这个元素的时候进行添加
             if each_dete_obj not in self:
-                self._alarms.append(each_dete_obj)
-        return self
+                res.add_obj_2(each_dete_obj)
+        return res
 
     def __sub__(self, other):
         """DeteRes之间相减"""

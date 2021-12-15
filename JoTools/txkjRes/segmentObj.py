@@ -5,6 +5,9 @@ import math
 from shapely.geometry import Polygon, Point
 
 
+# todo 分割对象中的点，应该改为点对象还是用(x,y)两个值代表的点，先改为点对象看看行不行
+
+
 class SegmentObj(object):
     """一个分割对象"""
 

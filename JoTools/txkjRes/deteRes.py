@@ -146,7 +146,7 @@ class DeteRes(ResBase, ABC):
             raise TypeError("should be DeteRes")
 
         res = self.deep_copy()
-        for each_dete_obj in other.alarms:
+        for each_dete_obj in other:
             # 不包含这个元素的时候进行添加
             if each_dete_obj not in self:
                 res.add_obj_2(each_dete_obj)
@@ -154,9 +154,10 @@ class DeteRes(ResBase, ABC):
 
     def __sub__(self, other):
         """DeteRes之间相减"""
+        res = self.deep_copy()
         for each_dete_obj in other:
-            self.del_dete_obj(each_dete_obj)
-        return self
+            res.del_dete_obj(each_dete_obj)
+        return res
 
     def __len__(self):
         """返回要素的个数"""
@@ -178,6 +179,11 @@ class DeteRes(ResBase, ABC):
             self._parse_json_info()
 
     # ------------------------------------------ transform -------------------------------------------------------------
+    @property
+    def alarms(self):
+        """获取属性自动进行排序"""
+        # return sorted(self._alarms, key=lambda x:x.id)
+        return self._alarms
 
     def _parse_xml_info(self):
         """解析 xml 中存储的检测结果"""
@@ -1049,7 +1055,7 @@ class DeteRes(ResBase, ABC):
                   }
 
         each_info = {}
-        for each_dete_obj in self.alarms:
+        for each_dete_obj in self._alarms:
             each_info['position'] = [each_dete_obj.x1, each_dete_obj.y1, each_dete_obj.x2-each_dete_obj.x1, each_dete_obj.y2-each_dete_obj.y1]
             each_info['class'] = each_dete_obj.tag
             each_info['possibility'] = each_dete_obj.conf
@@ -1096,12 +1102,6 @@ class DeteRes(ResBase, ABC):
             a.img_redis_key = self.img_redis_key
             a.parse_auto = True
             return a
-
-    @property
-    def alarms(self):
-        """获取属性自动进行排序"""
-        # return sorted(self._alarms, key=lambda x:x.id)
-        return self._alarms
 
     # ------------------------------------------------------------------------------------------------------------------
 

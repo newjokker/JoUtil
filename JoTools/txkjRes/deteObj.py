@@ -4,6 +4,10 @@
 import copy
 import os
 import cv2
+import math
+
+
+# todo PointObj 和 deteObj 之间的相互转换（1）当已知 pointObj 面积的时候，对应的 deteRes 按照正方形计算出他的边长 （2）deteObj 的中心点作为 pointObj 的位置信息，area 也对应过去即可
 
 
 class DeteObj(object):
@@ -92,6 +96,15 @@ class DeteObj(object):
         """返回四边形顺序上的四个点"""
         return [[self.x1,self.y1], [self.x2,self.y1], [self.x2,self.y2], [self.x1, self.y2]]
 
+    def get_point_obj(self):
+        x, y = self.get_center_point()
+        if self.des:
+            describe = self.des
+        else:
+            describe = "width:{0},height:{1}".format(x, y)
+        res = PointObj(x=x, y=y, conf=self.conf, tag=self.tag, describe=describe, assign_id=self.id, area=self.get_area())
+        return res
+
     def format_check(self):
         """类型检查和调整"""
         self.conf = float(self.conf)
@@ -142,10 +155,80 @@ class DeteObj(object):
             self.crop_path = ''
 
 
+class PointObj(object):
+
+    def __init__(self, x, y, tag, conf=-1, assign_id=-1, describe='', area=-1):
+        self.x = x
+        self.y = y
+        self.tag = tag
+        self.area = area  # 点是可以有面积的，当这个点是具体目标的抽象的时候，此时面积就是点的一个属性
+        self.conf = conf
+        self.id = assign_id
+        self.des = describe
+
+    def __eq__(self, other):
+        # 类型不同返回 false
+        if not isinstance(other, PointObj):
+            return False
+
+        if self.x == other.x and self.y == other.y and self.tag == other.tag:
+            return True
+        else:
+            return False
+
+    def do_offset(self, offset_x, offset_y):
+        self.x += offset_x
+        self.y += offset_y
+
+    def deep_copy(self):
+        return copy.deepcopy(self)
+
+    def get_name_str(self):
+        name_str = "[{0},{1},{2},{3},{4}]".format(self.x, self.y, "'" + self.tag + "'", self.conf, self.id)
+        return name_str
+
+    def load_from_name_str(self, name_str):
+        self.x, self.y, self.tag, self.conf, self.id = eval(name_str)
+
+    def get_dete_obj(self, assign_wh=None):
+        """转换为 deteobj"""
+        # arae 必须有值，才能计算出长宽，否则需要指定长宽
+        if self.area == -1 and assign_wh is None:
+            raise ValueError("* pointObj's area is empty")
+        # 计算出目标的长宽
+        elif assign_wh is not None:
+            width, height = assign_wh
+        else:
+            width = height = math.sqrt(self.area)
+        #
+        x1 = self.x - (width/2)
+        x2 = self.x + (width/2)
+        y1 = self.y - (height/2)
+        y2 = self.y + (height/2)
+        res = DeteObj(x1=x1, x2=x2, y1=y1, y2=y2, conf=self.conf, tag=self.tag, assign_id=self.id, describe=self.des)
+        return res
+
+
 if __name__ == "__main__":
 
     a = DeteObj(10,10,30,30,'ok_good')
-    b = a.get_name_str()
-    print(b)
-    a.load_from_name_str(b)
-    print(a.get_format_list())
+    # b = a.get_name_str()
+    # print(b)
+    # a.load_from_name_str(b)
+    # print(a.get_format_list())
+
+    b= a.get_point_obj()
+
+    print(b.get_name_str())
+    print(b.des)
+    print(b.area)
+
+    b.get_dete_obj()
+
+    print(b.get_name_str())
+    print(b.des)
+
+
+
+
+

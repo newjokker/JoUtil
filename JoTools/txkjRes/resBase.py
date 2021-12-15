@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 class ResBase():
 
-    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, redis_conn_info=None, img_redis_key=None):
+    def __init__(self, xml_path=None, assign_img_path=None, json_dict=None, redis_conn_info=None, img_redis_key=None, json_path=None):
         #
         self.parse_auto = True                              # 设置时候自动解析参数
         #
@@ -28,6 +28,7 @@ class ResBase():
         self.file_name = ""                                 # 检测图像文件名
         self.img_path = assign_img_path                     # 对应的原图的路径
         self.xml_path = xml_path                            # 可以从 xml 中读取检测结果
+        self.json_path = json_path                          # 可以从 json 文件中读取检测结果
         self.json_dict = copy.deepcopy(json_dict)           # json 文件地址，这边防止 json_dit 被改变，直接用深拷贝
         self.redis_conn = None
         self.redis_conn_info = redis_conn_info
@@ -35,7 +36,6 @@ class ResBase():
         #
         self.img_ndarry = None                              # 矩阵数据 ndarry
 
-    @abstractmethod
     def save_to_xml(self, save_path, assign_alarms=None):
         """保存为 xml"""
         pass
@@ -45,7 +45,6 @@ class ResBase():
         """保存为 json"""
         pass
 
-    @abstractmethod
     def _parse_xml_info(self):
         """解析 xml 信息"""
         pass

@@ -1,16 +1,33 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-
+import os
+import cv2
+import copy
+import time
+import random
+from flask import jsonify
+import numpy as np
+from abc import ABC
+from PIL import Image
 from .resBase import ResBase
+from .deteObj import DeteObj, PointObj
+from .deteAngleObj import DeteAngleObj
+from ..txkjRes.resTools import ResTools
+from ..utils.JsonUtil import JsonUtil
+from ..txkjRes.deteXml import parse_xml, save_to_xml, save_to_xml_wh_format
+from ..utils.FileOperationUtil import FileOperationUtil
+from ..utils.DecoratorUtil import DecoratorUtil
+from labelme import utils
+
 
 
 class PointRes(ResBase):
 
-    def __init__(self, json_path=None, ):
+    def __init__(self, json_path=None, assign_img_path=None, json_dict=None):
         self._alarms = []
-        self._log = log
-        super().__init__(assign_img_path, json_dict, redis_conn_info=redis_conn_info, img_redis_key=img_redis_key, json_path=json_path)
+        self.flags = {}
+        super().__init__(assign_img_path, json_dict, json_path=json_path)
 
     def __add__(self, other):
         if not isinstance(other, DeteRes):
@@ -48,21 +65,76 @@ class PointRes(ResBase):
         if key == 'img_path' and isinstance(value, str) and self.parse_auto:
             self._parse_img_info()
         elif key == 'json_path' and isinstance(value, str) and self.parse_auto:
-            # self._parse_xml_info()
+            self._parse_json_file()
             pass
         elif key == 'json_dict' and isinstance(value, dict) and self.parse_auto:
-            self._parse_json_info()
+            self._parse_json_str()
 
     @property
     def alarms(self):
-        # return sorted(self._alarms, key=lambda x:x.id)
         return self._alarms
 
-    def _parse_json_info(self):
-        pass
+    def _parse_json_file(self):
 
-    def save_to_json_file(self):
-        pass
+        if self.json_path:
+            a = JsonUtil.load_data_from_json_file(self.json_path, encoding='GBK')
+        else:
+            raise ValueError("* self.json_path is none")
+
+        # parse attr
+        self.version = a["version"] if "version" in a else ""
+        self.image_width = a["imageWidth"] if "imageWidth" in a else ""
+        self.image_height = a["imageHeight"] if "imageWidth" in a else ""
+        self.img_name = a["imagePath"] if "imagePath" in a else ""
+        self.image_data_bs64 = a["imageData"]
+
+        point_index = 0
+        for each_shape in a["shapes"]:
+            each_shape_type = each_shape["shape_type"]           # 数据的类型 point,
+            # todo 点线面分来进行解析
+            if each_shape_type == 'point':
+                # 解析点
+                point_index += 1
+                each_label = each_shape["label"]
+                each_points_x, each_points_y = each_shape["points"][0]
+                new_point = PointObj(each_points_x, each_points_y, each_label, assign_id=point_index)
+                self.alarms.append(new_point)
+
+                print(new_point.get_name_str())
+
+    def save_to_json_file(self, save_json_path, include_img_data=False):
+
+        # todo 要想 labelme 能读出来，需要加上 imageData 信息，但是也支持不带 imageData 的 json 生成，可以后期使用函数进行修复，变为可读取即可
+
+        json_info = {"version":"", "imageWidth":"", "imageHeight":"", "imagePath":"", "imageData":"", "shapes":[], "flasg":{}}
+
+        if self.version:
+            json_info["version"] = self.version
+        if self.image_width:
+            json_info["imageWidth"] = self.image_width
+        if self.image_height:
+            json_info["imageHeight"] = self.image_height
+        if self.img_name:
+            json_info["imagePath"] = self.img_name
+        if self.flags:
+            json_info["flags"] = self.flags
+        #
+        for each_shape in self._alarms:
+            each_shape_info = {
+                "label": each_shape.tag,
+                "points": [[each_shape.x, each_shape.y]],
+                "group_id": each_shape.group_id,
+                "shape_type": each_shape.shape_type}
+            json_info["shapes"].append(each_shape_info)
+
+        # save img data
+        if self.img_path and include_img_data:
+            img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            image_data_bs64 = utils.img_arr_to_b64(img).decode('utf-8')
+            json_info["imageData"] = image_data_bs64
+
+        # save
+        JsonUtil.save_data_to_json_file(json_info, save_json_path, encoding="GBK")
 
     def save_to_json_str(self):
         pass
@@ -76,8 +148,8 @@ class PointRes(ResBase):
     def add_obj(self):
         pass
 
-    def add_obj_2(self):
-        pass
+    def add_obj_2(self, point_obj):
+        self.alarms.append(point_obj)
 
     def deep_copy(self, copy_img=False):
 
@@ -110,6 +182,17 @@ class PointRes(ResBase):
                 # break or not
                 if not del_all:
                     return
+
+    def filter_by_tags(self, tags):
+
+        if tags:
+            res = self.deep_copy()
+            for each_point_obj in PointRes:
+                if each_point_obj.tag in tags:
+                    res.add_obj_2(each_point_obj)
+            return res
+
+
 
 
 

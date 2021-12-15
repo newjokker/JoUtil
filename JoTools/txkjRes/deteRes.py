@@ -822,24 +822,25 @@ class DeteRes(ResBase, ABC):
 
     # ------------------------------------------------ filter ----------------------------------------------------------
 
-    def filter_by_area(self, area_th):
-        """根据面积大小（像素个数）进行筛选"""
+    def filter_by_area(self, area_th, update=True):
+        """根据面积大小（像素个数）进行筛选, update 是否对 self 进行更新"""
         new_alarms, del_alarms = [], []
         for each_dete_tag in self._alarms:
             if each_dete_tag.get_area() >= area_th:
                 new_alarms.append(each_dete_tag)
             else:
                 del_alarms.append(each_dete_tag)
-        self._alarms = new_alarms
+        if update:
+            self._alarms = new_alarms
         return del_alarms
 
-    def filter_by_area_ratio(self, ar=0.0006):
+    def filter_by_area_ratio(self, ar=0.0006, update=True):
         """根据面积比例进行删选"""
         # get area
         th_area = float(self.width * self.height) * ar
-        self.filter_by_area(area_th=th_area)
+        self.filter_by_area(area_th=th_area, update=update)
 
-    def filter_by_tags(self, need_tag=None, remove_tag=None):
+    def filter_by_tags(self, need_tag=None, remove_tag=None, update=True):
         """根据 tag 类型进行筛选"""
         new_alarms, del_alarms = [], []
 
@@ -863,10 +864,11 @@ class DeteRes(ResBase, ABC):
                     new_alarms.append(each_dete_tag)
                 else:
                     del_alarms.append(each_dete_tag)
-        self._alarms = new_alarms
-        return del_alarms
+        if update:
+            self._alarms = new_alarms
+        return new_alarms
 
-    def filter_by_conf(self, conf_th, assign_tag_list=None):
+    def filter_by_conf(self, conf_th, assign_tag_list=None, update=True):
         """根据置信度进行筛选，指定标签就能对不同标签使用不同的置信度"""
 
         if not(isinstance(conf_th, int) or isinstance(conf_th, float)):
@@ -884,10 +886,12 @@ class DeteRes(ResBase, ABC):
                 new_alarms.append(each_dete_obj)
             else:
                 del_alarms.append(each_dete_obj)
-        self._alarms = new_alarms
-        return del_alarms
 
-    def filter_by_mask(self, mask, cover_index_th=0.5, need_in=True):
+        if update:
+            self._alarms = new_alarms
+        return new_alarms
+
+    def filter_by_mask(self, mask, cover_index_th=0.5, need_in=True, update=True):
         """使用多边形 mask 进行过滤，mask 支持任意凸多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
         new_alarms, del_alarms = [], []
         for each_dete_obj in self._alarms:
@@ -899,19 +903,22 @@ class DeteRes(ResBase, ABC):
                 new_alarms.append(each_dete_obj)
             else:
                 del_alarms.append(each_dete_obj)
-        self._alarms = new_alarms
-        return del_alarms
+        if update:
+            self._alarms = new_alarms
+        return new_alarms
 
-    def filter_by_dete_res_mask(self, mask_dete_res, cover_index_th=0.5):
+    def filter_by_dete_res_mask(self, mask_dete_res, cover_index_th=0.5, update=True):
         """将一个 deteRes 作为 mask 过滤 self"""
         dete_res_temp = DeteRes()
         for each_dete_obj in mask_dete_res:
             each_dete_res = self.deep_copy(copy_img=False)
             each_dete_res.filter_by_mask(each_dete_obj.get_points(), cover_index_th)
             dete_res_temp += each_dete_res
-        self.reset_alarms(dete_res_temp.alarms)
+        if update:
+            self.reset_alarms(dete_res_temp.alarms)
+        return dete_res_temp
 
-    def filter_by_func(self, func):
+    def filter_by_func(self, func, update=True):
         """使用指定函数对 DeteObj 进行过滤"""
         new_alarms, del_alarms = [], []
         for each_dete_obj in self._alarms:
@@ -919,10 +926,11 @@ class DeteRes(ResBase, ABC):
                 new_alarms.append(each_dete_obj)
             else:
                 del_alarms.append(each_dete_obj)
-        self._alarms = new_alarms
-        return del_alarms
+        if update:
+            self._alarms = new_alarms
+        return new_alarms
 
-    def filter_by_topn(self, nn):
+    def filter_by_topn(self, nn, update=True):
         # 远景小目标过滤, 相对小的，从大到小排序，取前nn名的平均值/2作为阈值(籍天明，ljc)
         obj_area_list = []
         for dete_obj in self._alarms:
@@ -933,7 +941,7 @@ class DeteRes(ResBase, ABC):
         if nn < len(obj_area_list):
             threshold = np.average(obj_area_list[:nn]) / 2
         # filter by area
-        self.filter_by_area(threshold)
+        return self.filter_by_area(threshold, update=update)
 
     # ----------------------------------------------- set --------------------------------------------------------------
 

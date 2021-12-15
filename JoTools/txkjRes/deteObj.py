@@ -165,6 +165,8 @@ class PointObj(object):
         self.conf = conf
         self.id = assign_id
         self.des = describe
+        self.shape_type = 'point'
+        self.group_id = None
 
     def __eq__(self, other):
         # 类型不同返回 false

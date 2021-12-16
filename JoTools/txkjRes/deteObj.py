@@ -155,6 +155,11 @@ class DeteObj(object):
             self.crop_path = ''
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+# todo 大模型，将所有的对象全部放进去，可以提取其中的，line,linestrip,polygon,points,rectangle,circle，得到对应的对象，然后再去单独处理
+
+
 class PointObj(object):
 
     def __init__(self, x, y, tag, conf=-1, assign_id=-1, describe='', area=-1):
@@ -209,6 +214,98 @@ class PointObj(object):
         y2 = self.y + (height/2)
         res = DeteObj(x1=x1, x2=x2, y1=y1, y2=y2, conf=self.conf, tag=self.tag, assign_id=self.id, describe=self.des)
         return res
+
+
+class LineObj(object):
+    """线对象，里面存储的是一个个的点对象"""
+
+    def __init__(self,start_x, start_y, end_x, end_y,  tag, conf=-1, assign_id=-1, describe=''):
+        self.start_x = start_x
+        self.start_y = start_y
+        self.end_x = end_x
+        self.end_y = end_y
+        self.tag = tag
+        self.conf=conf
+        self.id = assign_id
+        self.des = describe
+        self.alarms = []
+        self.shape_type = 'line'
+
+    def do_offset(self, offset_x, offset_y):
+        self.start_x += offset_x
+        self.end_x += offset_x
+        self.start_y += offset_y
+        self.end_y += offset_y
+
+    def deep_copy(self):
+        return copy.deepcopy(self)
+
+    def get_rectangle(self):
+        """找到外接矩形"""
+        return [self.start_x, self.start_y, self.end_x, self.end_y]
+
+    def get_points(self):
+        res = []
+        for each_point_obj in self.alarms:
+            res.append((each_point_obj.x, each_point_obj.y))
+        return res
+
+
+class LineStripObj(object):
+    """线对象，里面存储的是一个个的点对象"""
+
+    def __init__(self, tag, conf=-1, assign_id=-1, describe=''):
+        self.tag = tag
+        self.conf=conf
+        self.id = assign_id
+        self.des = describe
+        self.alarms = []
+        self.shape_type = 'line_strip'
+
+    def do_offset(self, offset_x, offset_y):
+        for each_point_obj in self.alarms:
+            each_point_obj.do_offset(offset_x, offset_y)
+
+    def deep_copy(self):
+        return copy.deepcopy(self)
+
+    def get_rectangle(self):
+        """找到外接矩形"""
+        x1 = y1 = math.inf
+        x2 = y2 = -math.inf
+        for each_point_obj in self.alarms:
+            each_x, each_y = each_point_obj.x, each_point_obj.y
+            x1 = min(x1, each_x)
+            y1 = min(y1, each_y)
+            x2 = max(x2, each_x)
+            y2 = max(y2, each_y)
+        return [x1, y1, x2, y2]
+
+    def get_points(self):
+        res = []
+        for each_point_obj in self.alarms:
+            res.append((each_point_obj.x, each_point_obj.y))
+        return res
+
+
+class CricleObj(object):
+    pass
+
+
+class RectangleObj(object):
+    pass
+
+
+class PolygonObj(object):
+    pass
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

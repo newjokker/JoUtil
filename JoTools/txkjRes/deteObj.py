@@ -262,6 +262,12 @@ class LineStripObj(object):
         self.alarms = []
         self.shape_type = 'line_strip'
 
+    def add_point(self, x, y, tag='polugon_point'):
+        self.alarms.append(PointObj(x, y, tag=tag))
+
+    def add_point_2(self, each_point):
+        self.alarms.append(each_point)
+
     def do_offset(self, offset_x, offset_y):
         for each_point_obj in self.alarms:
             each_point_obj.do_offset(offset_x, offset_y)
@@ -289,18 +295,80 @@ class LineStripObj(object):
 
 
 class CricleObj(object):
-    pass
+
+    # 用两个点表示一个圆，圆的中心点和一个在圆周的点
+
+    def __init__(self, center_x, center_y, point_x, point_y, tag, conf=-1, assign_id=-1, describe=""):
+        self.tag = tag
+        self.conf=conf
+        self.id = assign_id
+        self.des = describe
+        self.center_x = center_x
+        self.center_y = center_y
+        self.point_x = point_x
+        self.point_y = point_y
+        self.radius = math.sqrt((self.center_x-point_x)**2 + (self.center_y-point_y)**2)
+        self.shape_type = 'circle'
+
+    def get_name_str(self):
+        name_str = ""
+        return name_str
 
 
 class RectangleObj(object):
-    pass
+
+    def __init__(self, x1, y1, x2, y2, tag, conf=-1, assign_id=-1, describe=""):
+        self.tag = tag
+        self.conf=conf
+        self.id = assign_id
+        self.des = describe
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+        self.shape_type = 'rectangle'
 
 
 class PolygonObj(object):
-    pass
 
+    def __init__(self, tag, conf=-1, assign_id=-1, describe=""):
+        self.tag = tag
+        self.conf=conf
+        self.id = assign_id
+        self.des = describe
+        self.alarms = []
+        self.shape_type = 'polygon'
 
+    def add_point(self, x, y, tag='polugon_point'):
+        self.alarms.append(PointObj(x, y, tag=tag))
 
+    def add_point_2(self, each_point):
+        self.alarms.append(each_point)
+
+    def do_offset(self, offset_x, offset_y):
+        for each_point_obj in self.alarms:
+            each_point_obj.do_offset(offset_x, offset_y)
+
+    def deep_copy(self):
+        return copy.deepcopy(self)
+
+    def get_rectangle(self):
+        """找到外接矩形"""
+        x1 = y1 = math.inf
+        x2 = y2 = -math.inf
+        for each_point_obj in self.alarms:
+            each_x, each_y = each_point_obj.x, each_point_obj.y
+            x1 = min(x1, each_x)
+            y1 = min(y1, each_y)
+            x2 = max(x2, each_x)
+            y2 = max(y2, each_y)
+        return [x1, y1, x2, y2]
+
+    def get_points(self):
+        res = []
+        for each_point_obj in self.alarms:
+            res.append((each_point_obj.x, each_point_obj.y))
+        return res
 
 
 

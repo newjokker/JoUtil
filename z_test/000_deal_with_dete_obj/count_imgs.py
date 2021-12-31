@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
         OperateDeteRes.count_assign_dir(args.img_dir, endswitc=endswitch)
     else:
-        img_dir = r"E:\jyz_data_segment"
+        img_dir = r"C:\Users\14271\Desktop\crop\crop"
         # OperateDeteRes.count_assign_dir(img_dir, endswitc=['.xml', '.jpg'])
-        OperateDeteRes.count_assign_dir(img_dir, endswitc=['.json'])
+        OperateDeteRes.count_assign_dir(img_dir, endswitc=['.jpg'])
 
 

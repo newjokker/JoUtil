@@ -24,7 +24,7 @@ if __name__ == "__main__":
     else:
         # xml_dir = r"C:\Users\14271\Desktop\save_res"
         # xml_dir = r"C:\Users\14271\Desktop\docker-0.0.1\save_res"
-        xml_dir = r"C:\Users\14271\Desktop\local_model_xml"
+        xml_dir = r"C:\Users\14271\Desktop\xml_tmp"
         # xml_dir = r"C:\Users\14271\Desktop\save_res_del"
         OperateDeteRes.get_class_count(xml_dir, print_count=True)
 

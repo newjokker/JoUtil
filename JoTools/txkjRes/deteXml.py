@@ -226,11 +226,11 @@ def parse_xml_as_txt(xml_path):
             elif each_line.startswith('<folder>'):
                 xml_info['folder'] = parse_assign_line(each_line, 'folder')
             elif each_line.startswith('<height>'):
-                xml_info['height'] = float(parse_assign_line(each_line, 'height'))
+                xml_info['size']['height'] = float(parse_assign_line(each_line, 'height'))
             elif each_line.startswith('<width>'):
-                xml_info['width'] = float(parse_assign_line(each_line, 'width'))
+                xml_info['size']['width'] = float(parse_assign_line(each_line, 'width'))
             elif each_line.startswith('<depth>'):
-                xml_info['depth'] = float(parse_assign_line(each_line, 'depth'))
+                xml_info['size']['depth'] = float(parse_assign_line(each_line, 'depth'))
             elif each_line.startswith('<path>'):
                 xml_info['path'] = parse_assign_line(each_line, 'path')
             elif each_line.startswith('<segmented>'):

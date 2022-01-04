@@ -17,3 +17,8 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
     a.angle_obj_to_obj()
     a.save_to_xml(each_xml_path)
 
+
+
+
+
+

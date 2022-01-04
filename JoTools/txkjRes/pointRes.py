@@ -192,11 +192,16 @@ class PointRes(ResBase):
         json_dict['shapes'] = JsonUtil.save_data_to_json_str(shapes)
         return json_dict
 
-    def draw_res(self, save_path, radius=3):
-        img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+    def draw_res(self, save_path, assign_img=None, radius=3):
+        if not assign_img is None:
+            img = assign_img
+        else:
+            img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+        #
         for each_point_obj in self:
             img = cv2.circle(img, (int(each_point_obj.x), int(each_point_obj.y)), radius, [255,255,0], thickness=2)
         cv2.imencode('.jpg', img)[1].tofile(save_path)
+        return img
 
     def get_fzc_format(self):
         """按照防振锤模型设定的输出格式进行格式化， [tag, index, int(x1), int(y1), int(x2), int(y2), str(score)], des"""

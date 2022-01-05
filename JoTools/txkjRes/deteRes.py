@@ -117,6 +117,9 @@ from ..utils.DecoratorUtil import DecoratorUtil
 
 # todo crop_dete_obj 等于 crop_and_save 不用把同样的功能实现两遍
 
+# fixme 获取小图截图范围的时候需要看看是不是 RGB 三通道是反的，是不是需要处理一下
+
+
 
 class DeteRes(ResBase, ABC):
     """检测结果"""

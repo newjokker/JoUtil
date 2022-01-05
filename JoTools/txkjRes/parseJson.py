@@ -52,5 +52,6 @@ for each_shape in a["shapes"]:
         new_line_strip = LineStripObj(tag=each_label, assign_id=obj_index)
         for each_point in each_shape["points"]:
             new_line_strip.add_point(each_point[0], each_point[1], tag="line_strip_point")
-
+    else:
+        raise TypeError("type not support : {0}".format(each_shape_type))
 

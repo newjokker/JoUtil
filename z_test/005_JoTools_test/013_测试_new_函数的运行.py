@@ -1,33 +1,33 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-
+import cv2
+import numpy as np
 from JoTools.txkjRes.deteRes import DeteRes
-
+import matplotlib.pyplot as plt
 
 
 img_path = r"C:\Users\14271\Desktop\del\test\00fa186e8d4d6660b49ddef8a35a77de.jpg"
 xml_path = r"C:\Users\14271\Desktop\del\test\save.xml"
 save_xml_path = r"C:\Users\14271\Desktop\del\test\save_002.xml"
 
-a = DeteRes(xml_path=xml_path, assign_img_path=img_path)
+a = DeteRes(xml_path=xml_path)
+a.img_path = img_path
+
+img_ndarry = cv2.imdecode(np.fromfile(a.img_path, dtype=np.uint8), 1)
+img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_BGR2RGB)
+a.img_ndarry = img_ndarry
 
 
-print(a.des)
+for each_dete_obj in a:
+    print(each_dete_obj)
 
+    # b = a.get_sub_img_by_dete_obj_new(each_dete_obj, RGB=True)
+    b = a.get_sub_img_by_dete_obj(each_dete_obj, RGB=True)
+    # b = a.get_img_array_new(RGB=True)
 
-a.des = "just test 003"
-
-
-b = a.save_to_json()
-
-c = DeteRes(json_dict=b)
-
-c.print_as_fzc_format()
-
-c.save_to_xml(save_xml_path)
-
-
+    plt.imshow(b)
+    plt.show()
 
 
 

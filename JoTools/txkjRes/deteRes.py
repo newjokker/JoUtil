@@ -276,7 +276,7 @@ class DeteRes(ResBase, ABC):
             self.folder = json_info['folder']
 
         if 'des' in json_info:
-            self.folder = json_info['des']
+            self.des = json_info['des']
 
         # 解析 object 信息
         if 'object' in json_info:
@@ -311,7 +311,7 @@ class DeteRes(ResBase, ABC):
         """保存为 xml 文件"""
         xml_info = {'size': {'height': str(int(self.height)), 'width': str(int(self.width)), 'depth': '3'},
                     'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
-                    'segmented': "", 'source': "", "des": ""}
+                    'segmented': "", 'source': "", "des": str(self.des)}
 
         if assign_alarms is None:
             alarms = self._alarms

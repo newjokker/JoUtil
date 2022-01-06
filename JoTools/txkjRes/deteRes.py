@@ -439,7 +439,7 @@ class DeteRes(ResBase, ABC):
             # each_crop.save(each_save_path, quality=95)
             each_crop.save(each_save_path)
 
-    @DecoratorUtil.time_this
+    # @DecoratorUtil.time_this
     def crop_dete_obj_new(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
@@ -447,7 +447,9 @@ class DeteRes(ResBase, ABC):
         # fixme 存储 crop 存的文件夹，
 
         if self.img_ndarry is None:
-            self.img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_BGR2RGB)
+
         #
         if assign_img_name is not None:
             img_name = assign_img_name
@@ -590,13 +592,13 @@ class DeteRes(ResBase, ABC):
         else:
             return cv2.cvtColor(im_array, cv2.COLOR_RGB2BGR)
 
-    @DecoratorUtil.time_this
+    # @DecoratorUtil.time_this
     def get_sub_img_by_dete_obj_new(self, assign_dete_obj, augment_parameter=None, RGB=True, assign_shape_min=False):
         """根据指定的 deteObj """
 
         if self.img_ndarry is None:
             img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
-            # self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_RGB2BGR)
+            self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_BGR2RGB)
 
         if augment_parameter is None:
             crop_range = [assign_dete_obj.x1, assign_dete_obj.y1, assign_dete_obj.x2, assign_dete_obj.y2]
@@ -627,13 +629,13 @@ class DeteRes(ResBase, ABC):
         for each_dete_obj in self:
             each_dete_obj.del_crop_img()
 
-    @DecoratorUtil.time_this
+    # @DecoratorUtil.time_this
     def get_img_array_new(self, RGB=True):
         """获取self.img对应的矩阵信息"""
 
         if self.img_ndarry is None:
-            self.img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
-
+            img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_BGR2RGB)
         if RGB:
             return cv2.cvtColor(self.img_ndarry, cv2.COLOR_RGB2BGR)
         else:
@@ -1216,7 +1218,8 @@ class DeteRes(ResBase, ABC):
         """
 
         if self.img_ndarry is None:
-            self.img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
+            self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_BGR2RGB)
         #
         if assign_img_name is not None:
             img_name = assign_img_name

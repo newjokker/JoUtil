@@ -207,6 +207,9 @@ class DeteRes(ResBase, ABC):
         if 'folder' in xml_info:
             self.folder = xml_info['folder']
 
+        if "des" in xml_info:
+            self.des = xml_info["des"]
+
         # 解析 object 信息
         for each_obj in xml_info['object']:
             # bndbox
@@ -272,6 +275,9 @@ class DeteRes(ResBase, ABC):
         if 'folder' in json_info:
             self.folder = json_info['folder']
 
+        if 'des' in json_info:
+            self.folder = json_info['des']
+
         # 解析 object 信息
         if 'object' in json_info:
             for each_obj in JsonUtil.load_data_from_json_str(json_info['object']):
@@ -305,7 +311,7 @@ class DeteRes(ResBase, ABC):
         """保存为 xml 文件"""
         xml_info = {'size': {'height': str(int(self.height)), 'width': str(int(self.width)), 'depth': '3'},
                     'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
-                    'segmented': "", 'source': ""}
+                    'segmented': "", 'source': "", "des": ""}
 
         if assign_alarms is None:
             alarms = self._alarms
@@ -337,7 +343,7 @@ class DeteRes(ResBase, ABC):
 
         json_dict = {'size': JsonUtil.save_data_to_json_str({'height': int(self.height), 'width': int(self.width), 'depth': '3'}),
                     'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
-                    'segmented': "", 'source': ""}
+                    'segmented': "", 'source': "", "des":self.des}
         # 可以指定输出的 alarms
         if assign_alarms is None:
             alarms = self._alarms

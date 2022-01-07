@@ -634,12 +634,12 @@ class DeteRes(ResBase, ABC):
         """获取self.img对应的矩阵信息"""
 
         if self.img_ndarry is None:
-            img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
-            self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_BGR2RGB)
+            img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)        # GBR
+            self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_BGR2RGB)                   # RGB
         if RGB:
-            return cv2.cvtColor(self.img_ndarry, cv2.COLOR_RGB2BGR)
-        else:
             return self.img_ndarry
+        else:
+            return cv2.cvtColor(self.img_ndarry, cv2.COLOR_RGB2BGR)
 
     # @DecoratorUtil.time_this
     def get_img_array(self, RGB=True):

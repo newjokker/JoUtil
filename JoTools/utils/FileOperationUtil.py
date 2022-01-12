@@ -225,14 +225,36 @@ class FileOperationUtil(object):
 
         print(a)
 
+    @staticmethod
+    def devision_by_suffix(file_path_list, save_dir=None, is_clip=False):
+        """文件根据后缀进行整理"""
+        suffix_dict = {}
+        for each_file_path in file_path_list:
+            folder, file_name, suffix = FileOperationUtil.bang_path(each_file_path)
+            if suffix in suffix_dict:
+                suffix_dict[suffix].append(each_file_path)
+            else:
+                suffix_dict[suffix] = [each_file_path]
+        # 是否移动到指定文件夹
+        if save_dir is not None:
+            for each_suffix in suffix_dict:
+                each_save_dir = os.path.join(save_dir, each_suffix)
+                os.makedirs(each_save_dir, exist_ok=True)
+                FileOperationUtil.move_file_to_folder(suffix_dict[each_suffix], each_save_dir, is_clicp=is_clip)
+        return suffix_dict
+
 
 
 if __name__ == "__main__":
 
     #FileOperationUtil.clear_empty_folder(r"C:\Users\14271\Desktop\del")
 
-    file_dir = r"/home/suanfa-1/ceshiji"
+    file_dir = r"D:\AppData\baiduwangpan\来自：iPhone"
+    save_dir = r"D:\AppData\baiduwangpan\devision_by_suffix"
 
-    FileOperationUtil.show_file_dispersed(file_dir, endswitch=['.jpg', '.JPG'], assign_func=lambda x:int(os.path.getsize(x)/(1024*1024)))
+    # FileOperationUtil.show_file_dispersed(file_dir, endswitch=['.jpg', '.JPG'], assign_func=lambda x:int(os.path.getsize(x)/(1024*1024)))
+
+    file_path_list = list(FileOperationUtil.re_all_file(file_dir))
+    FileOperationUtil.devision_by_suffix(file_path_list, save_dir, is_clip=True)
 
 

@@ -35,8 +35,8 @@ import os
 #     plt.show()
 #
 
-img_dir = r"C:\Users\14271\Desktop\res"
-save_dir = r"C:\Users\14271\Desktop\human_xml"
+img_dir = r"/home/ldq/20220112_img_from_iphone/img"
+save_dir = r"/home/ldq/20220112_img_from_iphone/xml"
 
 detector = dlib.get_frontal_face_detector()
 for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg', '.JPG', '.png', '.PNG']):

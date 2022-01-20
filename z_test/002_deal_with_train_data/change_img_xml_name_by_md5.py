@@ -9,9 +9,9 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-img_dir = r"C:\Users\14271\Desktop\武汉测试集目前标注完成"
-xml_dir = r"C:\Users\14271\Desktop\武汉测试集目前标注完成"
-save_dir = r"C:\Users\14271\Desktop\test_set"
+img_dir = r"C:\Users\14271\Desktop\20220112_img_from_iphone\img"
+xml_dir = r"C:\Users\14271\Desktop\20220112_img_from_iphone\xml"
+save_dir = r"C:\Users\14271\Desktop\20220112_img_from_iphone\data"
 
 
 save_img_dir = os.path.join(save_dir, 'JPEGImages')
@@ -32,6 +32,10 @@ for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg', '
     if os.path.exists(each_xml_path):
         # shutil.copy(each_img_path, img_new_path)
         # shutil.copy(each_xml_path, xml_new_path)
+
+        a = DeteRes(each_xml_path)
+        if len(a) < 1:
+            continue
 
         shutil.move(each_img_path, img_new_path)
         shutil.move(each_xml_path, xml_new_path)

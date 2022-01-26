@@ -37,7 +37,7 @@ class CsvUtil(object):
         :param csv_path: str
         :return: None
         """
-        with open(csv_path, "w", newline='') as csvfile:
+        with open(csv_path, "w", newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(list_data)
 

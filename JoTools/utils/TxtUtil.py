@@ -20,7 +20,7 @@ class TxtUtil(object):
 
     @staticmethod
     def write_table_to_txt(table, txt_path, sep='\t', end_line=''):
-        with open(txt_path, 'w') as txt_file:
+        with open(txt_path, 'w', encoding='utf-8') as txt_file:
             for each_line in table:
                 each_line = map(lambda x:str(x), each_line)
                 txt_file.write(sep.join(each_line) + end_line)

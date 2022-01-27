@@ -25,3 +25,5 @@ JsonUtil.save_data_to_json_file(cy_json_list, r"chengyuzidian.json")
 
 TxtUtil.write_table_to_txt(cy_list, r"chengyu.txt")
 #
+
+

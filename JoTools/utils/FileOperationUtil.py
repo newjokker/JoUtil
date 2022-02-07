@@ -7,6 +7,30 @@ import datetime
 import collections
 
 
+class FilterFun():
+    """过滤函数，一般用法是作为参数传入 FileOperateUtil.re_all_file 函数"""
+
+    @staticmethod
+    def get_filter_about_file_size(assign_size, mode='lt'):
+        """根据大小进行过滤, lt:过滤掉小于阈值的路径，bt:过滤掉大于阈值的路径, eq:等于"""
+
+        def filter_func(img_path):
+            file_size = os.path.getsize(img_path)
+            if mode == 'lt':
+                if file_size < assign_size:
+                    return False
+            elif mode == 'bt':
+                if file_size > assign_size:
+                    return False
+            elif mode == 'eq':
+                if file_size == assign_size:
+                    return False
+            else:
+                raise ValueError("mode must in ['lt', 'bt', 'eq']")
+            return True
+
+        return filter_func
+
 class FileOperationUtil(object):
     """文件操作类"""
 
@@ -84,6 +108,11 @@ class FileOperationUtil(object):
                  'c_time': datetime.datetime.utcfromtimestamp(os.path.getctime(file_path)),
                  'm_time': datetime.datetime.utcfromtimestamp(os.path.getmtime(file_path))}
         return desrb
+
+    @staticmethod
+    def get_size(file_path):
+        """获取文件的大小"""
+        return os.path.getsize(file_path)
 
     @staticmethod
     def move_file_to_folder(file_path_list, assign_folder, is_clicp=False):
@@ -247,14 +276,8 @@ class FileOperationUtil(object):
 
 if __name__ == "__main__":
 
-    #FileOperationUtil.clear_empty_folder(r"C:\Users\14271\Desktop\del")
+    img_dir = r"C:\Users\14271\Desktop\del"
 
-    file_dir = r"D:\AppData\baiduwangpan\来自：iPhone"
-    save_dir = r"D:\AppData\baiduwangpan\devision_by_suffix"
-
-    # FileOperationUtil.show_file_dispersed(file_dir, endswitch=['.jpg', '.JPG'], assign_func=lambda x:int(os.path.getsize(x)/(1024*1024)))
-
-    file_path_list = list(FileOperationUtil.re_all_file(file_dir))
-    FileOperationUtil.devision_by_suffix(file_path_list, save_dir, is_clip=True)
-
-
+    for each_img_path in FileOperationUtil.re_all_file(img_dir, func=FilterFun.get_filter_about_file_size(1, mode='bt')):
+        img_size = os.path.getsize(each_img_path)
+        print(img_size)

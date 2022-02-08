@@ -18,16 +18,16 @@ class FilterFun():
             file_size = os.path.getsize(img_path)
             if mode == 'lt':
                 if file_size < assign_size:
-                    return False
+                    return True
             elif mode == 'bt':
                 if file_size > assign_size:
-                    return False
+                    return True
             elif mode == 'eq':
                 if file_size == assign_size:
-                    return False
+                    return True
             else:
                 raise ValueError("mode must in ['lt', 'bt', 'eq']")
-            return True
+            return False
 
         return filter_func
 

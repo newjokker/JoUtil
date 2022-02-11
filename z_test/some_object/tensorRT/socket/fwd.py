@@ -34,6 +34,8 @@ PLUGIN_LIBRARY = "/home/tensorRT/tensorrtx/yolov5/build/libmyplugins.so"
 ctypes.CDLL(PLUGIN_LIBRARY)
 
 
+# fixme 要是有多个推送源会导致报错，因为一个信息接收之后才能接收第二个信息，所以可以直接接收图片大小的数据，这样就不会有问题了，要提前指定图像数据的大小
+
 
 class FrameCal():
 
@@ -83,53 +85,45 @@ def deal_image(sock, addr):
     print("Accept connection from {0}".format(addr))                                                # 查看发送端的ip和端口
 
     while True:
+        fileinfo_size = struct.calcsize('128sq')
+        buf = sock.recv(fileinfo_size)
+        if buf:
+            filename, filesize = struct.unpack('128sq', buf)
+            # fn = filename.decode().strip('\x00')                                                      # file name
 
-        try:
+            recvd_size = 0
+            res = b""
 
-            fileinfo_size = struct.calcsize('128sq')
-            buf = sock.recv(fileinfo_size)
-            if buf:
-                filename, filesize = struct.unpack('128sq', buf)
-                # fn = filename.decode().strip('\x00')                                                      # file name
+            while not recvd_size == filesize:
+                if filesize - recvd_size > 1024:
+                    data = sock.recv(1024)
+                    recvd_size += len(data)
+                    res += data
+                else:
+                    data = sock.recv(1024)
+                    recvd_size = filesize
+                    res += data
 
-                recvd_size = 0
-                res = b""
+            print('-'*30)
+            now_frame = fc.get_frame()
+            print("* frame", now_frame)
+            print('-'*30)
 
-                while not recvd_size == filesize:
-                    if filesize - recvd_size > 1024:
-                        data = sock.recv(1024)
-                        recvd_size += len(data)
-                        res += data
-                    else:
-                        data = sock.recv(1024)
-                        recvd_size = filesize
-                        res += data
+            if now_frame > video_fps:
+                print('*skip*')
+                continue
 
+            img_np_arr = np.fromstring(res, np.uint8)
+            frame = cv2.imdecode(img_np_arr, cv2.COLOR_BGR2RGB)
 
-                print('-'*30 + 'frame')
-                now_frame = fc.get_frame()
-                print(now_frame)
-                print('-'*30 + 'frame')
+            # ----------------------------------------------------------------------------------------------------------
+            dete_res = model.detectSOUT(image=frame)
+            dete_res.print_as_fzc_format()
+            dete_res.draw_dete_res(r"./res/res.jpg", assign_img=frame, color_dict={"class_2":[255,255,255]})
+            #
+            p.stdin.write(frame.tostring())
 
-                if now_frame > video_fps:
-                    print('*skip*')
-                    continue
-
-                img_np_arr = np.fromstring(res, np.uint8)
-                frame = cv2.imdecode(img_np_arr, cv2.COLOR_BGR2RGB)
-
-                # ----------------------------------------------------------------------------------------------------------
-                dete_res = model.detectSOUT(image=frame)
-                dete_res.print_as_fzc_format()
-                dete_res.draw_dete_res(r"./res/res.jpg", assign_img=frame, color_dict={"class_2":[255,255,255]})
-                #
-                p.stdin.write(frame.tostring())
-
-                fc.tag()
-                # ----------------------------------------------------------------------------------------------------------
-
-        except Exception as e:
-            print(e)
+            fc.tag()
 
         sock.close()
         break
@@ -152,11 +146,6 @@ def parse_args():
 
 if __name__ == '__main__':
 
-
-    start_time = time.time()
-    args = parse_args()
-    portNum = args.port
-    host = args.host
     # ------------------------------------------------------------------------------------------------------------------
     fc = FrameCal(100)
     objName = "yolov5_rt_aqm"
@@ -164,6 +153,12 @@ if __name__ == '__main__':
     rtmpUrl = "rtmp://192.168.3.99/123/221"
     w, h = 1280, 720
     video_fps = 15
+    # ------------------------------------------------------------------------------------------------------------------
+
+    start_time = time.time()
+    args = parse_args()
+    portNum = args.port
+    host = args.host
     # ------------------------------------------------------------------------------------------------------------------
     model = Yolov5RT(args, objName, scriptName)
     model.model_restore()

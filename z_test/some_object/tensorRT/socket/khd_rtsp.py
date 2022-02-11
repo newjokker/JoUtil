@@ -1,63 +1,55 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-'''
-Fuction：客户端发送图片和数据
-Date：2018.9.8
-Author：snowking
-'''
-###客户端client.py
 import socket
 import os
 import sys
 import struct
 import time
 import cv2
+import argparse
 
 
-def sock_client_image():
-
-    filepath = r"C:\Users\14271\Desktop\del\face_3.jpg"
-
-    start_time = time.time()
+def sock_client_image(args):
 
     index = 0
-
-    cap = cv2.VideoCapture(r"rtsp://admin:txkj-2021@192.168.3.17:554/Streaming/Channels/501")
+    start_time = time.time()
+    cap = cv2.VideoCapture(args.rtsp)
 
     while True:
-
-        if time.time() - start_time > 200000:
-            break
-
+        print(index / (time.time() - start_time))
+        #
         ret, frame = cap.read()
-        # ret, frame = cap.read()
-        # ret, frame = cap.read()
-
         if ret:
-            #
+            index += 1
             success, encoded_image = cv2.imencode(".jpg", frame)
-            byte_data = encoded_image.tobytes()
-        else:
-            continue
+            if success:
+                byte_data = encoded_image.tobytes()
+            else:
+                continue
+            #
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((args.host, args.port))
+                fhead = struct.pack(b'128sq', bytes("filepath", encoding='utf-8'), len(byte_data))
+                s.send(fhead)
+                s.send(byte_data)
+            except socket.error as msg:
+                print(msg)
+                time.sleep(3)
 
-        index += 1
-        # print(index)
+def parse_args():
+    parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
+    parser.add_argument('--port', dest='port', type=int, default=1211)
+    parser.add_argument('--host', dest='host', type=str, default='192.168.3.221')
+    parser.add_argument('--rtsp', dest='rtsp', type=str, default=r"rtsp://admin:txkj-2021@192.168.3.17:554/Streaming/Channels/501")
+    args = parser.parse_args()
+    return args
 
-        print(index/(time.time()-start_time))
-
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(('192.168.3.221', 1211))  # 服务器和客户端在不同的系统或不同的主机下时使用的ip和端口，首先要查看服务器所在的系统网卡的ip
-            fhead = struct.pack(b'128sq', bytes(os.path.basename(filepath), encoding='utf-8'), len(byte_data))  # 将xxx.jpg以128sq的格式打包
-            s.send(fhead)
-            s.send(byte_data)  # 以二进制格式发送图片数据
-            # s.close()
-        except socket.error as msg:
-            print(msg)
-            print(sys.exit(1))
 
 
 if __name__ == '__main__':
-    sock_client_image()
+
+    args = parse_args()
+    sock_client_image(args)
 

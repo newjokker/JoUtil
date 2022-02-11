@@ -61,13 +61,13 @@ class FrameCal():
         return len(self.time_list)
 
 
-def socket_service_image():
+def socket_service_image(args):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('0.0.0.0', 1211))
-        # fixme 这边是设置的监听的时间
-        s.listen(10000)
+        # s.bind(('0.0.0.0', 1211))
+        s.bind((args.host, args.port))
+        s.listen(10000)                                                                     # fixme 这边是设置的监听的时间
     except socket.error as msg:
         print(msg)
         sys.exit(1)
@@ -75,71 +75,76 @@ def socket_service_image():
     print("Wait for Connection.....................")
 
     while True:
-        sock, addr = s.accept()  # addr是一个元组(ip,port)
+        sock, addr = s.accept()
         deal_image(sock, addr)
 
 
 def deal_image(sock, addr):
-    print("Accept connection from {0}".format(addr))                    # 查看发送端的ip和端口
+    print("Accept connection from {0}".format(addr))                                                # 查看发送端的ip和端口
 
     while True:
-        fileinfo_size = struct.calcsize('128sq')
-        buf = sock.recv(fileinfo_size)
-        if buf:
-            filename, filesize = struct.unpack('128sq', buf)
-            fn = filename.decode().strip('\x00')                        # file name
 
-            recvd_size = 0
-            res = b""
+        try:
 
-            while not recvd_size == filesize:
-                if filesize - recvd_size > 1024:
-                    data = sock.recv(1024)
-                    recvd_size += len(data)
-                    res += data
-                else:
-                    data = sock.recv(1024)
-                    recvd_size = filesize
-                    res += data
+            fileinfo_size = struct.calcsize('128sq')
+            buf = sock.recv(fileinfo_size)
+            if buf:
+                filename, filesize = struct.unpack('128sq', buf)
+                # fn = filename.decode().strip('\x00')                                                      # file name
+
+                recvd_size = 0
+                res = b""
+
+                while not recvd_size == filesize:
+                    if filesize - recvd_size > 1024:
+                        data = sock.recv(1024)
+                        recvd_size += len(data)
+                        res += data
+                    else:
+                        data = sock.recv(1024)
+                        recvd_size = filesize
+                        res += data
 
 
-            # fixme 增加帧率锁定的功能
+                print('-'*30 + 'frame')
+                now_frame = fc.get_frame()
+                print(now_frame)
+                print('-'*30 + 'frame')
 
+                if now_frame > video_fps:
+                    print('*skip*')
+                    continue
 
-            print('-'*30 + 'frame')
-            now_frame = fc.get_frame()
-            print(now_frame)
-            print('-'*30 + 'frame')
+                img_np_arr = np.fromstring(res, np.uint8)
+                frame = cv2.imdecode(img_np_arr, cv2.COLOR_BGR2RGB)
 
-            if now_frame > 20:
-                print('*skip*')
-                continue
+                # ----------------------------------------------------------------------------------------------------------
+                dete_res = model.detectSOUT(image=frame)
+                dete_res.print_as_fzc_format()
+                dete_res.draw_dete_res(r"./res/res.jpg", assign_img=frame, color_dict={"class_2":[255,255,255]})
+                #
+                p.stdin.write(frame.tostring())
 
-            img_np_arr = np.fromstring(res, np.uint8)
-            frame = cv2.imdecode(img_np_arr, cv2.COLOR_BGR2RGB)
+                fc.tag()
+                # ----------------------------------------------------------------------------------------------------------
 
-            # ----------------------------------------------------------------------------------------------------------
-            dete_res = model.detectSOUT(image=frame)
-            dete_res.print_as_fzc_format()
-            dete_res.draw_dete_res(r"./res/res.jpg", assign_img=frame)
-            #
-            p.stdin.write(frame.tostring())
-
-            fc.tag()
-            # ----------------------------------------------------------------------------------------------------------
+        except Exception as e:
+            print(e)
 
         sock.close()
         break
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port', dest='port', type=int, default=1211)
+    parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
+    #
     parser.add_argument('--gpuID', dest='gpuID', type=int, default=0)
-    parser.add_argument('--port', dest='port', type=int, default=5444)
     parser.add_argument('--gpuRatio', dest='gpuRatio', type=float, default=0.1)
-    parser.add_argument('--host', dest='host', type=str, default='127.0.0.1')
     parser.add_argument('--logID', dest='logID', type=str, default='0')
     parser.add_argument('--objName', dest='objName', type=str, default='')
+    #
     args = parser.parse_args()
     return args
 
@@ -148,30 +153,21 @@ def parse_args():
 if __name__ == '__main__':
 
 
-    stack = []
-
-    fc = FrameCal(100)
-
     start_time = time.time()
     args = parse_args()
-    # portNum = args.port
-    # host = args.host
-    portNum = 1211
-    host = "0.0.0.0"
-
+    portNum = args.port
+    host = args.host
+    # ------------------------------------------------------------------------------------------------------------------
+    fc = FrameCal(100)
     objName = "yolov5_rt_aqm"
     scriptName = "aqm"
-    # --------------------------------------------------------
+    rtmpUrl = "rtmp://192.168.3.99/123/221"
+    w, h = 1280, 720
+    video_fps = 15
+    # ------------------------------------------------------------------------------------------------------------------
     model = Yolov5RT(args, objName, scriptName)
     model.model_restore()
     # --------------------------------------------------------
-    # rtmpUrl = "rtsp://192.168.3.221/live"
-    rtmpUrl = "rtmp://192.168.3.99/123/221"
-    w, h = 1280, 720
-    # w, h = 676, 342
-    # w, h = 556, 368
-    video_fps = 15
-    # -----
     command = ['ffmpeg',
                '-y',
                '-f', 'rawvideo',
@@ -192,8 +188,8 @@ if __name__ == '__main__':
 
     # 管道配置
     p = sp.Popen(command, stdin=sp.PIPE)
-
-    socket_service_image()
+    #
+    socket_service_image(args)
 
 
 

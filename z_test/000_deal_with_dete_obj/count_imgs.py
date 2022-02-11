@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
         OperateDeteRes.count_assign_dir(args.img_dir, endswitc=endswitch)
     else:
-        img_dir = r"C:\Users\14271\Desktop\防振锤"
+        img_dir = r"D:\data\001_fzc_优化相关资料\dataset_fzc\001_train_data_step_1.5\解压"
         # OperateDeteRes.count_assign_dir(img_dir, endswitc=['.xml', '.jpg'])
-        OperateDeteRes.count_assign_dir(img_dir, endswitc=['.jpg'])
+        OperateDeteRes.count_assign_dir(img_dir, endswitc=['.jpg', '.JPG', '.png', '.PNG'])
 
 

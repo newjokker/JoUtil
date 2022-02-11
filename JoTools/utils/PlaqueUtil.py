@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     test_dect = np.zeros((a_length, a_length), np.bool)
 
-    for i in range(1500):
+    for i in range(4000):
         test_dect[random.randint(0, a_length-1), random.randint(0, a_length-1)] = 1
 
     plt.matshow(GetPlaque.get_plaque(test_dect))

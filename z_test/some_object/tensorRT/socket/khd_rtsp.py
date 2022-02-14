@@ -37,6 +37,7 @@ def sock_client_image(args):
             except socket.error as msg:
                 print(msg)
                 time.sleep(3)
+                exit()
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')

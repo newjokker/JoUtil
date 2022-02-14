@@ -117,11 +117,15 @@ def deal_image(sock, addr):
             frame = cv2.imdecode(img_np_arr, cv2.COLOR_BGR2RGB)
 
             # ----------------------------------------------------------------------------------------------------------
-            dete_res = model.detectSOUT(image=frame)
-            dete_res.print_as_fzc_format()
-            dete_res.draw_dete_res(r"./res/res.jpg", assign_img=frame, color_dict={"class_2":[255,255,255]})
-            #
-            p.stdin.write(frame.tostring())
+
+            try:
+                dete_res = model.detectSOUT(image=frame)
+                dete_res.print_as_fzc_format()
+                dete_res.draw_dete_res("", assign_img=frame, color_dict={"class_2":[255,255,255]})
+                #
+                p.stdin.write(frame.tostring())
+            except Exception as e:
+                print(e)
 
             fc.tag()
 
@@ -133,6 +137,10 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', dest='port', type=int, default=1211)
     parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
+    parser.add_argument('--rtmp', dest='rtmp', type=str, default='rtmp://192.168.3.99/123/221')
+    parser.add_argument('--w', dest='w', type=int, default=1280)
+    parser.add_argument('--h', dest='h', type=int, default=720)
+    parser.add_argument('--fps', dest='fps', type=int, default=15)
     #
     parser.add_argument('--gpuID', dest='gpuID', type=int, default=0)
     parser.add_argument('--gpuRatio', dest='gpuRatio', type=float, default=0.1)
@@ -146,17 +154,21 @@ def parse_args():
 
 if __name__ == '__main__':
 
+    args = parse_args()
     # ------------------------------------------------------------------------------------------------------------------
     fc = FrameCal(100)
     objName = "yolov5_rt_aqm"
     scriptName = "aqm"
-    rtmpUrl = "rtmp://192.168.3.99/123/221"
-    w, h = 1280, 720
-    video_fps = 15
+    #
+    # rtmp = "rtmp://192.168.3.99/123/221"
+    # w, h = 1280, 720
+    # video_fps = 15
+    rtmp = args.rtmp
+    w, h = args.w, args.h
+    video_fps = args.fps
     # ------------------------------------------------------------------------------------------------------------------
 
     start_time = time.time()
-    args = parse_args()
     portNum = args.port
     host = args.host
     # ------------------------------------------------------------------------------------------------------------------
@@ -179,7 +191,7 @@ if __name__ == '__main__':
                '-sc_threshold', '499',
                '-rtsp_transport', 'tcp',
                '-f', 'rtsp',
-               rtmpUrl]
+               rtmp]
 
     # 管道配置
     p = sp.Popen(command, stdin=sp.PIPE)

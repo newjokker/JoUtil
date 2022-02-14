@@ -16,8 +16,10 @@ def sock_client_image(args):
     start_time = time.time()
     cap = cv2.VideoCapture(args.rtsp)
 
+    print("* push start : {0}".format(start_time))
+
     while True:
-        print(index / (time.time() - start_time))
+        # print(index / (time.time() - start_time))
         #
         ret, frame = cap.read()
         if ret:
@@ -28,16 +30,12 @@ def sock_client_image(args):
             else:
                 continue
             #
-            try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((args.host, args.port))
-                fhead = struct.pack(b'128sq', bytes("filepath", encoding='utf-8'), len(byte_data))
-                s.send(fhead)
-                s.send(byte_data)
-            except socket.error as msg:
-                print(msg)
-                time.sleep(3)
-                exit()
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((args.host, args.port))
+            fhead = struct.pack(b'128sq', bytes("filepath", encoding='utf-8'), len(byte_data))
+            s.send(fhead)
+            s.send(byte_data)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')

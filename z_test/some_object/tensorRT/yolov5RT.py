@@ -194,7 +194,7 @@ class Yolov5RT(detection):
 
         for i in range(len(boxes)):
             xmin, ymin, xmax, ymax = boxes[i]
-            print(classes[i])
+            # print(classes[i])
             label = self.class_dict[classes[i]]
             prob = float(scores[i])
             dete_obj = DeteObj(x1=int(xmin), y1=int(ymin), x2=int(xmax), y2=int(ymax), tag=label, conf=prob, assign_id=i)

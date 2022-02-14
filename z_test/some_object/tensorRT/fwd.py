@@ -34,7 +34,7 @@ PLUGIN_LIBRARY = "/home/tensorRT/tensorrtx/yolov5/build/libmyplugins.so"
 ctypes.CDLL(PLUGIN_LIBRARY)
 
 
-# fixme 要是有多个推送源会导致报错，因为一个信息接收之后才能接收第二个信息，所以可以直接接收图片大小的数据，这样就不会有问题了，要提前指定图像数据的大小
+# fixme 目前会提是显示的图片的大小和接受的实际数据大小不一致，所以会摆错
 
 
 class FrameCal():
@@ -82,32 +82,38 @@ def socket_service_image(args):
 
 
 def deal_image(sock, addr):
-    print("Accept connection from {0}".format(addr))                                                # 查看发送端的ip和端口
+    # print("Accept connection from {0}".format(addr))                                                # 查看发送端的ip和端口
 
     while True:
         fileinfo_size = struct.calcsize('128sq')
         buf = sock.recv(fileinfo_size)
         if buf:
-            filename, filesize = struct.unpack('128sq', buf)
-            # fn = filename.decode().strip('\x00')                                                      # file name
+
+            try:
+                filename, filesize = struct.unpack('128sq', buf)
+                # fn = filename.decode().strip('\x00')                                                      # file name
+            except Exception as e:
+                print(e)
+                continue
 
             recvd_size = 0
             res = b""
+            buff_size = 100 
 
-            while not recvd_size == filesize:
-                if filesize - recvd_size > 1024:
-                    data = sock.recv(1024)
+            while not recvd_size >= filesize:
+                if filesize - recvd_size > buff_size:
+                    data = sock.recv(buff_size)
                     recvd_size += len(data)
                     res += data
                 else:
-                    data = sock.recv(1024)
+                    data = sock.recv(buff_size)
                     recvd_size = filesize
                     res += data
 
-            print('-'*30)
             now_frame = fc.get_frame()
-            print("* frame", now_frame)
-            print('-'*30)
+            # print('-'*30)
+            # print("* frame", now_frame)
+            # print('-'*30)
 
             if now_frame > video_fps:
                 print('*skip*')
@@ -117,11 +123,11 @@ def deal_image(sock, addr):
             frame = cv2.imdecode(img_np_arr, cv2.COLOR_BGR2RGB)
 
             # ----------------------------------------------------------------------------------------------------------
-
+            
             try:
                 dete_res = model.detectSOUT(image=frame)
-                dete_res.print_as_fzc_format()
-                dete_res.draw_dete_res("", assign_img=frame, color_dict={"class_2":[255,255,255]})
+                # dete_res.print_as_fzc_format()
+                dete_res.draw_dete_res(save_path=None, assign_img=frame, color_dict={"class_2":[255,255,255]})
                 #
                 p.stdin.write(frame.tostring())
             except Exception as e:

@@ -13,3 +13,16 @@
 
 * yolov5RT 里面也指定了固定环境地址，后面是否高程相对的地址
 
+
+
+
+### 运行
+
+* 使用的镜像 tensorrt:v0.0.4
+
+* docker run -v /home/ldq/tensorrt_test:/home/tensorRT/yh_video_serv  -p 1211:1211  -it --gpus 'device=0'  tensorrt:v0.0.4  /bin/bash
+
+* cd /home/tensorRT/tensorrt_test
+
+* python allflow.py 
+

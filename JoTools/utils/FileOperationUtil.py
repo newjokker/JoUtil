@@ -7,6 +7,9 @@ import datetime
 import collections
 
 
+# fixme 绑定 FTP 功能，能操作远程的文件，比如读取远程文件
+
+
 class FilterFun():
     """过滤函数，一般用法是作为参数传入 FileOperateUtil.re_all_file 函数"""
 

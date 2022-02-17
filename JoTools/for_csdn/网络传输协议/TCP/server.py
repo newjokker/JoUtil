@@ -64,21 +64,25 @@ class FrameCal():
 
 
 def socket_service_image(args):
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        # s.bind(('0.0.0.0', 1211))
-        s.bind((args.host, args.port))
-        s.listen(10000)                                                                     # fixme 这边是设置的监听的时间
-    except socket.error as msg:
-        print(msg)
-        sys.exit(1)
 
-    print("Wait for Connection.....................")
-
+    # fixme 这样断了之后就能重新连接了（未测试）
     while True:
-        sock, addr = s.accept()
-        deal_image(sock, addr)
+
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            # s.bind(('0.0.0.0', 1211))
+            s.bind((args.host, args.port))
+            s.listen(10000)                                                                     # fixme 这边是设置的监听的时间
+        except socket.error as msg:
+            print(msg)
+            sys.exit(1)
+
+        print("Wait for Connection.....................")
+
+        while True:
+            sock, addr = s.accept()
+            deal_image(sock, addr)
 
 
 def deal_image(sock, addr):

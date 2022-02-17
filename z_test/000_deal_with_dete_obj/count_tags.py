@@ -24,7 +24,5 @@ if __name__ == "__main__":
     else:
         # xml_dir = r"C:\Users\14271\Desktop\save_res"
         # xml_dir = r"C:\Users\14271\Desktop\docker-0.0.1\save_res"
-        xml_dir = r"\\192.168.3.80\数据\root_dir\json_img\Dni"
-        # xml_dir = r"C:\Users\14271\Desktop\save_res_del"
+        xml_dir = r"C:\Users\14271\Desktop\结果对比\merge"
         OperateDeteRes.get_class_count(xml_dir, print_count=True)
-

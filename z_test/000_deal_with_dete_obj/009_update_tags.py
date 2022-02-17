@@ -37,16 +37,19 @@ from JoTools.utils.RandomUtil import RandomUtil
 # }
 
 up_dict = {
-    "normal": "fzc_normal",
-    "rust":"fzc_rust",
+    "LmObj_rust": "rust",
+    "dpObj_rust":"rust",
+    "kkxObj_rust":"rust",
+    "noObj_rust":"rust",
+    "kkxObj_miss":"K",
 }
 
 # up_dict = {"extra": "Fnormal", "UGuaHuan":"Fnormal"}
 
 # up_dict = {"Fnormal": "fzc", "fzc_broken":"fzc"}
 
-xml_dir = r"C:\Users\14271\Desktop\fzc_rust_grounf_truth"
-save_dir = r"C:\Users\14271\Desktop\new_gt"
+xml_dir = r"C:\Users\14271\Desktop\kkx_all_compare\xml_tmp"
+save_dir = r"C:\Users\14271\Desktop\kkx_all_compare\xml_tmp"
 
 
 OperateDeteRes.get_class_count(xml_dir, print_count=True)

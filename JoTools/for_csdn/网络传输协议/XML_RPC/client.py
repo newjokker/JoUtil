@@ -4,38 +4,22 @@
 from xmlrpc.client import ServerProxy
 import hashlib
 
-
+import numpy
+import numpy as np
+from labelme import utils
 # fixme 这个直接能搞成一个段子服务器，增加一个推送图片服务的功能，这样能自动帮我整理碰到的很有意思的图片和段子
+import cv2
+import pickle
 
 s = ServerProxy('http://192.168.3.221:11222', allow_none=True)
 
+img_path = r"C:\Users\14271\Desktop\del\face_2.jpg"
 
+frame = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
 
+a = pickle.dumps(frame)
 
-def get_str_md5(assign_str):
-    md5 = hashlib.md5()
-    md5.update(assign_str)
-    return md5.hexdigest()
+res = s.post_img(a, 'jokker')
 
-
-
-print(get_str_md5(b'123456'))
-
-exit()
-
-
-
-# s.set("name", "jokker")
-# s.set("age", "30")
-#
-# print(s.get("name"))
-
-
-s.set("img_data"*100000, b'img_data')
-
-print(type(s.get("img_data")))
-
-
-
-
+print(res)
 

@@ -35,6 +35,12 @@ class HashLibUtil(object):
             return md5.hexdigest()
 
     @staticmethod
+    def get_str_md5(assign_str):
+        md5 = hashlib.md5()
+        md5.update(assign_str)
+        return md5.hexdigest()
+
+    @staticmethod
     def is_the_same_file(file_path_1, file_path_2):
         """判断两个文件是否是一个文件"""
         md5_1 = HashLibUtil.get_file_md5(file_path_1)

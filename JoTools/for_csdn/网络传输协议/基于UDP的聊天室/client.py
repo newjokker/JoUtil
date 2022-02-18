@@ -24,7 +24,7 @@ def send(sock, addr):
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server = ('192.168.3.221', 9999)
-    tr = threading.Thread(target=recv, args=(s, server), daemon=True)
+    tr = threading.Thread(target=recv, args=(s, server), daemon=True)       # fixme 这个为什么要设定为协程，不设置的话会怎么样
     ts = threading.Thread(target=send, args=(s, server))
     tr.start()
     ts.start()

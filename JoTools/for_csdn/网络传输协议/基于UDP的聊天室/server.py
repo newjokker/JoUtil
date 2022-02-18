@@ -4,6 +4,8 @@
 import socket
 import logging
 
+# refer:https://www.cnblogs.com/huny/p/14051152.html
+
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

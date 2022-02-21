@@ -109,16 +109,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
 """
 
 
-# todo 将 self.img 从 PIL 结构保存为 ndarry 结构，使用空间换取时间
-
-# todo 直接对图像矩阵进行处理，而不是对 PIL 对象进行处理，看看是不是快很多
-
-# todo 查看图片三个波段反了是因为，用的 cv2.imwrite() 保存的图片
-
 # todo crop_dete_obj 等于 crop_and_save 不用把同样的功能实现两遍
-
-# fixme 获取小图截图范围的时候需要看看是不是 RGB 三通道是反的，是不是需要处理一下
-
 
 
 class DeteRes(ResBase, ABC):
@@ -402,7 +393,9 @@ class DeteRes(ResBase, ABC):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
-        # fixme 存储 crop 存的文件夹，
+        if isinstance(self.img_ndarry, np.ndarray):
+            return self.crop_dete_obj_new(save_dir=save_dir, augment_parameter=augment_parameter, method=method, exclude_tag_list=exclude_tag_list,
+                                          split_by_tag=split_by_tag, include_tag_list=include_tag_list, assign_img_name=assign_img_name)
 
         if not self.img:
             raise ValueError ("need img_path or img")
@@ -579,6 +572,9 @@ class DeteRes(ResBase, ABC):
     def get_sub_img_by_dete_obj(self, assign_dete_obj, augment_parameter=None, RGB=True, assign_shape_min=False):
         """根据指定的 deteObj """
 
+        if isinstance(self.img_ndarry, np.ndarray):
+            return self.get_sub_img_by_dete_obj_new(assign_dete_obj=assign_dete_obj, augment_parameter=augment_parameter, RGB=RGB, assign_shape_min=assign_shape_min)
+
         # 如果没有读取 img
         if not self.img:
             raise ValueError ("need img_path or img")
@@ -654,6 +650,21 @@ class DeteRes(ResBase, ABC):
             each_dete_obj.del_crop_img()
 
     # @DecoratorUtil.time_this
+    def get_img_array(self, RGB=True):
+        """获取self.img对应的矩阵信息"""
+
+        if isinstance(self.img_ndarry, np.ndarray):
+            return self.get_img_array_new(RGB=RGB)
+
+        if not self.img:
+            raise ValueError ("need img_path or img")
+
+        if RGB:
+            return np.array(self.img)
+        else:
+            return cv2.cvtColor(np.array(self.img), cv2.COLOR_RGB2BGR)
+
+    # @DecoratorUtil.time_this
     def get_img_array_new(self, RGB=True):
         """获取self.img对应的矩阵信息"""
 
@@ -664,17 +675,6 @@ class DeteRes(ResBase, ABC):
             return self.img_ndarry
         else:
             return cv2.cvtColor(self.img_ndarry, cv2.COLOR_RGB2BGR)
-
-    # @DecoratorUtil.time_this
-    def get_img_array(self, RGB=True):
-        """获取self.img对应的矩阵信息"""
-        if not self.img:
-            raise ValueError ("need img_path or img")
-
-        if RGB:
-            return np.array(self.img)
-        else:
-            return cv2.cvtColor(np.array(self.img), cv2.COLOR_RGB2BGR)
 
     def get_dete_obj_list_by_id(self, assign_id, is_deep_copy=False):
         """获取所有 id 对应的 deteObj 对象，可以指定是否执行深拷贝"""
@@ -1163,6 +1163,10 @@ class DeteRes(ResBase, ABC):
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         * save_augment 是否保存为扩展后的范围，还是之前的范围
         """
+
+        if isinstance(self.img_ndarry, np.ndarray):
+            return self.crop_and_save_new(save_dir=save_dir, augment_parameter=augment_parameter, method=method, exclude_tag_list=exclude_tag_list,
+                                          split_by_tag=split_by_tag, include_tag_list=include_tag_list, assign_img_name=assign_img_name, save_augment=save_augment)
 
         if len(self._alarms) == 0:
             # 要是没有可以剪切的要素就不浪费时间进行剪切了

@@ -36,8 +36,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'add_obj_2',                           # 增加旋转框或者矩形框或者其他什么框
  'angle_obj_to_obj',                    # 旋转框转矩形框
  'count_tags',                          # 统计标签个数
- 'crop_and_save',                       # 矩形框保存小截图
- 'crop_angle_and_save',                 # 旋转框保存小截图
+ 'crop_angle_dete_obj',                 # 旋转框保存小截图
  'crop_dete_obj',                       # [*]将正框裁剪到指定文件夹，裁剪路径会记录在 obj 的 crop_path 路径下
  'crop_with_xml',                       # 裁剪正框并生成对应的 xml 
  'deep_copy',                           # [*]深拷贝
@@ -107,9 +106,6 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'redis_conn_info',                     # redis 中存储的图像信息
  'parse_auto',                          # 是否自动解析信息（例，当给对象的 img_path 属性赋值的时候，是否自动读取图像的信息，并保存在对象中）
 """
-
-
-# todo crop_dete_obj 等于 crop_and_save 不用把同样的功能实现两遍
 
 
 class DeteRes(ResBase, ABC):
@@ -526,6 +522,50 @@ class DeteRes(ResBase, ABC):
             # 保存截图
             # each_crop.save(each_save_path, quality=95)
             # each_crop.save(each_save_path)
+
+    def crop_angle_dete_obj(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
+        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
+        * augment_parameter = [0.2, 0.2] w,h的扩展比例
+        """
+        img_name = os.path.split(self.img_path)[1][:-4]
+        tag_count_dict = {}
+        #
+        for each_obj in self._alarms:
+            # 去除正框
+            if not isinstance(each_obj, DeteAngleObj): continue
+            # 排除掉不需要保存的 tag
+            if not exclude_tag_list is None:
+                if each_obj.tag in exclude_tag_list:
+                    continue
+            # 计算这是当前 tag 的第几个图片
+            if each_obj.tag not in tag_count_dict:
+                tag_count_dict[each_obj.tag] = 0
+            else:
+                tag_count_dict[each_obj.tag] += 1
+            # 图片扩展
+            loc_str = "[{0}_{1}_{2}_{3}_{4}]".format(each_obj.cx, each_obj.cy, each_obj.w, each_obj.h, each_obj.angle)
+
+            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
+            if split_by_tag is True:
+                each_save_dir = os.path.join(save_dir, each_obj.tag)
+                if not os.path.exists(each_save_dir): os.makedirs(each_save_dir)
+            else:
+                each_save_dir = save_dir
+
+            each_name_str = each_obj.get_name_str()
+            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
+            cx, cy, w, h, angle = each_obj.cx, each_obj.cy, each_obj.w, each_obj.h, each_obj.angle
+            # 范围扩展
+            if augment_parameter is not None:
+                w += w * augment_parameter[0]
+                h += h * augment_parameter[1]
+            # 裁剪
+            each_crop = ResTools.crop_angle_rect(self.get_img_array(), ((cx, cy), (w, h), angle))
+            if method is not None: each_crop = method(each_crop)
+            # crop = Image.fromarray(each_crop)
+            # crop.save(each_save_path)
+
+            cv2.imencode('.jpg', each_crop)[1].tofile(each_save_path)
 
     def _parse_txt_info(self, classes_path, record_path):
         """解析 txt 信息"""
@@ -1157,205 +1197,6 @@ class DeteRes(ResBase, ABC):
         for each_dete_obj in self._alarms:
             each_dete_obj.do_offset(x, y)
 
-    # @DecoratorUtil.time_this
-    def crop_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None, save_augment=False):
-        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
-        * augment_parameter = [0.5, 0.5, 0.2, 0.2]
-        * save_augment 是否保存为扩展后的范围，还是之前的范围
-        """
-
-        if isinstance(self.img_ndarry, np.ndarray):
-            return self.crop_and_save_new(save_dir=save_dir, augment_parameter=augment_parameter, method=method, exclude_tag_list=exclude_tag_list,
-                                          split_by_tag=split_by_tag, include_tag_list=include_tag_list, assign_img_name=assign_img_name, save_augment=save_augment)
-
-        if len(self._alarms) == 0:
-            # 要是没有可以剪切的要素就不浪费时间进行剪切了
-            return
-
-        if not self.img:
-            raise ValueError ("need img_path or img")
-
-        #
-        if assign_img_name is not None:
-            img_name = assign_img_name
-        else:
-            if self.img_path is not None :
-                img_name = os.path.split(self.img_path)[1][:-4]
-            else:
-                raise ValueError("need self.img_path or assign_img_name")
-
-        tag_count_dict = {}
-        #
-        for each_obj in self._alarms:
-            # 只支持正框的裁切
-            if not isinstance(each_obj, DeteObj):
-                continue
-            # 截图的区域
-            bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
-            # 排除掉不需要保存的 tag
-            if include_tag_list is not None:
-                if each_obj.tag not in include_tag_list:
-                    continue
-
-            if not exclude_tag_list is None:
-                if each_obj.tag in exclude_tag_list:
-                    continue
-
-            # 计算这是当前 tag 的第几个图片
-            if each_obj.tag not in tag_count_dict:
-                tag_count_dict[each_obj.tag] = 0
-            else:
-                tag_count_dict[each_obj.tag] += 1
-            # 图片扩展
-            if augment_parameter is not None:
-                bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
-
-            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
-            if split_by_tag is True:
-                each_save_dir = os.path.join(save_dir, each_obj.tag)
-                if not os.path.exists(each_save_dir):
-                    os.makedirs(each_save_dir)
-            else:
-                each_save_dir = save_dir
-
-            # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
-            if save_augment:
-                each_name_str = each_obj.get_name_str(assign_loc=bndbox)
-            else:
-                each_name_str = each_obj.get_name_str()
-            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
-
-            try:
-                # todo 对 bndbox 的范围进行检查
-                each_crop = self.img.crop(bndbox)
-                # 对截图的图片自定义操作, 可以指定缩放大小之类的
-                if method is not None:
-                    each_crop = method(each_crop)
-                # 保存截图
-                # each_crop.save(each_save_path, quality=95)
-                each_crop.save(each_save_path)
-            except Exception as e:
-                # 当遇到错误的图片会报错，
-                # todo 图片损坏使用 cv2.crop 截取图片不会报错，是否考虑使用 cv2 的截图获取部分破损的图片
-                print(e)
-
-    def crop_and_save_new(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None, save_augment=False):
-        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
-        * augment_parameter = [0.5, 0.5, 0.2, 0.2]
-        * save_augment 是否保存为扩展后的范围，还是之前的范围
-        """
-
-        if self.img_ndarry is None:
-            img_ndarry = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
-            self.img_ndarry = cv2.cvtColor(img_ndarry, cv2.COLOR_BGR2RGB)
-        #
-        if assign_img_name is not None:
-            img_name = assign_img_name
-        else:
-            if self.img_path is not None :
-                img_name = os.path.split(self.img_path)[1][:-4]
-            else:
-                raise ValueError("need self.img_path or assign_img_name")
-
-        tag_count_dict = {}
-        #
-        for each_obj in self._alarms:
-            # 只支持正框的裁切
-            if not isinstance(each_obj, DeteObj):
-                continue
-            # 截图的区域
-            bndbox = [each_obj.x1, each_obj.y1, each_obj.x2, each_obj.y2]
-            # 排除掉不需要保存的 tag
-            if include_tag_list is not None:
-                if each_obj.tag not in include_tag_list:
-                    continue
-
-            if not exclude_tag_list is None:
-                if each_obj.tag in exclude_tag_list:
-                    continue
-
-            # 计算这是当前 tag 的第几个图片
-            if each_obj.tag not in tag_count_dict:
-                tag_count_dict[each_obj.tag] = 0
-            else:
-                tag_count_dict[each_obj.tag] += 1
-            # 图片扩展
-            if augment_parameter is not None:
-                bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
-
-            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
-            if split_by_tag is True:
-                each_save_dir = os.path.join(save_dir, each_obj.tag)
-                if not os.path.exists(each_save_dir):
-                    os.makedirs(each_save_dir)
-            else:
-                each_save_dir = save_dir
-
-            # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
-            if save_augment:
-                each_name_str = each_obj.get_name_str(assign_loc=bndbox)
-            else:
-                each_name_str = each_obj.get_name_str()
-            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
-
-            try:
-                # todo 对 bndbox 的范围进行检查
-                each_crop = self.img.crop(bndbox)
-                # 对截图的图片自定义操作, 可以指定缩放大小之类的
-                if method is not None:
-                    each_crop = method(each_crop)
-                # 保存截图
-                # each_crop.save(each_save_path, quality=95)
-                each_crop.save(each_save_path)
-            except Exception as e:
-                # 当遇到错误的图片会报错，
-                # todo 图片损坏使用 cv2.crop 截取图片不会报错，是否考虑使用 cv2 的截图获取部分破损的图片
-                print(e)
-
-    def crop_angle_and_save(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False):
-        """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
-        * augment_parameter = [0.2, 0.2] w,h的扩展比例
-        """
-        img_name = os.path.split(self.img_path)[1][:-4]
-        tag_count_dict = {}
-        #
-        for each_obj in self._alarms:
-            # 去除正框
-            if not isinstance(each_obj, DeteAngleObj): continue
-            # 排除掉不需要保存的 tag
-            if not exclude_tag_list is None:
-                if each_obj.tag in exclude_tag_list:
-                    continue
-            # 计算这是当前 tag 的第几个图片
-            if each_obj.tag not in tag_count_dict:
-                tag_count_dict[each_obj.tag] = 0
-            else:
-                tag_count_dict[each_obj.tag] += 1
-            # 图片扩展
-            loc_str = "[{0}_{1}_{2}_{3}_{4}]".format(each_obj.cx, each_obj.cy, each_obj.w, each_obj.h, each_obj.angle)
-
-            # 为了区分哪里是最新加上去的，使用特殊符号 -+- 用于标志
-            if split_by_tag is True:
-                each_save_dir = os.path.join(save_dir, each_obj.tag)
-                if not os.path.exists(each_save_dir): os.makedirs(each_save_dir)
-            else:
-                each_save_dir = save_dir
-
-            each_name_str = each_obj.get_name_str()
-            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
-            cx, cy, w, h, angle = each_obj.cx, each_obj.cy, each_obj.w, each_obj.h, each_obj.angle
-            # 范围扩展
-            if augment_parameter is not None:
-                w += w * augment_parameter[0]
-                h += h * augment_parameter[1]
-            # 裁剪
-            each_crop = ResTools.crop_angle_rect(self.get_img_array(), ((cx, cy), (w, h), angle))
-            if method is not None: each_crop = method(each_crop)
-            # crop = Image.fromarray(each_crop)
-            # crop.save(each_save_path)
-
-            cv2.imencode('.jpg', each_crop)[1].tofile(each_save_path)
-
     def crop_with_xml(self, augment_parameter, save_dir, split_by_tag=False, need_tags=None):
         """保存裁剪结果，结果带着 xml"""
         #
@@ -1474,3 +1315,120 @@ class DeteRes(ResBase, ABC):
                 new_alarms.append(each_obj)
         self._alarms = new_alarms
 
+    # -------------------------------------------其他人写的函数，需要进行整理 -------------------------------------
+
+    def get_obj_middle_points_by_tags(self,tags):
+        points = []
+        for tag in tags:
+            objs = self.get_dete_obj_list_by_tag([tag])
+            for obj in objs:
+                points.append(((obj.x1+obj.x2)/2,(obj.y1+obj.y2)/2))
+        return points
+
+    def get_obj_right_points_by_tags(self,tags):
+        points = []
+        for tag in tags:
+            objs = self.get_dete_obj_list_by_tag([tag])
+            for obj in objs:
+                points.append((obj.x2,(obj.y1+obj.y2)/2))
+        return points
+
+    def fuse_tag1_tag2_into_tag3_with_func(self,tag1,tag2,tag3,func):
+        objs1 = self.get_dete_obj_list_by_tag([tag1])
+        objs2 = self.get_dete_obj_list_by_tag([tag2])
+        for obj1 in objs1:
+            for obj2 in objs2:
+                if func(obj1,obj2) == True:
+                    obj1.tag = 'deleteObj'
+                    obj2.tag = 'deleteObj'
+                    obj3 = ResTools.fuse_objs(obj1,obj2,tag3)
+                    self.add_obj_2(obj3)
+        self.filter_by_tags(remove_tag = ['deleteObj'])
+
+    def filter_tag1_by_tag2_with_nms(self,tag1,tag2,threshold=0.5):
+        tag1_list = self.filter_by_tags(remove_tag = tag1)
+        tag2_list = self.filter_by_tags(remove_tag = tag2)
+        del_list = []
+        for i,tag1 in enumerate(tag1_list):
+            for tag2 in tag2_list:
+                if ResTools.cal_iou(tag1,tag2,True) > threshold:
+                    del_list.append(i)
+        for i,tag1 in enumerate(tag1_list):
+            if i in del_list:
+                continue
+            else:
+                self.add_obj_2(tag1)
+
+    def filter_by_boundary(self,xmin,xmax,ymin,ymax,need_tags=[]):
+        new_alarms = []
+        for obj in self._alarms:
+            if obj.tag in need_tags or len(need_tags) == 0:
+                if obj.x1 < xmin or obj.x2 > xmax or obj.y1 < ymin or obj.y2 > ymax:
+                    continue
+                else:
+                    new_alarms.append(obj)
+            else:
+                new_alarms.append(obj)
+        self._alarms = new_alarms
+
+    def do_augment_short_long(self, augment_parameter_short, augment_parameter_long, is_relative=True, need_tags=[]):
+        """对检测框进行扩展"""
+
+        # todo 这个函数不该存在，想办法融合到其他数据中
+        try:
+            for each_dete_obj in self._alarms:
+                if isinstance(each_dete_obj, DeteObj):
+                    if each_dete_obj.tag in need_tags or len(need_tags) == 0:
+                        if (each_dete_obj.x2-each_dete_obj.x1) > (each_dete_obj.y2-each_dete_obj.y1):
+                            augment_parameter_long.extend(augment_parameter_short)
+                            each_dete_obj.do_augment(augment_parameter=augment_parameter_long, width=self.width, height=self.height, is_relative=is_relative)
+                        else:
+                            augment_parameter_short.extend(augment_parameter_long)
+                            each_dete_obj.do_augment(augment_parameter=augment_parameter_short, width=self.width, height=self.height, is_relative=is_relative)
+        except Exception as e:
+            print(e.__traceback__.tb_lineno)
+            print(e)
+
+    def filter_by_w_h(self, th_w, th_h):
+        """根据目标长宽像素进行筛选"""
+        new_alarms, del_alarms = [], []
+        for each_dete_tag in self._alarms:
+            w = each_dete_tag.get_rectangle()[2] - each_dete_tag.get_rectangle()[0]
+            h = each_dete_tag.get_rectangle()[3] - each_dete_tag.get_rectangle()[1]
+            if w <= th_w or h <= th_h :
+                del_alarms.append(each_dete_tag)
+            else:
+                new_alarms.append(each_dete_tag)
+        self._alarms = new_alarms
+        return del_alarms
+
+    def filter_by_des(self, need_des=None, remove_des=None):
+        """根据 tag 类型进行筛选"""
+        new_alarms, del_alarms = [], []
+
+        if (need_des is not None and remove_des is not None) or (need_des is None and remove_des is None):
+            raise ValueError(" need tag and remove tag cant be None or not None in the same time")
+
+        if isinstance(need_des, str) or isinstance(remove_des, str):
+            raise ValueError("need list tuple or set not str")
+
+        if need_des is not None:
+            need_des = set(need_des)
+            for each_dete_tag in self._alarms:
+                if each_dete_tag.des in need_des:
+                    new_alarms.append(each_dete_tag)
+                else:
+                    del_alarms.append(each_dete_tag)
+        else:
+            remove_des = set(remove_des)
+            for each_dete_tag in self._alarms:
+                if each_dete_tag.des not in remove_des:
+                    new_alarms.append(each_dete_tag)
+                else:
+                    del_alarms.append(each_dete_tag)
+        self._alarms = new_alarms
+        return del_alarms
+
+    def set_des(self,des_label):
+        for obj in self._alarms:
+            obj.des = des_label

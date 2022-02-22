@@ -121,7 +121,7 @@ class DecoratorUtil(object):
     @staticmethod
     def time_this(func):
         """计算函数运行的时间"""
-
+        """装饰器中 @wraps 的作用是保存 func 的元数据（函数名等）"""
         @wraps(func)
         def wrapper(*args, **kwargs):
             start = time.time()
@@ -131,6 +131,23 @@ class DecoratorUtil(object):
             return result
 
         return wrapper
+
+    @staticmethod
+    def time_this_with_style(style=1):
+        """可以接受参数的装饰器其实就是一个函数，他的返回值是装饰器"""
+        def time_this(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                start = time.time()
+                result = func(*args, **kwargs)
+                end = time.time()
+                if style == 1:
+                    print('{0} --> {1}(s)'.format(func.__name__, end - start))
+                else:
+                    print('{0} ++> {1}(s)'.format(func.__name__, end - start))
+                return result
+            return wrapper
+        return time_this
 
     @staticmethod
     def log(func):
@@ -151,5 +168,9 @@ class DecoratorUtil(object):
                 return func(*args, **kwargs)
             return wrapper
         return decorate
+
+
+class TypeAssert(object):
+    """使用装饰器实现强制类型检查"""
 
 

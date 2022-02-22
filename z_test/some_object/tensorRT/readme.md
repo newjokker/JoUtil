@@ -20,7 +20,9 @@
 
 * 使用的镜像 tensorrt:v0.0.4
 
-* docker run -v /home/ldq/tensorrt_test:/home/tensorRT/yh_video_serv  -p 1211:1211  -it --gpus 'device=0'  tensorrt:v0.0.4  /bin/bash
+* docker run -v /home/ldq/tensorrt_logs:/home/tensorRT/tensorrt_test/logs  -p 1211:1211  -it --gpus 'device=0'  tensorrt:v0.0.4  /bin/bash
+
+[//]: # (* docker run  -p 1211:1211  -it --gpus 'device=0'  tensorrt:v0.0.4  /bin/bash)
 
 * cd /home/tensorRT/tensorrt_test
 

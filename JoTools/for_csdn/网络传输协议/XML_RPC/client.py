@@ -19,7 +19,7 @@ frame = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
 
 a = pickle.dumps(frame)
 
-res = s.post_img(a, 'jokker')
+res = s.post_img(a, 'fuvk')
 
 print(res)
 

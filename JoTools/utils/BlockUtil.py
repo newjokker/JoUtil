@@ -69,13 +69,12 @@ class BlockUtil():
             new_y_max = y2 + int(augment_parameter[3])
         return (new_x_min, new_y_min, new_x_max, new_y_max)
 
-    def draw_blocks(self, block_index_list):
+    def draw_blocks(self, block_index_list, augment_parameter=None):
         bg = np.array(np.zeros([self.height, self.width, 3]), dtype=np.int8)
         for each_block in block_index_list:
             print('-'*30)
             print(a.get_block_heigh_and_width(*each_block))
-            x1, y1, x2, y2 = self.get_block_range(each_block[0], each_block[1], do_augment=[5,5,5,5])
-            # x1, y1, x2, y2 = self.get_block_range(each_block[0], each_block[1])
+            x1, y1, x2, y2 = self.get_block_range(each_block[0], each_block[1], do_augment=augment_parameter)
             each_color = [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
             cv2.rectangle(bg, (x1, y1), (x2, y2), color=each_color, thickness=1)
 
@@ -85,15 +84,17 @@ class BlockUtil():
 
 if __name__ == "__main__":
 
-    assign_block_x = 13
-    assign_block_y = 15
+    assign_block_x = 5
+    assign_block_y = 5
 
     a = BlockUtil(200, 200, assign_block_x, assign_block_y)
 
     label_list = [(x, y) for x in range(assign_block_x) for y in range(assign_block_y)]
 
-    # a.draw_blocks([(1,1), (3,2), (4,1), (2,3), (4,4)])
-    a.draw_blocks(label_list)
+    # a.draw_blocks([(0,0), (0,1), (1,1), (1,0)], augment_parameter=[5,5,5,5])
+    a.draw_blocks([(0,0), (0,1), (1,1), (1,0)])
+
+    # a.draw_blocks(label_list)
 
 
 

@@ -112,6 +112,12 @@ class XmlUtil(object):
         return xml_info
 
 
+def save_dict_to_xml():
+    """将字典保存为xml"""
+    pass
+
+
+
 if __name__ == '__main__':
 
     xmlPath = r'D:\Code\Util_Util\Z_other\DuanZhi\AuxData\jokker.xml'

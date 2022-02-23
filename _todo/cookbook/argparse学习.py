@@ -3,6 +3,8 @@
 
 # refer : https://geek-docs.com/python/python-tutorial/python-argparse.html
 
+# refer : https://docs.python.org/zh-cn/3/library/argparse.html#action
+
 # 必须填写的参数，required
 # parser.add_argument('--name', required=True)
 
@@ -16,7 +18,7 @@
 # parser.add_argument('-b', type=int, required=True, help="defines the base value")
 
 # metavar选项为错误的期望值命名，并提供帮助输出
-# fixme 知道可能与什么参数混淆，所以提前指定错误的期望值，并提供帮助
+# fixme 还没搞懂是什么意思，需要好好看看
 # parser.add_argument('-v', type=int, required=True, metavar='value', help="computes cube for the given value")
 
 # append操作允许对重复选项进行分组
@@ -27,7 +29,6 @@
 # parser.add_argument('chars', type=str, nargs=2, metavar='c', help='starting and ending character')
 
 # choices选项将参数限制为给定列表
-# todo 这个看着相当有用，需要进行测试
 # parser.add_argument('--now', dest='format', choices=['std', 'iso', 'unix', 'tz'], help="shows datetime in given format")
 
 # type 指定要输入的类型，命令行输入的时候指定为 bool 值会一直显示为 True，因为会被认为输入的是字符串

@@ -3,6 +3,7 @@
 
 
 from ..utils.XmlUtil import XmlUtil
+from collections import OrderedDict
 
 # fixme 重写这个函数，速度更快
 
@@ -11,7 +12,7 @@ class ParseXml(object):
 
     def __init__(self):
         self.__attrs = {"folder", "filename", "path", "segmented", "size", "source", "object", "des"}  # 所有的属性
-        self.__xml_info_dict = {}  # xml 信息字典
+        self.__xml_info_dict = OrderedDict()  # xml 信息字典
         self.__objects_info = []
         self.__size_info = {}
         self.__source_info = {}

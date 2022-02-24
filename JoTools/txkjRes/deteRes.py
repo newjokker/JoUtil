@@ -56,6 +56,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'filter_by_dete_res_mask',             # 将指定 deteres 的每一个对象做一个 mask 进行掩膜操作
  'filter_by_tags',                      # [*]根据标签类型对框进行筛除
  'filter_by_topn',                      # 对deteobj 大小进行排序，根据前 nn 个目标的 1/2 对目标进行过滤
+ 'filter_by_attr',                      # [*]对任意属性进行筛选
  'get_crop_name_by_id',                 # 获取指定 id 对应的裁剪名（考虑删除该方法） 
  'get_dete_obj_by_id',                  # 获取指定 id 对应的第一个 dete obj
  'get_dete_obj_list_by_func',           # 获取指定方法找到的 dete obj list
@@ -81,6 +82,7 @@ from ..utils.DecoratorUtil import DecoratorUtil
  'save_to_txt',                         # 保存为 txt
  'save_to_xml',                         # [*]保存为 xml
  'set_img_to_redis',                    # 将图像存储到redis中
+ 'update_attr_for_all_obj'              # [*]统一更新任意属性（可以是新加的属性）至设定值
  'update_tags',                         # 更新标签
  # ------------------------
  'intersection',                        # 交集
@@ -901,28 +903,37 @@ class DeteRes(ResBase, ABC):
 
     # ------------------------------------------------ filter ----------------------------------------------------------
 
-    def filter_by_area(self, area_th, update=True):
-        """根据面积大小（像素个数）进行筛选, update 是否对 self 进行更新"""
-        new_alarms, del_alarms = [], []
-        for each_dete_tag in self._alarms:
-            if each_dete_tag.get_area() >= area_th:
-                new_alarms.append(each_dete_tag)
-            else:
-                del_alarms.append(each_dete_tag)
-        if update:
-            self._alarms = new_alarms
-        return del_alarms
+    # fixme 返回的应该是 dete_res 而不是 alarms
 
-    def filter_by_area_ratio(self, ar=0.0006, update=True):
+    def filter_by_area(self, area_th, mode='gt', update=True):
+        """根据面积大小（像素个数）进行筛选, update 是否对 self 进行更新"""
+        new_dete_res = self.deep_copy(copy_img=False)
+        new_dete_res.reset_alarms()
+        #
+        for each_dete_obj in self._alarms:
+            if mode == "lt":
+                if each_dete_obj.get_area() < area_th:
+                    new_dete_res.add_obj_2(each_dete_obj)
+            elif mode == 'gt':
+                if each_dete_obj.get_area() >= area_th:
+                    new_dete_res.add_obj_2(each_dete_obj)
+        if update:
+            self._alarms = new_dete_res._alarms
+            return self
+        else:
+            return new_dete_res
+
+    def filter_by_area_ratio(self, ar=0.0006, update=True, mode='lt'):
         """根据面积比例进行删选"""
         # get area
         th_area = float(self.width * self.height) * ar
-        self.filter_by_area(area_th=th_area, update=update)
+        self.filter_by_area(area_th=th_area, update=update, mode=mode)
 
     def filter_by_tags(self, need_tag=None, remove_tag=None, update=True):
         """根据 tag 类型进行筛选"""
-        new_alarms, del_alarms = [], []
-
+        new_dete_res = self.deep_copy(copy_img=False)
+        new_dete_res.reset_alarms()
+        #
         if (need_tag is not None and remove_tag is not None) or (need_tag is None and remove_tag is None):
             raise ValueError(" need tag and remove tag cant be None or not None in the same time")
 
@@ -931,71 +942,80 @@ class DeteRes(ResBase, ABC):
 
         if need_tag is not None:
             need_tag = set(need_tag)
-            for each_dete_tag in self._alarms:
-                if each_dete_tag.tag in need_tag:
-                    new_alarms.append(each_dete_tag)
-                else:
-                    del_alarms.append(each_dete_tag)
+            for each_dete_obj in self._alarms:
+                if each_dete_obj.tag in need_tag:
+                    new_dete_res.add_obj_2(each_dete_obj)
         else:
             remove_tag = set(remove_tag)
-            for each_dete_tag in self._alarms:
-                if each_dete_tag.tag not in remove_tag:
-                    new_alarms.append(each_dete_tag)
-                else:
-                    del_alarms.append(each_dete_tag)
-        if update:
-            self._alarms = new_alarms
-        return new_alarms
+            for each_dete_obj in self._alarms:
+                if each_dete_obj.tag not in remove_tag:
+                    new_dete_res.add_obj_2(each_dete_obj)
 
-    def filter_by_conf(self, conf_th, assign_tag_list=None, update=True):
+        if update:
+            self._alarms = new_dete_res.alarms
+            return self
+        else:
+            return new_dete_res
+
+    def filter_by_conf(self, conf_th, assign_tag_list=None, update=True, mode='gt'):
         """根据置信度进行筛选，指定标签就能对不同标签使用不同的置信度"""
 
         if not(isinstance(conf_th, int) or isinstance(conf_th, float)):
             raise ValueError("conf_th should be int or float")
 
-        new_alarms, del_alarms = [], []
+        new_dete_res = self.deep_copy(copy_img=False)
+        new_dete_res.reset_alarms()
+        #
         for each_dete_obj in self._alarms:
             if assign_tag_list is not None:
                 if each_dete_obj.tag not in assign_tag_list:
-                    new_alarms.append(each_dete_obj)
+                    # new_alarms.append(each_dete_obj)
+                    new_dete_res.add_obj_2(each_dete_obj)
                     continue
-                else:
-                    del_alarms.append(each_dete_obj)
-            if each_dete_obj.conf >= conf_th:
-                new_alarms.append(each_dete_obj)
-            else:
-                del_alarms.append(each_dete_obj)
+            if mode == "lt":
+                if each_dete_obj.conf < conf_th:
+                    new_dete_res.add_obj_2(each_dete_obj)
+            elif mode == "gt":
+                if each_dete_obj.conf >= conf_th:
+                    new_dete_res.add_obj_2(each_dete_obj)
 
         if update:
-            self._alarms = new_alarms
-        return new_alarms
+            self._alarms = new_dete_res._alarms
+            return self
+        else:
+            return new_dete_res
 
     def filter_by_mask(self, mask, cover_index_th=0.5, need_in=True, update=True):
         """使用多边形 mask 进行过滤，mask 支持任意凸多边形，设定覆盖指数, mask 一连串的点连接起来的 [[x1,y1], [x2,y2], [x3,y3]], need_in is True, 保留里面的内容，否则保存外面的"""
-        new_alarms, del_alarms = [], []
+        new_dete_res = self.deep_copy(copy_img=False)
+        new_dete_res.reset_alarms()
+        #
         for each_dete_obj in self._alarms:
             each_cover_index = ResTools.polygon_iou_1(each_dete_obj.get_points(), mask)
-            # print("each_cover_index : ", each_cover_index)
             if each_cover_index > cover_index_th and need_in is True:
-                new_alarms.append(each_dete_obj)
+                new_dete_res.add_obj_2(each_dete_obj)
             elif each_cover_index < cover_index_th and need_in is False:
-                new_alarms.append(each_dete_obj)
-            else:
-                del_alarms.append(each_dete_obj)
+                new_dete_res.add_obj_2(each_dete_obj)
+
         if update:
-            self._alarms = new_alarms
-        return new_alarms
+            self._alarms = new_dete_res._alarms
+            return self
+        else:
+            return new_dete_res
 
     def filter_by_dete_res_mask(self, mask_dete_res, cover_index_th=0.5, update=True):
         """将一个 deteRes 作为 mask 过滤 self"""
-        dete_res_temp = DeteRes()
+        dete_res_temp = self.deep_copy(copy_img=False)
+        dete_res_temp.reset_alarms()
+        #
         for each_dete_obj in mask_dete_res:
-            each_dete_res = self.deep_copy(copy_img=False)
-            each_dete_res.filter_by_mask(each_dete_obj.get_points(), cover_index_th)
+            each_dete_res = self.filter_by_mask(each_dete_obj.get_points(), cover_index_th, update=False)
             dete_res_temp += each_dete_res
         if update:
             self.reset_alarms(dete_res_temp.alarms)
-        return dete_res_temp
+            return self
+        else:
+            return dete_res_temp
 
     def filter_by_func(self, func, update=True):
         """使用指定函数对 DeteObj 进行过滤"""
@@ -1021,6 +1041,35 @@ class DeteRes(ResBase, ABC):
             threshold = np.average(obj_area_list[:nn]) / 2
         # filter by area
         return self.filter_by_area(threshold, update=update)
+
+    def filter_by_attr(self, attr_name, attr_value, update=True):
+        """根据属性名进行筛选"""
+        new_dete_res = self.deep_copy(copy_img=False)
+        new_dete_res.reset_alarms()
+        #
+        for each_dete_obj in self._alarms:
+            if attr_name in each_dete_obj.__dict__:
+                if each_dete_obj.__dict__[attr_name] == attr_value:
+                    new_dete_res.add_obj_2(each_dete_obj)
+        if update:
+            self._alarms = new_dete_res._alarms
+            return self
+        else:
+            return new_dete_res
+
+    # ----------------------------------------------- update -----------------------------------------------------------
+
+    def update_attr_for_all_obj(self, attr_name, attr_value, update=True):
+        """为所有deteObj的某一个属性设置特定值"""
+        new_dete_res = self.deep_copy(copy_img=False)
+        #
+        for each_dete_obj in new_dete_res._alarms:
+            each_dete_obj.__dict__[attr_name] = attr_value
+        if update:
+            self._alarms = new_dete_res._alarms
+            return self
+        else:
+            return new_dete_res
 
     # ----------------------------------------------- set --------------------------------------------------------------
 

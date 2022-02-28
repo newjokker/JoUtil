@@ -903,8 +903,6 @@ class DeteRes(ResBase, ABC):
 
     # ------------------------------------------------ filter ----------------------------------------------------------
 
-    # fixme 返回的应该是 dete_res 而不是 alarms
-
     def filter_by_area(self, area_th, mode='gt', update=True):
         """根据面积大小（像素个数）进行筛选, update 是否对 self 进行更新"""
         new_dete_res = self.deep_copy(copy_img=False)

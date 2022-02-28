@@ -20,7 +20,7 @@ img_dir = r"C:\Users\14271\Desktop\del\pillow_cv2"
 image_list = FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg'])
 
 # ----------------------------------------------------------------------------------------------------------------------
-pool = ThreadPool(10)                            # Sets the pool size to 4
+pool = ThreadPool(4)                            # Sets the pool size to 4
 pool.map(print_img_shape, image_list)
 pool.close()                                    # 进程池close的时候并未关闭进程池，使其不再接受新的（主进程）任务
 pool.join()                                     # 主进程阻塞后，让子进程继续运行完成，子进程运行完后，再把主进程全部关掉

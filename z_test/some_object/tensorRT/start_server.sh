@@ -9,7 +9,7 @@ W=${W:-1280}
 H=${H:-720}
 FPS=${FPS:-15}
 PORT=${PORT:-1211}
-
+GPUID=${GPUID:-0}
 
 echo "port : $PORT"
 echo "fps  : $FPS"
@@ -17,10 +17,11 @@ echo "w    : $W"
 echo "h    : $H"
 echo "rtsp : $RTSP"
 echo "rtmp : $RTMP"
+echo "gpuID : $GPUID"
 echo "---------------"
 
 cd /home/tensorRT/tensorrt_test
-python3 /home/tensorRT/tensorrt_test/allflow.py --port $PORT --fps $FPS --w $W --h $H --rtsp "$RTSP" --rtmp "$RTMP"
+python3 /home/tensorRT/tensorrt_test/allflow.py --port $PORT --fps $FPS --w $W --h $H --rtsp "$RTSP" --rtmp "$RTMP" --gpuID $GPUID
 
 echo "stop serve"
 

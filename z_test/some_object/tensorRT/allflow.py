@@ -6,7 +6,7 @@ import time
 import subprocess
 import argparse
 
-
+# fixme 指定要启动的 GPU
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument('--rtsp', dest='rtsp', type=str, default=r"rtsp://admin:txkj@2021!@192.168.3.19:554/Streaming/Channels/101")
     parser.add_argument('--rtmp', dest='rtmp', type=str, default=r"rtsp://192.168.3.99/live/1211")
     parser.add_argument('--log_dir', dest='log_dir', type=str, default=r"./logs")
+    parser.add_argument('--gpuID', dest='gpuID', type=int, default=0)
     args = parser.parse_args()
     return args
 
@@ -30,11 +31,12 @@ rtsp = args.rtsp
 rtmp = args.rtmp
 w, h = args.w, args.h
 fps = args.fps
+gpuID = args.gpuID
 # ----------------------------------------------------------------------------------------------------------------------
 
 pid_list = []
 
-cmd_str = r"python ./fwd.py --rtmp {0} --w {1} --h {2} --fps {3} --port {4}".format(rtmp, w, h, fps, port)
+cmd_str = r"python ./fwd.py --rtmp {0} --w {1} --h {2} --fps {3} --port {4} --gpuID {5}".format(rtmp, w, h, fps, port, gpuID)
 bug_file = open(os.path.join(log_dir, "bug_server" + str(time.time())[:10] + ".txt"), "w+")
 std_file = open(os.path.join(log_dir, "std_server" + str(time.time())[:10] + ".txt"), "w+")
 print(cmd_str)

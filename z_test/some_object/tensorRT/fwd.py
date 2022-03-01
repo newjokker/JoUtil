@@ -172,6 +172,8 @@ if __name__ == '__main__':
     rtmp = args.rtmp
     w, h = args.w, args.h
     video_fps = args.fps
+    gpuID = args.gpuID
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpuID)
     # ------------------------------------------------------------------------------------------------------------------
 
     start_time = time.time()

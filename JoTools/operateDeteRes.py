@@ -559,18 +559,24 @@ class OperateDeteRes(object):
     def get_class_count(xml_folder, print_count=False, filter_func=None):
         """查看 voc xml 的标签"""
         xml_info, name_dict = [], {}
+        error_file = 0
         # 遍历 xml 统计 xml 信息
         xml_list = list(FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml')))
         #
         for xml_index, each_xml_path in enumerate(xml_list):
             # each_xml_info = parse_xml(each_xml_path)
-            each_xml_info = parse_xml_as_txt(each_xml_path)
-            xml_info.append(each_xml_info)
-            for each_name in each_xml_info['object']:
-                if each_name['name'] not in name_dict:
-                    name_dict[each_name['name']] = 1
-                else:
-                    name_dict[each_name['name']] += 1
+            try:
+                each_xml_info = parse_xml_as_txt(each_xml_path)
+                xml_info.append(each_xml_info)
+                for each_name in each_xml_info['object']:
+                    if each_name['name'] not in name_dict:
+                        name_dict[each_name['name']] = 1
+                    else:
+                        name_dict[each_name['name']] += 1
+            except Exception as e:
+                print("* xml error : {0}".format(each_xml_path))
+                error_file += 1
+
         # 打印结果
         if print_count:
             tb = pt.PrettyTable()
@@ -584,6 +590,7 @@ class OperateDeteRes(object):
                 sum += name_dict[each_name]
             tb.add_row(('sum', sum))
             tb.add_row(('file', len(list(xml_list))))
+            tb.add_row(('error file', error_file))
             print(tb)
 
         return name_dict

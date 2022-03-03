@@ -39,6 +39,12 @@ class DeteObj(object):
         else:
             return False
 
+    def __setattr__(self, key, value):
+        if key in ["name", "prob"]:
+            raise ValueError("* DeteObj can not has attr name | prob")
+        else:
+            super.__setattr__(self, key, value)
+
     def approximate(self, other, ignore_tag=False, iou_th=0.8):
         """近似"""
         pass

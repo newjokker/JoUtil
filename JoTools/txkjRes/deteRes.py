@@ -215,7 +215,7 @@ class DeteRes(ResBase, ABC):
                 each_dete_obj.crop_path = each_obj['crop_path']
                 # 处理自定义属性
                 for each_attr in each_obj:
-                    if each_attr not in ['bndbox', 'robndbox', 'prob', 'id', 'des', 'crop_path', 'id']:
+                    if each_attr not in ['bndbox', 'robndbox', 'prob', 'id', 'des', 'crop_path', 'id', 'name']:
                         setattr(each_dete_obj, each_attr, each_obj[each_attr])
                 self.add_obj_2(each_dete_obj)
             # robndbox
@@ -233,7 +233,7 @@ class DeteRes(ResBase, ABC):
                 each_dete_obj.crop_path = each_obj['crop_path']
                 # 处理自定义属性
                 for each_attr in each_obj:
-                    if each_attr not in ['bndbox', 'robndbox', 'prob', 'id', 'des', 'crop_path', 'id']:
+                    if each_attr not in ['bndbox', 'robndbox', 'prob', 'id', 'des', 'crop_path', 'id', 'name']:
                         setattr(each_dete_obj, each_attr, each_obj[each_attr])
                 self.add_obj_2(each_dete_obj)
 
@@ -277,7 +277,7 @@ class DeteRes(ResBase, ABC):
                     each_dete_obj.crop_path = each_obj['crop_path']
                     # 处理自定义属性
                     for each_attr in each_obj:
-                        if each_attr not in ['bndbox', 'robndbox', 'prob', 'id', 'des', 'crop_path', 'id']:
+                        if each_attr not in ['bndbox', 'robndbox', 'prob', 'id', 'des', 'crop_path', 'id', 'name']:
                             setattr(each_dete_obj, each_attr, each_obj[each_attr])
                     self.add_obj_2(each_dete_obj)
                 # robndbox
@@ -292,7 +292,7 @@ class DeteRes(ResBase, ABC):
                     each_dete_obj.crop_path = each_obj['crop_path']
                     # 处理自定义属性
                     for each_attr in each_obj:
-                        if each_attr not in ['bndbox', 'robndbox', 'prob', 'id', 'des', 'crop_path', 'id']:
+                        if each_attr not in ['bndbox', 'robndbox', 'prob', 'id', 'des', 'crop_path', 'id', 'name']:
                             setattr(each_dete_obj, each_attr, each_obj[each_attr])
                     self.add_obj_2(each_dete_obj)
 

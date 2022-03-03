@@ -34,6 +34,14 @@ fps = args.fps
 gpuID = args.gpuID
 # ----------------------------------------------------------------------------------------------------------------------
 
+try:
+    # 实时获取视频长宽的大小，传给服务端
+    import cv2
+    cap = cv2.VideoCapture(rtsp)
+    w, h = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+except Exception as e:
+    print(e)
+
 pid_list = []
 
 cmd_str = r"python ./fwd.py --rtmp {0} --w {1} --h {2} --fps {3} --port {4} --gpuID {5}".format(rtmp, w, h, fps, port, gpuID)

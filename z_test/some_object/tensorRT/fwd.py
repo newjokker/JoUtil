@@ -127,7 +127,7 @@ def deal_image(sock, addr):
             try:
                 dete_res = model.detectSOUT(image=frame)
                 # dete_res.print_as_fzc_format()
-                dete_res.draw_dete_res(save_path=None, assign_img=frame, color_dict={"class_2":[255,255,255]})
+                dete_res.draw_dete_res(save_path=None, assign_img=frame, color_dict={"warning":[0,0,255], "normal":[0,255,0]})
                 #
                 p.stdin.write(frame.tostring())
             except Exception as e:

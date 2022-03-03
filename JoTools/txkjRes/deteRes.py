@@ -174,6 +174,7 @@ class DeteRes(ResBase, ABC):
     @property
     def alarms(self):
         """获取属性自动进行排序"""
+        # 设置 @property 属性，只能获取，不能赋值
         # return sorted(self._alarms, key=lambda x:x.id)
         return self._alarms
 

@@ -37,6 +37,12 @@ class DeteAngleObj(object):
         else:
             return False
 
+    def __setattr__(self, key, value):
+        if key in ["name", "prob"]:
+            raise ValueError("* DeteObj can not has attr name | prob")
+        else:
+            super.__setattr__(self, key, value)
+
     def init_from_four_point(self, p0, p1, p2, p3, tag, conf=-1, assign_id=-1, describe:str=""):
         """从四个点进行初始化"""
         # cal center point

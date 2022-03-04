@@ -19,7 +19,9 @@ def sock_client_image(args):
     print("* push start : {0}".format(start_time))
 
     while True:
-        print(index / (time.time() - start_time))
+
+        if index % 1000 == 0:
+            print(index / (time.time() - start_time))
         #
         ret, frame = cap.read()
         if ret:

@@ -7,13 +7,6 @@ import configparser
 import argparse
 import sys
 
-def args_parse():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model_dir', dest='model_dir', type=str, default='./')
-    parser.add_argument('--model_name', dest='model_name', type=str)
-    parser.add_argument('--suffix', dest='suffix', type=str, default='.pth')
-    args = parser.parse_args()
-    return args
 
 def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
     """ Encrypts a file using AES (CBC mode) with the
@@ -223,19 +216,37 @@ def main(bgl_dir, project_list, use_operation):
             else:
                 print('!!!!!!!!! no version folder !!!!!!!!!')
 
+def args_parse():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_dir', dest='model_dir', type=str, default='./')
+    parser.add_argument('--model_name', dest='model_name', type=str)
+    parser.add_argument('--suffix', dest='suffix', type=str, default='.pth')
+    parser.add_argument('--all_file_dir', dest='all_file_dir', type=str, default=None)
+    parser.add_argument('--salt', dest='salt', type=str, default='txkj2019')
+    args = parser.parse_args()
+    return args
+
 
 if __name__ == "__main__":
 
-
-    salt = 'txkj2019'
-    bkey32 = "{: <32}".format(salt).encode("utf-8")
-
     args = args_parse()
+    bkey32 = "{: <32}".format(args.salt).encode("utf-8")
 
-    model_dir = args.model_dir
-    model_name = args.model_name
-    suffix = args.suffix
-    single_model_encrypt(model_dir, model_name, suffix)
+    if args.all_file_dir:
+        for each_file in os.listdir(args.all_file_dir):
+            each_file_path = os.path.join(args.all_file_dir, each_file)
+            if not os.path.isfile(each_file_path):
+                continue
+            if '_locked' in each_file:
+                continue
+            model_name, suffix = os.path.splitext(each_file)
+            print('----- encrypt ----- {0} ----- {1} -----'.format(model_name, suffix))
+            single_model_encrypt(args.all_file_dir, model_name, suffix)
+    else:
+        model_dir = args.model_dir
+        model_name = args.model_name
+        suffix = args.suffix
+        single_model_encrypt(model_dir, model_name, suffix)
 
 
 

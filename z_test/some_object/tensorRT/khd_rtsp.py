@@ -9,6 +9,15 @@ import time
 import cv2
 import argparse
 
+sign_dir = r"/home/tensorRT/tensorrt_test/sign"
+
+
+def dete_error():
+    """检测失败，发出失败的信号"""
+    sign_txt = os.path.join(sign_dir, 'restart.txt')
+    with open(sign_txt, 'w') as sign_file:
+        sign_file.write("error")
+
 
 def sock_client_image(args):
 
@@ -20,23 +29,31 @@ def sock_client_image(args):
 
     while True:
 
-        if index % 1000 == 0:
-            print(index / (time.time() - start_time))
-        #
-        ret, frame = cap.read()
-        if ret:
-            index += 1
-            success, encoded_image = cv2.imencode(".jpg", frame)
-            if success:
-                byte_data = encoded_image.tobytes()
-            else:
-                continue
+        try:
+
+            if index % 1000 == 0:
+                print(index / (time.time() - start_time))
             #
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((args.host, args.port))
-            fhead = struct.pack(b'128sq', bytes("filepath", encoding='utf-8'), len(byte_data))
-            s.send(fhead)
-            s.send(byte_data)
+            ret, frame = cap.read()
+            if ret:
+                index += 1
+                success, encoded_image = cv2.imencode(".jpg", frame)
+                if success:
+                    byte_data = encoded_image.tobytes()
+                else:
+                    continue
+                #
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((args.host, args.port))
+                fhead = struct.pack(b'128sq', bytes("filepath", encoding='utf-8'), len(byte_data))
+                s.send(fhead)
+                s.send(byte_data)
+        except Exception as e:
+            print(e)
+            print(e.__traceback__.tb_frame.f_globals["__file__"])
+            print(e.__traceback__.tb_lineno)
+            print("* restart server")
+            dete_error()
 
 
 def parse_args():

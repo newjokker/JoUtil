@@ -7,6 +7,7 @@ import subprocess
 import argparse
 
 # fixme 指定要启动的 GPU
+sign_dir = r"/home/tensorRT/tensorrt_test/sign"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
@@ -64,6 +65,15 @@ def start_servre():
     print("* start server pid : ", pid.pid)
     return pid_list
 
+def if_error():
+    """是否出错了"""
+    sign_txt = os.path.join(sign_dir, 'restart.txt')
+    if os.path.exists(sign_txt):
+        os.remove(sign_txt)
+        return True
+    else:
+        return False
+
 def close_all_server(pid_list):
     for each_pid in pid_list:
         os.system("kill -9 {0}".format(each_pid))
@@ -72,13 +82,10 @@ pid_list = start_servre()
 print("* use ctrl + c stop APP")
 
 while True:
-    start_time = time.time()
     try:
         # todo 过一段时间就重启一下两个服务，保证常新
-        time.sleep(1)
-        now_time = time.time()
-        if now_time - start_time > 60 * 60 * 5:
-            start_time = time.time()
+        time.sleep(15)
+        if if_error():
             close_all_server(pid_list)
             pid_list = start_servre()
     except KeyboardInterrupt as e:

@@ -32,9 +32,16 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 sys.path.insert(0, r"/home/tensorRT/tensorrtx/yolov5")
 PLUGIN_LIBRARY = "/home/tensorRT/tensorrtx/yolov5/build/libmyplugins.so"
 ctypes.CDLL(PLUGIN_LIBRARY)
-
+sign_dir = r"/home/tensorRT/tensorrt_test/sign"
 
 # fixme 目前会提是显示的图片的大小和接受的实际数据大小不一致，所以会摆错
+
+
+def dete_error():
+    """检测失败，发出失败的信号"""
+    sign_txt = os.path.join(sign_dir, 'restart.txt')
+    with open(sign_txt, 'w') as sign_file:
+        sign_file.write("error")
 
 
 class FrameCal():
@@ -94,6 +101,10 @@ def deal_image(sock, addr):
                 # fn = filename.decode().strip('\x00')                                                      # file name
             except Exception as e:
                 print(e)
+                print(e.__traceback__.tb_frame.f_globals["__file__"])
+                print(e.__traceback__.tb_lineno)
+                print("restart server")
+                dete_error()
                 continue
 
             recvd_size = 0
@@ -111,12 +122,7 @@ def deal_image(sock, addr):
                     res += data
 
             now_frame = fc.get_frame()
-            # print('-'*30)
-            # print("* frame", now_frame)
-            # print('-'*30)
-
             if now_frame > video_fps:
-                print('*skip*')
                 continue
 
             img_np_arr = np.fromstring(res, np.uint8)
@@ -132,6 +138,10 @@ def deal_image(sock, addr):
                 p.stdin.write(frame.tostring())
             except Exception as e:
                 print(e)
+                print(e.__traceback__.tb_frame.f_globals["__file__"])
+                print(e.__traceback__.tb_lineno)
+                print("restart server")
+                dete_error()
 
             fc.tag()
 

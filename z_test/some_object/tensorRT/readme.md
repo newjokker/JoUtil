@@ -20,7 +20,8 @@
 
 * 使用的镜像 tensorrt:v0.0.4
 
-* docker run -v /home/ldq/tensorrt_logs:/home/tensorRT/tensorrt_test/logs  -p 1211:1211  -it --gpus 'device=0'  tensorrt:v0.0.4  /bin/bash
+* docker run --gpus 'device=0'  -p 111:111 -v /home/ldq/tensorrt_logs:/home/tensorRT/tensorrt_test/logs -e PORT=111 -e FPS=15 -e W=1280 -e H=720 -e RTSP='rtsp://admin:txkj@2021!@192.168.3.19:554/Streaming/Channels/101' -e RTMP='rtsp://192.168.3.99/live/1211' -d tensorrt:v0.0.5 /home/tensorRT/tensorrt_test/start_server.sh
+
 
 [//]: # (* docker run  -p 1211:1211  -it --gpus 'device=0'  tensorrt:v0.0.4  /bin/bash)
 

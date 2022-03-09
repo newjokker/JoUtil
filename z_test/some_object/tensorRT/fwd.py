@@ -32,7 +32,7 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 sys.path.insert(0, r"/home/tensorRT/tensorrtx/yolov5")
 PLUGIN_LIBRARY = "/home/tensorRT/tensorrtx/yolov5/build/libmyplugins.so"
 ctypes.CDLL(PLUGIN_LIBRARY)
-sign_dir = r"/home/tensorRT/tensorrt_test/sign"
+sign_dir = r"/home/tensorRT/tensorrt_test/logs/sign"
 
 # fixme 目前会提是显示的图片的大小和接受的实际数据大小不一致，所以会摆错
 
@@ -42,6 +42,11 @@ def dete_error():
     sign_txt = os.path.join(sign_dir, 'restart.txt')
     with open(sign_txt, 'w') as sign_file:
         sign_file.write("error")
+
+
+def clear_live_file():
+    for each_live_path in FileOperationUtil.re_all_file(sign_dir, endswitch=['.live']):
+        os.remove(each_live_path)
 
 
 class FrameCal():
@@ -83,9 +88,15 @@ def socket_service_image(args):
 
     print("Wait for Connection.....................")
 
+    img_index = 1
+
     while True:
         sock, addr = s.accept()
         deal_image(sock, addr)
+
+        img_index += 1
+        if img_index % 100 == 0:
+            clear_live_file()
 
 
 def deal_image(sock, addr):
@@ -95,7 +106,6 @@ def deal_image(sock, addr):
         fileinfo_size = struct.calcsize('128sq')
         buf = sock.recv(fileinfo_size)
         if buf:
-
             try:
                 filename, filesize = struct.unpack('128sq', buf)
                 # fn = filename.decode().strip('\x00')                                                      # file name
@@ -110,8 +120,15 @@ def deal_image(sock, addr):
             recvd_size = 0
             res = b""
             buff_size = 100 
+            try_time = 0
 
             while not recvd_size >= filesize:
+                try_time += 1
+
+                if try_time > 100000:
+                    print(" dete error")
+                    dete_error()
+
                 if filesize - recvd_size > buff_size:
                     data = sock.recv(buff_size)
                     recvd_size += len(data)

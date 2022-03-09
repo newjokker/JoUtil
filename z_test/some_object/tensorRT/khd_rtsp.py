@@ -9,7 +9,7 @@ import time
 import cv2
 import argparse
 
-sign_dir = r"/home/tensorRT/tensorrt_test/sign"
+sign_dir = r"/home/tensorRT/tensorrt_test/logs/sign"
 
 
 def dete_error():
@@ -21,7 +21,7 @@ def dete_error():
 
 def sock_client_image(args):
 
-    index = 0
+    index = 1
     start_time = time.time()
     cap = cv2.VideoCapture(args.rtsp)
 
@@ -31,9 +31,6 @@ def sock_client_image(args):
 
         try:
 
-            if index % 1000 == 0:
-                print(index / (time.time() - start_time))
-            #
             ret, frame = cap.read()
             if ret:
                 index += 1
@@ -54,13 +51,14 @@ def sock_client_image(args):
             print(e.__traceback__.tb_lineno)
             print("* restart server")
             dete_error()
+            time.sleep(10)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
-    parser.add_argument('--port', dest='port', type=int, default=1211)
+    parser.add_argument('--port', dest='port', type=int, default=111)
     parser.add_argument('--host', dest='host', type=str, default='192.168.3.221')
-    parser.add_argument('--rtsp', dest='rtsp', type=str, default=r"rtsp://admin:txkj@2021!@192.168.3.19:554/Streaming/Channels/101")
+    parser.add_argument('--rtsp', dest='rtsp', type=str, default=r"rtsp://admin:admin123@192.168.3.52:554/Streaming/Channels/101")
     args = parser.parse_args()
     return args
 

@@ -5,9 +5,12 @@ import os
 import time
 import subprocess
 import argparse
+import uuid
+
+from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 # fixme 指定要启动的 GPU
-sign_dir = r"/home/tensorRT/tensorrt_test/sign"
+sign_dir = r"/home/tensorRT/tensorrt_test/logs/sign"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
@@ -39,7 +42,9 @@ try:
     # 实时获取视频长宽的大小，传给服务端
     import cv2
     cap = cv2.VideoCapture(rtsp)
-    w, h = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    w_new, h_new = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    if w_new != 0 and h_new != 0:
+        w, h = w_new, h_new
 except Exception as e:
     print(e)
 
@@ -54,7 +59,7 @@ def start_servre():
     pid_list.append(str(pid.pid))
     print("* start cilent pid : ", pid.pid)
 
-    time.sleep(10)
+    time.sleep(5)
 
     cmd_str = r"python ./khd_rtsp.py --host {0} --port {1} --rtsp {2}".format(host, port, rtsp)
     bug_file = open(os.path.join(log_dir, "bug_cilent" + str(time.time())[:10] + ".txt"), "w+")
@@ -71,12 +76,25 @@ def if_error():
     if os.path.exists(sign_txt):
         os.remove(sign_txt)
         return True
+    elif len(list(FileOperationUtil.re_all_file(sign_dir, endswitch=['.live']))) > 5:
+        for each_live_path in FileOperationUtil.re_all_file(sign_dir, endswitch=['.live']):
+            os.remove(each_live_path)
+        return True
     else:
         return False
+
+def set_live_file():
+    live_file_path = os.path.join(sign_dir, "{0}.live".format(str(uuid.uuid1())))
+    with open(live_file_path, 'w') as live_file:
+        live_file.write("live")
+
 
 def close_all_server(pid_list):
     for each_pid in pid_list:
         os.system("kill -9 {0}".format(each_pid))
+
+
+os.makedirs(sign_dir, exist_ok=True)
 
 pid_list = start_servre()
 print("* use ctrl + c stop APP")
@@ -88,6 +106,9 @@ while True:
         if if_error():
             close_all_server(pid_list)
             pid_list = start_servre()
+        else:
+            # todo 往sign 文件夹中新建文件 .live 文件，当文件数量操作 4 个的时候就重启
+            set_live_file()
     except KeyboardInterrupt as e:
         # 当接受到 ctrl + c 命令，关掉启动的两个子模型
         print("* ctrl + c , close : {0}".format(','.join(pid_list)))

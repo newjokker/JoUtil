@@ -59,7 +59,8 @@ def start_servre():
     pid_list.append(str(pid.pid))
     print("* start cilent pid : ", pid.pid)
 
-    time.sleep(5)
+    # 给 20s 的启动时间
+    time.sleep(20)
 
     cmd_str = r"python ./khd_rtsp.py --host {0} --port {1} --rtsp {2}".format(host, port, rtsp)
     bug_file = open(os.path.join(log_dir, "bug_cilent" + str(time.time())[:10] + ".txt"), "w+")
@@ -76,7 +77,7 @@ def if_error():
     if os.path.exists(sign_txt):
         os.remove(sign_txt)
         return True
-    elif len(list(FileOperationUtil.re_all_file(sign_dir, endswitch=['.live']))) > 5:
+    elif len(list(FileOperationUtil.re_all_file(sign_dir, endswitch=['.live']))) > 10:
         for each_live_path in FileOperationUtil.re_all_file(sign_dir, endswitch=['.live']):
             os.remove(each_live_path)
         return True

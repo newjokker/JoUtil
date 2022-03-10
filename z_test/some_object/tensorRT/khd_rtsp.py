@@ -56,7 +56,7 @@ def sock_client_image(args):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
-    parser.add_argument('--port', dest='port', type=int, default=111)
+    parser.add_argument('--port', dest='port', type=int, default=222)
     parser.add_argument('--host', dest='host', type=str, default='192.168.3.132')
     parser.add_argument('--rtsp', dest='rtsp', type=str, default=r"rtsp://admin:admin123@192.168.3.52:554/Streaming/Channels/101")
     args = parser.parse_args()

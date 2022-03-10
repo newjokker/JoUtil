@@ -103,7 +103,7 @@ print("* use ctrl + c stop APP")
 while True:
     try:
         # todo 过一段时间就重启一下两个服务，保证常新
-        time.sleep(15)
+        time.sleep(30)
         if if_error():
             close_all_server(pid_list)
             pid_list = start_servre()

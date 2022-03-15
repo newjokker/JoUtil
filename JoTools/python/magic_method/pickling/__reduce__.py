@@ -34,4 +34,4 @@ class Poc:
 poc = Poc()
 pickle.dump(poc, open('poc.pkl', 'wb'))
 a = pickle.load(open('poc.pkl', 'br'))
-a.hello()
+a.hello_cls()

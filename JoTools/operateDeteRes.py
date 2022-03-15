@@ -564,9 +564,9 @@ class OperateDeteRes(object):
         xml_list = list(FileOperationUtil.re_all_file(xml_folder, lambda x: str(x).endswith('.xml')))
         #
         for xml_index, each_xml_path in enumerate(xml_list):
-            # each_xml_info = parse_xml(each_xml_path)
             try:
-                each_xml_info = parse_xml_as_txt(each_xml_path)
+                each_xml_info = parse_xml(each_xml_path)
+                # each_xml_info = parse_xml_as_txt(each_xml_path)
                 xml_info.append(each_xml_info)
                 for each_name in each_xml_info['object']:
                     if each_name['name'] not in name_dict:
@@ -576,6 +576,7 @@ class OperateDeteRes(object):
             except Exception as e:
                 print("* xml error : {0}".format(each_xml_path))
                 error_file += 1
+                print(e)
 
         # 打印结果
         if print_count:

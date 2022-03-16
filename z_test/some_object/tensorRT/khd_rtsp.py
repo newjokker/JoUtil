@@ -25,6 +25,8 @@ def sock_client_image(args):
     start_time = time.time()
     cap = cv2.VideoCapture(args.rtsp)
 
+    save_img_dir = r"/home/tensorRT/tensorrt_test/rtsp_img"
+    os.makedirs(save_img_dir, exist_ok=True)
     print("* push start : {0}".format(start_time))
 
     while True:
@@ -34,6 +36,10 @@ def sock_client_image(args):
             ret, frame = cap.read()
             if ret:
                 index += 1
+                if index % 100 == 0:
+                    save_path = os.path.join(save_img_dir, "{0}.jpg".format(index))
+                    cv2.imwrite(save_path, frame)
+
                 success, encoded_image = cv2.imencode(".jpg", frame)
                 if success:
                     byte_data = encoded_image.tobytes()
@@ -58,7 +64,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--port', dest='port', type=int, default=222)
     parser.add_argument('--host', dest='host', type=str, default='192.168.3.132')
-    parser.add_argument('--rtsp', dest='rtsp', type=str, default=r"rtsp://admin:admin123@192.168.3.52:554/Streaming/Channels/101")
+    parser.add_argument('--rtsp', dest='rtsp', type=str, default=r"rtsp://admin:txkj123!@192.168.3.19:554/Streaming/Channels/101")
     args = parser.parse_args()
     return args
 

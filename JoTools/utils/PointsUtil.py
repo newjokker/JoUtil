@@ -33,11 +33,21 @@ class PointsUtil(object):
         return points[0]
 
     @staticmethod
-    def bounding_rect_middle_line(points):
+    def get_bounding_rect(points):
+        """获的正外接矩形的四个点"""
+        left = PointsUtil.get_left_point(points)
+        right = PointsUtil.get_right_point(points)
+        bottom = PointsUtil.get_bottom_point(points)
+        top = PointsUtil.get_top_point(points)
+        return [left, right, bottom, top]
+
+    @staticmethod
+    def bounding_rect_middle_line(points, long_line=True):
+        """外接矩形的中心点连线，分长边和短边"""
         points = np.array(points)
         x, y, w, h = cv2.boundingRect(points)
         # (x,y) 左上角的点
-        if w > h:
+        if ((w > h) and long_line) or ((w < h) and (not long_line)) :
             line = [(x, y+h/2), (x+w, y+h/2)]
         else:
             line = [(x+w/2, y), (x+w/2, y+h)]
@@ -68,7 +78,7 @@ class PointsUtil(object):
 
     @staticmethod
     def get_fit_line(points):
-        """获得拟合线"""
+        """输入点集，获得拟合线，输出一个拟合的线段"""
         w, b = PointsUtil.get_line_from_points(points)
         points = sorted(points, key=lambda x:x[0])
         x_min, x_max = points[0][0], points[-1][0]

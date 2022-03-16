@@ -34,28 +34,52 @@ from collections import Counter
 # b = OperateDeteRes.get_class_count(r"C:\Users\14271\Desktop\xml_compare\xml_there_ok", print_count=True)
 
 
-xml_ok_there = r"C:\Users\14271\Desktop\xml_compare\xml_there_ok"
-xml_ok_here = r"C:\Users\14271\Desktop\xml_compare\xml_here_ok"
+# xml_ok_there = r"C:\Users\14271\Desktop\xml_compare\xml_there_ok"
+# xml_ok_here = r"C:\Users\14271\Desktop\xml_compare\xml_here_ok"
+#
+# res = []
+#
+# for each_xml_path in FileOperationUtil.re_all_file(xml_ok_there, endswitch=['.xml']):
+#     xml_dir, xml_name = os.path.split(each_xml_path)
+#     xml_path_here = os.path.join(xml_ok_here, xml_name)
+#
+#     a = DeteRes(each_xml_path)
+#     b = DeteRes(xml_path_here)
+#
+#     a = a.filter_by_tags(['xd_missed'], update=True)
+#     b = b.filter_by_tags(['xd_missed'], update=True)
+#
+#     c = a + b
+#     c.do_nms(0.1)
+#
+#     if len(c) != 0:
+#         res.append((len(a) + len(b)) / max(len(c), 1))
+#
+#
+# ct = Counter(res)
+#
+# print(ct)
 
-res = []
 
-for each_xml_path in FileOperationUtil.re_all_file(xml_ok_there, endswitch=['.xml']):
-    xml_dir, xml_name = os.path.split(each_xml_path)
-    xml_path_here = os.path.join(xml_ok_here, xml_name)
+weight = 100
+high = 170
+age = 30
 
-    a = DeteRes(each_xml_path)
-    b = DeteRes(xml_path_here)
+res = 10 * weight + 6.25 * high - 5*age + 5
 
-    a = a.filter_by_tags(['xd_missed'], update=True)
-    b = b.filter_by_tags(['xd_missed'], update=True)
-
-    c = a + b
-    c.do_nms(0.1)
-
-    if len(c) != 0:
-        res.append((len(a) + len(b)) / max(len(c), 1))
+print(res)
 
 
-ct = Counter(res)
 
-print(ct)
+
+
+
+
+
+
+
+
+
+
+
+

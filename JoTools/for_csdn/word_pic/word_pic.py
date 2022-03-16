@@ -189,8 +189,8 @@ if __name__ == '__main__':
 
     # -------------------------------------------------------------------------------------
     ratio = 1                                                   # 图像缩小的比例
-    img_path = r"C:\Users\14271\Desktop\del\test.jpg"
-    save_path = r"C:\Users\14271\Desktop\del\test_new.jpg"
+    img_path = r"C:\Users\14271\Desktop\test.jpg"
+    save_path = r"C:\Users\14271\Desktop\test_2.jpg"
     # -------------------------------------------------------------------------------------
 
     img = Image.open(img_path)

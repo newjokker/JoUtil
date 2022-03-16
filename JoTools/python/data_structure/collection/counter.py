@@ -12,6 +12,8 @@ c = Counter(a) + Counter(b)
 # c = Counter(a) - Counter(b)
 
 
+print(c.most_common(1))
+
 print(c)
 
 

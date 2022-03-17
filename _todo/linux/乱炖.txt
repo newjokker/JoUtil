@@ -25,8 +25,86 @@
 * head 查看一个文件的前 n 行，n 默认为 10
 
 * tail 同上，后几行
-    * tail -f 查看一个文件的动态变化
+    * tail -f 查看一个文件的动态变化(变化的内容不能是用户手动添加的，可以使用管道往文件中写入)
 
 * less : 先展示一部分，后面可以继续往下看
 
+* wc -l|w|c 行数 单词书 字节数
+
+* date 操作时间和日期
+
+* clear , ctrl + l
+    * 把之前的信息，隐藏了，可以使用滚动条查看之前的信息
+    *
+
+* | 管道 : 过滤，特殊，扩展处理
+    * 过滤 ：ls | grep check
+
+* hostname 输出主机名
+    * hostname
+
+* id 查看一个用户的基本信息，不指定用户，默认当前用户
+    * id 用户名，查看指定用户基本信息
+
+* whoami 显示当前登录的用户名
+
+* ps 查看服务器的进程信息
+    * -e 列出全部的进程
+    * -f 显示全部的列
+        * UID(user id)
+        * PID(process id)
+        * PPID(parents process id)
+        * C(cpu occupy)
+        * STIME(start time)
+        * TTY(终端设备，？系统自动发起，不是由终端发起)
+        * TIME(执行时间)
+        * CMD(进程的名称或者对应的路径)
+
+* 如果一个进程的父进程找不到了，那么这个进程叫做僵尸进程
+
+* top 查看服务器的进程占用的资源
+    * chrmoe 跟电脑申请了 500M 内存，用了 320M
+    * VIRT 虚拟内存，虚拟内存为 500M
+    * RES 常驻内存
+    * SHR 共享内存
+    * 实际使用内存 RES - SHR
+    * COMMOND 进程的名称或者路径
+    * 运行的时候输入 M 或者 P 分别按照内存占用和 CPU 占用进行排序
+
+* du 查看目录的大小
+    * -s (summaries) 只显示汇总大小
+    * -h 以较高可读性的形式进行显示
+
+* find 查找文件
+    * -name 根据名字搜
+    * -type 根据文档类型搜索  find ./ -type f , f 文件 d 文件夹
+
+* service 用于控制一些软件的服务，停止 开始 重启
+    * service 服务名 start|stop|restart
+
+* kill 杀死进程
+    * killall 进程名称
+    *
+
+* ifconfig 操作网卡信息
+
+* reboot 重新启动计算机
+    * -w 模拟重启，不重启（只写关机开机的日志信息）
+
+* shutdown 关机（慎用）
+    * -now 立即关机
+    * -h 15:25 指定关机时间
+
 *
+
+
+
+
+
+
+
+
+
+
+
+

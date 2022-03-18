@@ -1,0 +1,126 @@
+
+
+
+### 自有服务，系统自带的
+
+* 运行模式 或者成为 运行级别
+
+* linux 存在 init(initialize) 进程，进程 id 为 1
+    * 进程的配置文件，inittab (系统运行级别配置文件) /etc/inittab , ubantu 中 /etc/event.d refer: https://blog.csdn.net/wsclinux/article/details/70598643
+    * ubantu 相关内容与 centos 不一致
+
+    * init 0 关机
+    * init 3 切换命令行模式（多用户模式，不带桌面的模式），需要超级管理员的权限
+    * init 5 回到桌面模式
+    * init 6 重启
+
+
+* 用户管理
+    * /etc/passwd   存储用户的关键信息
+    * /etc/group    存储用户组的关键信息
+    * /etc/shadow   存储用户组的密码信息
+
+
+* 用户
+    * useradd
+        * -g 指定用户的用户组（主组），可以是组的 id 或者 组名
+        * -G 指定用户的用户组（附加组）
+        * -u uid 用户的 id ，系统默认会使用 500 往后按照顺序分配 id
+        * -c （comment）添加用户的注释
+        * 用户名:密码:用户ID:用户组ID(主组):注释，解释用户是做什么用的:家目录（登录后自动进入的位置）:解释器 /bin/bash
+
+    * usermod 修改用户
+        * -l 修改用户名
+
+    * passwd 用户名
+        * Linux 不允许没有密码的用户，登录，创建的用户没设置密码之前都是属于锁定状态
+
+    * userdel 删除用户
+        * -r 删除的同时，删除家目录
+
+    * 除了 passwd 之外所有与创建删除修改用户信息相关的操作只有 root 用户有权限
+
+    * su (switch user) 切换用户
+
+
+* 用户组管理
+
+    * 用户组的作用？，
+
+
+
+* 网络设置
+
+    * 网卡配置文件位置 /etc/
+
+
+* SSH 服务，（secure shell）
+    * 远程连接协议（主要）
+    * 远程文件传输协议
+    * 协议的默认端口号 22，可以被修改的，配置文件 /etc/ssh/ssh_config
+        * 值的范围  0 - 65535，不能使用别的服务已经使用的端口
+    * 启动，停止，重启 service sshd start/stop/restart
+
+
+* 远程终端
+
+    * 帮助运维人员连接远程服务器
+    * 常见的工具 xshell, putty, secureCRT
+
+
+* PSCP 通过命令行传输文件，需要通过 CMD 打开
+    * linux 可以直接安装 apt install pytty-tools
+    * 可以远程在其他机器上执行命令 pscp -ls txkj@192.168.3.101:/home/ldq
+    * 可以设置
+
+* chkconfig 开机启动项的管理
+    * Linux 不是所有的软件安装完成后都有开机启动服务，有可能需要自己去添加，（我自己写的服务就可以设置为开机启动）
+    * chkconfig --list
+
+    * ubantu 系统没有这个命令，refer : https://blog.csdn.net/dianchi4843/article/details/101859214
+        * apt-get install sysv-rc-conf
+        * sysv-rc-conf 代替 chkconfig
+        * 可以改一下 别名 alias chkconfig=sysv-rc-conf
+
+    * chkconfig --del httpd 删除 httpd 服务
+    * chkconfig --add 服务名
+    * chkconfig --level 135 服务名 on\off  设置服务在某几个级别上开机启动
+
+
+* ntp 主要用于时间同步管理操作
+    * 时间对于服务器是很重要的事情，需要根据时间处理相关的信息
+    * 同步时间
+        * 手动 ntpdate 时间服务器的域名或者地址
+        * 自动 service ntpd start 自动同步时间，ubantu 上好像没法设置
+
+
+* 防火墙，防范网络攻击，防水墙，防止灌水的墙
+    * 硬件防火墙，软件防火墙
+    * 只让安全的请求通过，保证网络安全性
+    *
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

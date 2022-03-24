@@ -527,7 +527,8 @@ class OperateDeteRes(object):
 
             a.img_path = each_img_path
             try:
-                a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list, save_augment=save_augment)
+                # a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list, save_augment=save_augment)
+                a.crop_dete_obj(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list)
                 index += 1
             except Exception as e:
                 print(e)
@@ -565,8 +566,8 @@ class OperateDeteRes(object):
         #
         for xml_index, each_xml_path in enumerate(xml_list):
             try:
-                each_xml_info = parse_xml(each_xml_path)
-                # each_xml_info = parse_xml_as_txt(each_xml_path)
+                # each_xml_info = parse_xml(each_xml_path)
+                each_xml_info = parse_xml_as_txt(each_xml_path)
                 xml_info.append(each_xml_info)
                 for each_name in each_xml_info['object']:
                     if each_name['name'] not in name_dict:

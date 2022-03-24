@@ -388,10 +388,13 @@ class DeteRes(ResBase, ABC):
         pass
 
     # @DecoratorUtil.time_this
-    def crop_dete_obj(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None):
+    def crop_dete_obj(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None, save_augment=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数
         * augment_parameter = [0.5, 0.5, 0.2, 0.2]
         """
+
+        # todo save_augment，xml 中的位置是否进行扩展
+
         if isinstance(self.img_ndarry, np.ndarray):
             return self.crop_dete_obj_new(save_dir=save_dir, augment_parameter=augment_parameter, method=method, exclude_tag_list=exclude_tag_list,
                                           split_by_tag=split_by_tag, include_tag_list=include_tag_list, assign_img_name=assign_img_name)

@@ -44,20 +44,16 @@ class SegmentRes(object):
         """返回要素的个数"""
         return len(self.shapes)
 
-    def parse_json_info(self, json_path=None, parse_img=False, parse_mask=False):
+    def parse_json_info(self, json_path=None, parse_img=False, parse_mask=False, encoding='utf-8'):
         """解析 json 的信息, 可以选择是否解析 img 和 mask"""
 
         # todo 读取的时候，每一个的 label 是不一样的 从 test1 到 testn 出现一个一样的 segmentObj 增加一个序号
 
-        self.json_path = json_path
-
         if json_path:
-            a = JsonUtil.load_data_from_json_file(json_path, encoding='GBK')
+            self.json_path = json_path
+            a = JsonUtil.load_data_from_json_file(json_path, encoding=encoding)
         else:
-            a = JsonUtil.load_data_from_json_file(self.json_path, encoding='GBK')
-
-        # if a is None:
-        #     return
+            a = JsonUtil.load_data_from_json_file(self.json_path, encoding=encoding)
 
         # parse attr
         self.version = a["version"] if "version" in a else ""

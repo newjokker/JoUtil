@@ -17,7 +17,7 @@ setup(
     description='a tools for TXKJ algo',                                                    # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
-
+    url='https://github.com/newjokker/JoUtil.git',
     requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash', 'prettytable', 'progress',
               'progressbar', 'requests', 'imageio', 'pyexiv2', 'cv2', 'exifread', 'whatimage', 'pyheif',
               'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'flask'
@@ -32,6 +32,9 @@ setup(
         'JoTools/for_csdn/word_pic': ['data/*.pkl'],
         'JoTools/for_csdn/the_art_of_war': ['data/*.txt'],
     },
+    long_description="""
+    * jokker 常用的功能组成的包
+    """,
     )
 
 
@@ -46,5 +49,9 @@ setup(
 
 # setuptools 的进一步学习参考：https://www.jianshu.com/p/ea9973091fdf
 
+# 发布到 pypi 上去，refer : https://www.justdopython.com/2020/05/13/Python-pip/
+# python -m twine upload --repository pypi dist/*
+# 账号：jokker
+# 密码：*u@%Uu.#PU8ty,w
 
 

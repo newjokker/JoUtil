@@ -95,7 +95,7 @@ class SegmentRes(object):
             # fixme mask 的 channel 必须和 box 的个数一样多，否则会报错【好像还不一定，好像是问题】
             _, self.mask = utils.shapes_to_label(self.image_data.shape, a["shapes"], label_name_dict)
 
-    def save_to_josn(self, json_path):
+    def save_to_json(self, json_path):
         """保存为json数据格式"""
 
         json_info = {"version":"", "imageWidth":"", "imageHeight":"", "imagePath":"", "lineColor":"", "fillColor":"", "imageData":"", "shapes":[]}
@@ -193,6 +193,24 @@ class SegmentRes(object):
             except Exception as e:
                 print(e)
 
+    def update_tags(self, update_tags):
+        """对标签进行映射"""
+        for each_shape in self.shapes:
+            label = each_shape.label
+            if label in update_tags:
+                each_shape.label = update_tags[label]
+
+    def count_tags(self):
+        """对标签进行计数"""
+        count = {}
+        for each_shape in self.shapes:
+            each_label = each_shape.label
+            if each_label in count:
+                count[each_label] += 1
+            else:
+                count[each_label] = 1
+        return count
+
     def filter_segment_obj_by_lables(self, include_labels=None, exclude_labels=None):
         """对 shape 中的 segment obj 对象进行过滤 """
 
@@ -234,7 +252,33 @@ class SegmentRes(object):
             raise ValueError("self.img_path self.img self.img_data all empty")
 
 
-        
+class SegmentOpt():
+
+    @staticmethod
+    def count_tag(json_dir):
+        count = {}
+        json_path_list = list(FileOperationUtil.re_all_file(json_dir, endswitch=['.json']))
+        for each_json_path in json_path_list:
+            a = SegmentRes(json_path=each_json_path)
+            a.parse_json_info(parse_img=False)
+            each_count = a.count_tags()
+            for each_key in each_count:
+                if each_key in count:
+                    count[each_key] += each_count[each_key]
+                else:
+                    count[each_key] = each_count[each_key]
+        return count
+
+    @staticmethod
+    def update_tags(json_dir, update_dict, save_dir):
+        for each_json_path in FileOperationUtil.re_all_file(json_dir, endswitch=['.json']):
+            a = SegmentRes(each_json_path)
+            a.parse_json_info(parse_img=False)
+            a.update_tags(update_dict)
+            img_name = os.path.split(each_json_path)[1]
+            save_path = os.path.join(save_dir, img_name)
+            a.save_to_json(save_path)
+
 
 
 
@@ -252,7 +296,7 @@ if __name__ == "__main__":
         a = SegmentRes()
         a.img_path = each_img_path
         a.get_segment_obj_from_mask(each_mask_path, each_mask_point_numb=30)
-        a.save_to_josn(each_save_path)
+        a.save_to_json(each_save_path)
 
 
 

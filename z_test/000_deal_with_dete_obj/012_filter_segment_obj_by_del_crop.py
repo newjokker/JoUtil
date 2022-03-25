@@ -43,7 +43,7 @@ for each_json_path in FileOperationUtil.re_all_file(json_dir, endswitch=['.json'
             include_labels.append(each_label)
 
     a.filter_segment_obj_by_lables(include_labels=include_labels)
-    a.save_to_josn(save_json_path)
+    a.save_to_json(save_json_path)
 
     print(index, each_json_path)
     index += 1

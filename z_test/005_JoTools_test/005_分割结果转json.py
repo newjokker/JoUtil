@@ -36,7 +36,7 @@ for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg']):
     a = SegmentRes()
     a.img_path = each_img_path
     a.get_segment_obj_from_mask(each_mask_path, each_mask_point_numb=60)
-    a.save_to_josn(each_save_path)
+    a.save_to_json(each_save_path)
 
 
 

@@ -85,7 +85,7 @@ for img_path in FileOperationUtil.re_all_file(img_dir):
             a.shapes.append(each_line_obj)
 
         save_path = a.img_path[:-3] + 'json'
-        a.save_to_josn(save_path)
+        a.save_to_json(save_path)
 
     except Exception as e:
         print(e)

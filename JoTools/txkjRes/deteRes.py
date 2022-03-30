@@ -1021,15 +1021,13 @@ class DeteRes(ResBase, ABC):
 
     def filter_by_func(self, func, update=True):
         """使用指定函数对 DeteObj 进行过滤"""
-        new_alarms, del_alarms = [], []
+        dete_res_temp = self.deep_copy(copy_img=False)
         for each_dete_obj in self._alarms:
             if func(each_dete_obj):
-                new_alarms.append(each_dete_obj)
-            else:
-                del_alarms.append(each_dete_obj)
+                dete_res_temp.add_obj_2(each_dete_obj)
         if update:
-            self._alarms = new_alarms
-        return new_alarms
+            self._alarms = dete_res_temp._alarms
+        return dete_res_temp
 
     def filter_by_topn(self, nn, update=True):
         # 远景小目标过滤, 相对小的，从大到小排序，取前nn名的平均值/2作为阈值(籍天明，ljc)
@@ -1058,6 +1056,17 @@ class DeteRes(ResBase, ABC):
             return self
         else:
             return new_dete_res
+
+    # ----------------------------------------------- useful -----------------------------------------------------------
+
+    def split_by_tags(self, *args):
+        """将 deteRes 按照指定的标签进行分割为几部分"""
+        res = []
+        for each_tag_list in args:
+            each_dete_res = self.deep_copy(copy_img=False)
+            each_dete_res.filter_by_tags(need_tag=each_tag_list)
+            res.append(each_dete_res)
+        return res
 
     # ----------------------------------------------- update -----------------------------------------------------------
 

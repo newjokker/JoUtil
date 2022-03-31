@@ -86,6 +86,39 @@ class PointsUtil(object):
         y_2 = x_max*w + b
         return [(x_min, y_1), (x_max, y_2)]
 
+    @staticmethod
+    def LSC(xi, Yi):
+
+        def func(p, x):
+            k, b = p
+            return k * x + b
+
+        def error(p, x, y):
+            return func(p, x) - y
+
+        p0 = [100, 2]
+        Para = leastsq(error, p0, args=(xi, Yi))
+        k, b = Para[0]
+
+        return k, b
+
+    @staticmethod
+    def get_line_from_points_2(points):
+        """最小二乘法来做"""
+
+        # fixme 最小二乘法是有缺陷的，对于斜率特别大的曲线，最小二乘法没办法得到准确的斜率，会得到一个有问题的斜率，我一般直接把 x,y 对调，得到斜率 k 再用 1/k 得到真正的斜率，
+
+        xi, yi = [], []
+        for each in points:
+            xi.append(each[0])
+            yi.append(each[1])
+        xi = np.array(xi)
+        yi = np.array(yi)
+        # k, b = LSC(yi, xi)
+        # k_new = 1 / k
+        k, b = LSC(xi, yi)
+        b = np.mean(xi)
+        return k_new, b
 
 
 if __name__ == "__main__":

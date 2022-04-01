@@ -51,6 +51,8 @@ setup(
 
 # 发布到 pypi 上去，refer : https://www.justdopython.com/2020/05/13/Python-pip/
 # python -m twine upload --repository pypi dist/*
+# 或者
+# python -m twine upload --repository pypi dist/JoUtil-0.2.21-py3-none-any.whl
 # 账号：jokker
 # 密码：*u@%Uu.#PU8ty,w
 

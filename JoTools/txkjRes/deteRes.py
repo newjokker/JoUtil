@@ -1156,17 +1156,29 @@ class DeteRes(ResBase, ABC):
 
     # ----------------------------------------------- set --------------------------------------------------------------
 
-    def do_augment(self, augment_parameter, is_relative=True):
+    def do_augment(self, augment_parameter, is_relative=True, update=True):
         """对检测框进行扩展"""
 
-        # todo 这个函数不该存在，想办法融合到其他数据中
+        if self.width <= 0 or self.height <=0:
+            raise ValueError("* self.width <= 0 or self.height <=0")
 
-        for each_dete_obj in self._alarms:
+        if update is False:
+            res = self.deep_copy()
+            alarms = res.alarms
+        else:
+            alarms = self._alarms
+
+        for each_dete_obj in alarms:
             if isinstance(each_dete_obj, DeteObj):
                 each_dete_obj.do_augment(augment_parameter=augment_parameter, width=self.width, height=self.height, is_relative=is_relative)
             # todo 使用的函数等待完善
             elif isinstance(each_dete_obj, DeteAngleObj):
                 each_dete_obj.do_augment(augment_parameter=augment_parameter, width=self.width, height=self.height, is_relative=is_relative)
+
+        if update is True:
+            return self
+        else:
+            return res
 
     # ----------------------------------------------- txkj -------------------------------------------------------------
 

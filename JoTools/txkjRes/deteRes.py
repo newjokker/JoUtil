@@ -1022,6 +1022,7 @@ class DeteRes(ResBase, ABC):
     def filter_by_func(self, func, update=True):
         """使用指定函数对 DeteObj 进行过滤"""
         dete_res_temp = self.deep_copy(copy_img=False)
+        dete_res_temp.reset_alarms()
         for each_dete_obj in self._alarms:
             if func(each_dete_obj):
                 dete_res_temp.add_obj_2(each_dete_obj)

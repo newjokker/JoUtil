@@ -769,9 +769,10 @@ class DeteRes(ResBase, ABC):
         #
         if color_dict is None:
             color_dict = {}
-        #
+        # 拿到 GBR 的图像
         if not assign_img is None:
             img = assign_img
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         else:
             if self.img is not None:
                 img = np.array(self.img)
@@ -1068,6 +1069,10 @@ class DeteRes(ResBase, ABC):
             each_dete_res.filter_by_tags(need_tag=each_tag_list)
             res.append(each_dete_res)
         return res
+
+    def sort_by_func(self, func, reverse=False):
+        """根据方法进行排序"""
+        self._alarms = sorted(self.alarms, key=func, reverse=reverse)
 
     # ----------------------------------------------- update -----------------------------------------------------------
 

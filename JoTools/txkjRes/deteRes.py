@@ -297,7 +297,7 @@ class DeteRes(ResBase, ABC):
                             setattr(each_dete_obj, each_attr, each_obj[each_attr])
                     self.add_obj_2(each_dete_obj)
 
-    def save_to_xml(self, save_path, assign_alarms=None, format='normal'):
+    def save_to_xml(self, save_path, assign_alarms=None, mode='normal'):
         """保存为 xml 文件"""
         xml_info = {'size': {'height': str(int(self.height)), 'width': str(int(self.width)), 'depth': '3'},
                     'filename': self.file_name, 'path': self.img_path, 'object': [], 'folder': self.folder,
@@ -335,9 +335,9 @@ class DeteRes(ResBase, ABC):
                 xml_info['object'].append(each_obj)
 
         # 保存为 xml
-        if format == 'normal':
+        if mode == 'normal':
             save_to_xml(xml_info, xml_path=save_path)
-        elif format == 'wuhan':
+        elif mode == 'wuhan':
             save_to_xml_wh_format(xml_info, xml_path=save_path)
 
     def save_to_json(self, assign_alarms=None):
@@ -825,6 +825,8 @@ class DeteRes(ResBase, ABC):
             cv2.imencode('.jpg', img)[1].tofile(save_path)
         return img
 
+    # do 操作默认 update 是为 True
+
     def do_func(self, assign_func):
         """对所有元素进行指定操作"""
         for each_dete_obj in self._alarms:
@@ -1028,7 +1030,7 @@ class DeteRes(ResBase, ABC):
             if func(each_dete_obj):
                 dete_res_temp.add_obj_2(each_dete_obj)
         if update:
-            self._alarms = dete_res_temp._alarms
+            self._alarms = dete_res_temp.alarms
         return dete_res_temp
 
     def filter_by_topn(self, nn, update=True):
@@ -1080,10 +1082,10 @@ class DeteRes(ResBase, ABC):
         """为所有deteObj的某一个属性设置特定值"""
         new_dete_res = self.deep_copy(copy_img=False)
         #
-        for each_dete_obj in new_dete_res._alarms:
+        for each_dete_obj in new_dete_res.alarms:
             each_dete_obj.__dict__[attr_name] = attr_value
         if update:
-            self._alarms = new_dete_res._alarms
+            self._alarms = new_dete_res.alarms
             return self
         else:
             return new_dete_res

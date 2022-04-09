@@ -1164,7 +1164,7 @@ class DeteRes(ResBase, ABC):
     # ----------------------------------------------- set --------------------------------------------------------------
 
     def do_augment(self, augment_parameter, is_relative=True, update=True):
-        """对检测框进行扩展"""
+        """对检测框进行扩展， 左右上下"""
 
         if self.width <= 0 or self.height <=0:
             raise ValueError("* self.width <= 0 or self.height <=0")
@@ -1337,21 +1337,23 @@ class DeteRes(ResBase, ABC):
                 each_dete_obj.do_offset(offset_x, offset_y)
                 # 支持斜框和正框
                 if isinstance(each_dete_obj, DeteAngleObj):
-                    each_dete_obj_new = each_dete_obj.get_dete_obj().deep_copy()
+                    # each_dete_obj_new = each_dete_obj.get_dete_obj().deep_copy()
+                    each_dete_obj_new = each_dete_obj.deep_copy()
                 elif isinstance(each_dete_obj, DeteObj):
                     each_dete_obj_new = each_dete_obj.deep_copy()
                 else:
                     raise ValueError("obj type in alrms error")
 
-                # 修正目标的范围
-                if each_dete_obj_new.x1 < 0:
-                    each_dete_obj_new.x1 = 0
-                if each_dete_obj_new.y1 < 0:
-                    each_dete_obj_new.y1 = 0
-                if each_dete_obj_new.x2 > width:
-                    each_dete_obj_new.x2 = width
-                if each_dete_obj_new.y2 > height:
-                    each_dete_obj_new.y2 = height
+                # fixme 如何对斜框范围进行修正？
+                # # 修正目标的范围
+                # if each_dete_obj_new.x1 < 0:
+                #     each_dete_obj_new.x1 = 0
+                # if each_dete_obj_new.y1 < 0:
+                #     each_dete_obj_new.y1 = 0
+                # if each_dete_obj_new.x2 > width:
+                #     each_dete_obj_new.x2 = width
+                # if each_dete_obj_new.y2 > height:
+                #     each_dete_obj_new.y2 = height
                 #
                 new_alarms.append(each_dete_obj_new)
 

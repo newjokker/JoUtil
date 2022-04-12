@@ -449,7 +449,11 @@ class DeteRes(ResBase, ABC):
 
             # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
             each_name_str = each_obj.get_name_str()
-            each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
+            if self.img.mode == "RGBA":
+                each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.png'.format(img_name, each_name_str))
+            else:
+                each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.jpg'.format(img_name, each_name_str))
+
             #
             each_obj.crop_path = each_save_path
             #

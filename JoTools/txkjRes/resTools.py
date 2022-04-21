@@ -130,6 +130,11 @@ class ResTools(object):
             return False
 
 
+
+
+
+
+
 if __name__ == "__main__":
 
     triangle_1 = [[1650, 1145], [3222, 1584], [3088, 2066], [1515, 1627]]

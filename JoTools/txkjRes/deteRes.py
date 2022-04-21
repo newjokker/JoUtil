@@ -1,6 +1,6 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
-
+import math
 import os
 import cv2
 import copy
@@ -1518,3 +1518,59 @@ class DeteRes(ResBase, ABC):
     def set_des(self,des_label):
         for obj in self._alarms:
             obj.des = des_label
+
+    def merge_box_by_iou(self, iou_th):
+        """根据执行 iou 对 box 进行合并"""
+
+        def need_merge(dete_res_1, dete_res_2, iou_th):
+            for each_obj_1 in dete_res_1:
+                for each_obj_2 in dete_res_2:
+                    if ResTools.cal_iou(each_obj_1, each_obj_2, ignore_tag=False) > iou_th:
+                        return True
+            return False
+
+        def merge_dete_obj(dete_res):
+            re_dete_res = DeteRes()
+            x1, y1 = math.inf, math.inf
+            x2, y2 = -math.inf, -math.inf
+            for each_obj in dete_res:
+                each_x1, each_x2, each_y1, each_y2 = each_obj.x1, each_obj.x2, each_obj.y1, each_obj.y2
+                x1 = min(x1, each_x1)
+                x2 = max(x2, each_x2)
+                y1 = min(y1, each_y1)
+                y2 = max(y2, each_y2)
+            re_dete_res.add_obj(x1=x1, y1=y1, x2=x2, y2=y2, tag=dete_res[0].tag)
+            return re_dete_res
+
+        dete_res_finally = self.deep_copy()
+        dete_res_finally.reset_alarms()
+        # 默认每一个 box 属于一个邻接列表
+        plaque_list = []
+        for each_dete_obj in self.alarms:
+            each_dete_res = DeteRes()
+            each_dete_res.reset_alarms([each_dete_obj])
+            plaque_list.append(each_dete_res)
+
+        plaque_list_res = []
+        do_loop = True
+        while (do_loop or len(plaque_list)):
+            do_loop = False
+            assign_dete_res = plaque_list.pop(0)
+            for each_dete_res in plaque_list:
+                if need_merge(each_dete_res, assign_dete_res, iou_th=iou_th):
+                    do_loop = True
+                    assign_dete_res += copy.deepcopy(each_dete_res)
+                    plaque_list.remove(each_dete_res)
+                    plaque_list.append(assign_dete_res)
+                    break
+            if not do_loop:
+                plaque_list_res.append(assign_dete_res)
+
+        # 已将能合并的结果全部放到一个 list 中去了，现在开始合并
+        for each_dete_res in plaque_list_res:
+            each_merge_dete_res = merge_dete_obj(each_dete_res)
+            dete_res_finally += each_merge_dete_res
+
+        self.reset_alarms(dete_res_finally.alarms)
+
+

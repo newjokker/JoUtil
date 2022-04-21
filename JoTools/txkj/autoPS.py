@@ -4,9 +4,13 @@
 
 import os
 import random
-from ..utils.ImageUtil import ImageUtil
-from .parseXml import ParseXml, parse_xml
-from ..utils.FileOperationUtil import FileOperationUtil
+# from ..utils.ImageUtil import ImageUtil
+# from .parseXml import ParseXml, parse_xml
+# from ..utils.FileOperationUtil import FileOperationUtil
+
+from JoTools.utils.ImageUtil import ImageUtil
+from JoTools.txkj.parseXml import  ParseXml, parse_xml
+from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
 
@@ -59,13 +63,14 @@ class AutoPS(object):
         """解析要放入背景的 object xml信息，认为一个 xml 只能有一个对象"""
         for each_object_path in self.object_path_list:
             each_xml_path = os.path.splitext(each_object_path)[0] + ".xml"
-            each_xml_info = parse_xml(each_xml_path)['object'][0]
-            self.object_xml_info.append(each_xml_info)
+            # each_xml_info = parse_xml(each_xml_path)['object'][0]
+            # self.object_xml_info.append(each_xml_info)
 
     def draw_object_to_background(self):
         """往背景上画 object，并生成 xml 信息"""
-        for index, each_object in enumerate(self.object_xml_info):
-            name = each_object['name']                                                                  # object 的名字
+        for index, each_object in enumerate([1,2]):
+            # name = each_object['name']                                                                  # object 的名字
+            name = "test"                                                                  # object 的名字
             each_bndbox = each_object['bndbox']
             each_img = ImageUtil(self.object_path_list[index])
             # object 的范围
@@ -114,24 +119,24 @@ class AutoPS(object):
 if __name__ == "__main__":
 
     # 背景文件夹
-    bg_dir = r"C:\Users\14271\Desktop\防振锤优化\102_2500张P图计划\抠图素材\reshape_bg"
+    bg_dir = r"C:\Users\14271\Desktop\test\bg"
     # 物体文件夹，对应的 jpg 和 img 文件
-    object_dir = r"C:\Users\14271\Desktop\防振锤优化\102_2500张P图计划\抠图素材\fzc"
+    object_dir = r"C:\Users\14271\Desktop\test\obj"
     # 保存文件夹
-    save_dir = r"C:\Users\14271\Desktop\防振锤优化\102_2500张P图计划\抠图素材\res"
+    save_dir = r"C:\Users\14271\Desktop\test\save"
     # 所有的背景图片
-    bg_files = FileOperationUtil.re_all_file(bg_dir, lambda x:str(x).endswith('.jpg'))
+    bg_files = list(FileOperationUtil.re_all_file(bg_dir, lambda x:str(x).endswith('.jpg')))
 
-    for i in range(2500):
+    for i in range(3):
         print(i, 2500)
         ground_path = random.choice(bg_files)
 
         save_path = os.path.join(save_dir, "res_{0}.jpg".format(i))
         #
         a = AutoPS(ground_path)
-        a.object_path_list = FileOperationUtil.re_all_file(object_dir, func=lambda x:str(x).endswith('.png'))
+        a.object_path_list = list(FileOperationUtil.re_all_file(object_dir, func=lambda x:str(x).endswith('.png')))
         a.save_path = save_path
-        a.assign_object_num = random.randint(1, 8)
+        a.assign_object_num = random.randint(1, 2)
         a.do_proces()
 
 

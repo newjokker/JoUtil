@@ -93,6 +93,7 @@ class SegmentRes(object):
         # parse mask
         if parse_mask:
             # fixme mask 的 channel 必须和 box 的个数一样多，否则会报错【好像还不一定，好像是问题】
+            # fixme 这边报 unpack 的错误的话可能是 labelme 的版本不对，需要 labelme==4.4.0
             _, self.mask = utils.shapes_to_label(self.image_data.shape, a["shapes"], label_name_dict)
 
     def save_to_json(self, json_path):

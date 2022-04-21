@@ -1,0 +1,9 @@
+
+
+* 使用 grep 在文件夹中进行关键字查找
+
+grep -r 'JoTools.txkjRes.deteRes'
+
+
+
+

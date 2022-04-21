@@ -58,6 +58,10 @@ class DeteObj(object):
 
     def do_augment(self, augment_parameter, width, height, is_relative=True):
         """对框进行扩展，这边传入的绝对比例，或者相对"""
+
+        if not (width and height):
+            raise ValueError("* width and height is None or zero")
+
         region_width = int(self.x2 - self.x1)
         region_height = int(self.y2 - self.y1)
         #

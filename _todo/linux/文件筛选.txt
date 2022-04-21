@@ -1,0 +1,6 @@
+
+
+find ./ -name "*jokker*"
+
+grep -r "jokker"
+

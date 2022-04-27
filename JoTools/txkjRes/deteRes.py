@@ -1519,7 +1519,7 @@ class DeteRes(ResBase, ABC):
         for obj in self._alarms:
             obj.des = des_label
 
-    def merge_box_by_iou(self, iou_th):
+    def merge_dete_obj_by_iou(self, iou_th):
         """根据执行 iou 对 box 进行合并"""
 
         def need_merge(dete_res_1, dete_res_2, iou_th):

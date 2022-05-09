@@ -9,9 +9,9 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-img_dir = r"C:\Users\14271\Desktop\20220112_img_from_iphone\img"
-xml_dir = r"C:\Users\14271\Desktop\20220112_img_from_iphone\xml"
-save_dir = r"C:\Users\14271\Desktop\20220112_img_from_iphone\data"
+img_dir = r"E:\多标签分类\body_xml_img\img_xml"
+xml_dir = r"E:\多标签分类\body_xml_img\img_xml"
+save_dir = r"E:\多标签分类\body_xml_img\img_xml"
 
 
 save_img_dir = os.path.join(save_dir, 'JPEGImages')

@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='JoUtil',                                                                          # 打包起来的包的文件名
-    version='1.0.4',                                                                        # 版本
+    version='1.0.5',                                                                        # 版本
     description='a tools for TXKJ algo',                                                    # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱

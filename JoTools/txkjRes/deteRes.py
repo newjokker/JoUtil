@@ -412,8 +412,6 @@ class DeteRes(ResBase, ABC):
                 img_name = os.path.split(self.img_path)[1][:-4]
             else:
                 raise ValueError("need self.img_path or assign_img_name")
-
-        tag_count_dict = {}
         #
         for each_obj in self._alarms:
             # 只支持正框的裁切
@@ -430,11 +428,6 @@ class DeteRes(ResBase, ABC):
                 if each_obj.tag in exclude_tag_list:
                     continue
 
-            # 计算这是当前 tag 的第几个图片
-            if each_obj.tag not in tag_count_dict:
-                tag_count_dict[each_obj.tag] = 0
-            else:
-                tag_count_dict[each_obj.tag] += 1
             # 图片扩展
             if augment_parameter is not None:
                 bndbox = ResTools.region_augment(bndbox, [self.width, self.height], augment_parameter=augment_parameter)
@@ -447,8 +440,12 @@ class DeteRes(ResBase, ABC):
             else:
                 each_save_dir = save_dir
 
-            # fixme 图像范围进行扩展，但是标注的范围不进行扩展，这边要注意
-            each_name_str = each_obj.get_name_str()
+            # 标注范围进行扩展
+            if save_augment and (augment_parameter is not None):
+                each_name_str = each_obj.get_name_str(assign_loc=bndbox)
+            else:
+                each_name_str = each_obj.get_name_str()
+
             if self.img.mode == "RGBA":
                 each_save_path = os.path.join(each_save_dir, '{0}-+-{1}.png'.format(img_name, each_name_str))
             else:
@@ -829,8 +826,6 @@ class DeteRes(ResBase, ABC):
             cv2.imencode('.jpg', img)[1].tofile(save_path)
         return img
 
-    # do 操作默认 update 是为 True
-
     def do_func(self, assign_func):
         """对所有元素进行指定操作"""
         for each_dete_obj in self._alarms:
@@ -1079,6 +1074,10 @@ class DeteRes(ResBase, ABC):
     def sort_by_func(self, func, reverse=False):
         """根据方法进行排序"""
         self._alarms = sorted(self.alarms, key=func, reverse=reverse)
+
+    # todo 用迭代器实现返回切分后的矩阵结果
+    def get_img_array_split(self, x_split, y_split, merge_ratio=0.1):
+        """返回一个迭代器，对原图矩阵进行切分，可以指定 x y 方向各切分多少块，指定切分的块之间的重合率"""
 
     # ----------------------------------------------- update -----------------------------------------------------------
 

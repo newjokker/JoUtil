@@ -53,13 +53,42 @@ class StrUtil(object):
                 return True
         return False
 
+
+class FString(object):
+
+    @staticmethod
+    def test_1():
+        place = 3
+        numbers = 1.23456
+        print(f'my number is {numbers:.{place}f}')
+
+    @staticmethod
+    def test_2():
+        key = 'my key'
+        value = 1.23
+        print(f'{key} = {value}')
+
+    @staticmethod
+    def test_3():
+        for i in range(10):
+            print(f'#{i}')
+        pass
+
+
+
 if __name__ == "__main__":
+
 
     a = np.array([[1,2,3], [4,5,6], [7,8,9]])
 
     print(StrUtil.contain_zh("123456a好的sdd"))
 
 
+    FString.test_1()
+
+    FString.test_2()
+
+    FString.test_3()
 
 
 

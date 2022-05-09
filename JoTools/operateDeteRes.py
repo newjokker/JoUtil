@@ -528,7 +528,7 @@ class OperateDeteRes(object):
             a.img_path = each_img_path
             try:
                 # a.crop_and_save(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list, save_augment=save_augment)
-                a.crop_dete_obj(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list)
+                a.crop_dete_obj(save_dir, split_by_tag=split_by_tag, exclude_tag_list=exclude_tag_list, augment_parameter=augment_parameter, include_tag_list=include_tag_list, save_augment=save_augment)
                 index += 1
             except Exception as e:
                 print(e)

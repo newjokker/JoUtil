@@ -9,8 +9,8 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-img_dir = r"C:\Users\14271\Desktop\data"
-save_dir = r"C:\Users\14271\Desktop\data"
+img_dir = r"E:\多标签分类\body_xml_img\img_xml"
+save_dir = r"E:\多标签分类\body_xml_img\img_xml"
 
 
 for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg', '.JPG', '.png', '.PNG']):

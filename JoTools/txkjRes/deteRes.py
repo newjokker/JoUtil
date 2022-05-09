@@ -1075,9 +1075,23 @@ class DeteRes(ResBase, ABC):
         """根据方法进行排序"""
         self._alarms = sorted(self.alarms, key=func, reverse=reverse)
 
-    # todo 用迭代器实现返回切分后的矩阵结果
-    def get_img_array_split(self, x_split, y_split, merge_ratio=0.1):
-        """返回一个迭代器，对原图矩阵进行切分，可以指定 x y 方向各切分多少块，指定切分的块之间的重合率"""
+    def get_img_array_split(self, x_split, y_split, augment_parameter=None):
+        """返回一个迭代器，对原图矩阵进行切分，可以指定 x y 方向各切分多少块，指定每一块的四周扩展范围"""
+        from ..utils.BlockUtil import BlockUtil
+
+        if (self.height in [None, 0]) or (self.width in [None, 0]):
+            raise ValueError("* self.height or self.width is empty")
+
+        if not isinstance(self.img_ndarry, np.ndarray):
+            raise ValueError("* self.img_ndarry is empty")
+
+        blocks = BlockUtil(width=self.width, height=self.height, block_x=x_split, block_y=y_split, mode=0)
+        for i in range(x_split):
+            for j in range(y_split):
+                crop_range = blocks.get_block_range(i, j, do_augment=augment_parameter, is_relative=True)
+                x1, y1, x2, y2 = crop_range
+                crop_img = self.img_ndarry[int(y1):int(y2), int(x1):int(x2), :]
+                yield crop_img
 
     # ----------------------------------------------- update -----------------------------------------------------------
 

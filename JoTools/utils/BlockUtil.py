@@ -28,7 +28,7 @@ class BlockUtil():
         self.block_width = width/self.block_x
         self.block_height = height/self.block_y
 
-    def get_block_range(self, block_x, block_y, do_augment=None):
+    def get_block_range(self, block_x, block_y, do_augment=None, is_relative=True):
         """获取某一个 block 的范围"""
         if self.mode == 0:
             x1 = int(self.block_width * block_x)
@@ -37,7 +37,7 @@ class BlockUtil():
             y2 = ceil(self.block_height * (block_y + 1))
             # do augment
             if do_augment:
-                x1, y1, x2, y2 = self.do_augment((x1, y1, x2, y2), do_augment, is_relative=False)
+                x1, y1, x2, y2 = self.do_augment((x1, y1, x2, y2), do_augment, is_relative=is_relative)
             # change value range
             x1 = max(0, x1)
             y1 = max(0, y1)

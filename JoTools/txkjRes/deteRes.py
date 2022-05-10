@@ -1091,7 +1091,7 @@ class DeteRes(ResBase, ABC):
                 crop_range = blocks.get_block_range(i, j, do_augment=augment_parameter, is_relative=True)
                 x1, y1, x2, y2 = crop_range
                 crop_img = self.img_ndarry[int(y1):int(y2), int(x1):int(x2), :]
-                yield crop_img
+                yield crop_img, (x1, y1, x2, y2)
 
     # ----------------------------------------------- update -----------------------------------------------------------
 

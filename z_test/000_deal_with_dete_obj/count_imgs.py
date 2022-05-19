@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
         OperateDeteRes.count_assign_dir(args.img_dir, endswitc=endswitch)
     else:
-        img_dir = r"D:\data\001_fzc_优化相关资料\dataset_fzc\001_train_data_step_1.5\解压"
+        img_dir = r"\\192.168.3.80\数据\root_dir\json_img"
         # OperateDeteRes.count_assign_dir(img_dir, endswitc=['.xml', '.jpg'])
         OperateDeteRes.count_assign_dir(img_dir, endswitc=['.jpg', '.JPG', '.png', '.PNG'])
 

@@ -149,7 +149,7 @@ class Yolov5RT(detection):
             raise ValueError("path and image cannot be both None")
 
         dete_res = DeteRes()
-        dete_res.img_path = path
+        dete_res.imgPath = path
         dete_res.file_name = image_name
 
         # Make self the active context, pushing it on top of the context stack.

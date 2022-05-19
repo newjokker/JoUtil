@@ -9,9 +9,9 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-img_dir = r"E:\多标签分类\body_xml_img\img_xml"
-xml_dir = r"E:\多标签分类\body_xml_img\img_xml"
-save_dir = r"E:\多标签分类\body_xml_img\img_xml"
+img_dir = r"E:\多标签分类\jyz_test\train_ps\JPEGImages"
+xml_dir = r"E:\多标签分类\jyz_test\train_ps\Annotations"
+save_dir = r"E:\多标签分类\jyz_test\train_ps_rename_by_md5"
 
 
 save_img_dir = os.path.join(save_dir, 'JPEGImages')
@@ -30,15 +30,17 @@ for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=['.jpg', '
     each_xml_path = os.path.join(xml_dir, FileOperationUtil.bang_path(each_img_path)[1] + '.xml')
     #
     if os.path.exists(each_xml_path):
-        # shutil.copy(each_img_path, img_new_path)
-        # shutil.copy(each_xml_path, xml_new_path)
 
         a = DeteRes(each_xml_path)
         if len(a) < 1:
             continue
 
-        shutil.move(each_img_path, img_new_path)
-        shutil.move(each_xml_path, xml_new_path)
+        # shutil.move(each_img_path, img_new_path)
+        # shutil.move(each_xml_path, xml_new_path)
+
+        shutil.copy(each_img_path, img_new_path)
+        shutil.copy(each_xml_path, xml_new_path)
+
 
 
 

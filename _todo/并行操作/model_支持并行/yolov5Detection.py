@@ -158,7 +158,7 @@ class YOLOV5Detection(detection):
         if path==None and image is None:
             raise ValueError("path and image cannot be both None")
         dete_res = DeteRes()
-        dete_res.img_path = path
+        dete_res.imgPath = path
         dete_res.file_name = image_name
         if image is None:
             image = dete_res.get_img_array()

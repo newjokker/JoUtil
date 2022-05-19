@@ -56,7 +56,7 @@ def detect_fzc(img_path):
     name = 'test'
 
     dete_res_all = DeteRes()
-    dete_res_all.img_path = img_path
+    dete_res_all.imgPath = img_path
 
     try:
         # step_1

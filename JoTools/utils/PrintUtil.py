@@ -2,6 +2,8 @@
 # -*- author: jokker -*-
 
 import argparse
+import prettytable as pt
+import collections
 
 
 class PrintUtil(object):
@@ -14,6 +16,8 @@ class PrintUtil(object):
             PrintUtil._print_list(data)
         elif isinstance(data, argparse.Namespace):
             PrintUtil._print_args(data)
+        elif isinstance(data, collections.Counter):
+            PrintUtil._print_counter(data)
         elif isinstance(data, dict):
             PrintUtil._print_dict(data)
         else:
@@ -40,8 +44,19 @@ class PrintUtil(object):
         for each in keys:
             print("{0} : {1}".format(each, data[each]))
 
-
-
+    @staticmethod
+    def _print_counter(data):
+        tb = pt.PrettyTable()
+        tb.field_names = ["tag", "count", "percentage"]
+        #
+        tag_count = 0
+        for each_key in data:
+            tag_count += data[each_key]
+        #
+        for each_key in data:
+            tb.add_row([each_key, data[each_key], f"{data[each_key]*100/tag_count:.4f}%"])
+        tb.add_row(['sum', tag_count, '100.00%'])
+        print(tb)
 
 
 

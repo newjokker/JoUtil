@@ -60,106 +60,68 @@ class FileOperationUtil(object):
         file_suffix = os.path.splitext(folder_path[1])[1]
         return folder_path[0], file_name, file_suffix
 
+    # ------------------------------------------------------------------------------------------------------------------
+
     @staticmethod
-    def re_all_file(file_path, func=None, endswitch=None, is_list=False):
+    def re_all_file(file_path, func=None, endswitch=None, recurse=True):
         """返回文件夹路径下的所有文件路径（搜索文件夹中的文件夹）"""
         if not os.path.isdir(file_path):
             print("* not folder path")
             raise EOFError
 
-        result = []
-        for i, j, k in os.walk(file_path):
-            for each_file_name in k:
-                # 过滤后缀不符合的路径
-                if endswitch is not None:
-                    _, end_str = os.path.splitext(each_file_name)
-                    if end_str not in endswitch:
-                        continue
-
-                abs_path = i + os.sep + each_file_name
-                if func is None:
-                    if is_list:
-                        result.append(abs_path)
+        # 不扫描下一层文件夹
+        if recurse is False:
+            for each in os.listdir(file_path):
+                tmp_file_path = os.path.join(file_path, each)
+                if os.path.isfile(tmp_file_path):
+                    if endswitch is not None:
+                        _, end_str = os.path.splitext(tmp_file_path)
+                        if end_str not in endswitch:
+                            continue
                     else:
-                        yield abs_path
-                else:
-                    if func(abs_path):
-                        if is_list:
-                            result.append(os.path.join(i, each_file_name))
+                        if func is None:
+                            yield tmp_file_path
                         else:
+                            if func(tmp_file_path):
+                                yield tmp_file_path
+        else:
+            # 递归，不返回列表
+            for i, j, k in os.walk(file_path):
+                for each_file_name in k:
+                    # 过滤后缀不符合的路径
+                    if endswitch is not None:
+                        _, end_str = os.path.splitext(each_file_name)
+                        if end_str not in endswitch:
+                            continue
+
+                    abs_path = i + os.sep + each_file_name
+                    if func is None:
+                        yield abs_path
+                    else:
+                        if func(abs_path):
                             yield os.path.join(i, each_file_name)
-        if is_list:
-            return result
 
     @staticmethod
-    def re_all_file_list(file_path, func=None, endswitch=None):
-        """返回文件夹路径下的所有文件路径（搜索文件夹中的文件夹）"""
-        if not os.path.isdir(file_path):
-            print("* not folder path")
-            raise EOFError
-
-        result = []
-        for i, j, k in os.walk(file_path):
-            for each_file_name in k:
-                # 过滤后缀不符合的路径
-                if endswitch is not None:
-                    _, end_str = os.path.splitext(each_file_name)
-                    if end_str not in endswitch:
-                        continue
-
-                abs_path = i + os.sep + each_file_name
-                if func is None:
-                    result.append(abs_path)
-                else:
-                    if func(abs_path):
-                        result.append(os.path.join(i, each_file_name))
-        return result
-
-    @staticmethod
-    def re_all_folder(folder_path):
-        """返回找到的所有文件夹的路径"""
-        # fixme 可以用生成器写，这样就不用等扫描完了再去操作了
-        if not os.path.isdir(folder_path):
-            print(" 不是文件夹路径 ")
-            raise EOFError
-
-        # result = []
-        for i, j, k in os.walk(folder_path):
-            for each_dir_name in j:
-                abs_path = i + os.sep + each_dir_name
-                # result.append(abs_path)
-                yield abs_path
-        # return result
-
-    @staticmethod
-    def re_all_folder_list(folder_path):
+    def re_all_folder(folder_path, recurse=True):
         """返回找到的所有文件夹的路径"""
         if not os.path.isdir(folder_path):
             print(" 不是文件夹路径 ")
             raise EOFError
 
-        result = []
-        for i, j, k in os.walk(folder_path):
-            for each_dir_name in j:
-                abs_path = i + os.sep + each_dir_name
-                result.append(abs_path)
-        return result
+        # 不扫描下一层文件夹
+        if recurse is False:
+            for each in os.listdir(folder_path):
+                tmp_folder_path = os.path.join(folder_path, each)
+                if os.path.isdir(tmp_folder_path):
+                    yield tmp_folder_path
+        else:
+            # 递归，不返回列表
+            for i, j, k in os.walk(folder_path):
+                for each_dir_name in j:
+                    abs_path = i + os.sep + each_dir_name
+                    yield abs_path
 
-    @staticmethod
-    def re_folder(folder_path):
-        """返回指定路径下，第一层的所有文件夹路径"""
-        for each in os.listdir(folder_path):
-            tmp_folder_path = os.path.join(folder_path, each)
-            if os.path.isdir(tmp_folder_path):
-                yield tmp_folder_path
-
-    @staticmethod
-    def re_file(folder_path):
-        """返回指定路径下，第一层的所有文件路径"""
-        for each in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, each)
-            if os.path.isfile(file_path):
-                yield file_path
+    # ------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
     def get_file_describe_dict(file_path):
@@ -339,7 +301,13 @@ if __name__ == "__main__":
 
     img_dir = r"C:\Users\14271\Desktop\del"
 
-    for each in FileOperationUtil.re_folder(img_dir):
+    # for each in FileOperationUtil.re_all_file(img_dir, recurse=True):
+    #     print(each)
+
+    for each in FileOperationUtil.re_all_folder(img_dir, recurse=False):
         print(each)
+
+
+
 
 

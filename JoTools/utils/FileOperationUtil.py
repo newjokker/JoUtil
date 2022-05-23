@@ -34,6 +34,7 @@ class FilterFun():
 
         return filter_func
 
+
 class FileOperationUtil(object):
     """文件操作类"""
 
@@ -143,6 +144,22 @@ class FileOperationUtil(object):
                 abs_path = i + os.sep + each_dir_name
                 result.append(abs_path)
         return result
+
+    @staticmethod
+    def re_folder(folder_path):
+        """返回指定路径下，第一层的所有文件夹路径"""
+        for each in os.listdir(folder_path):
+            tmp_folder_path = os.path.join(folder_path, each)
+            if os.path.isdir(tmp_folder_path):
+                yield tmp_folder_path
+
+    @staticmethod
+    def re_file(folder_path):
+        """返回指定路径下，第一层的所有文件路径"""
+        for each in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, each)
+            if os.path.isfile(file_path):
+                yield file_path
 
     @staticmethod
     def get_file_describe_dict(file_path):
@@ -322,6 +339,7 @@ if __name__ == "__main__":
 
     img_dir = r"C:\Users\14271\Desktop\del"
 
-    for each_img_path in FileOperationUtil.re_all_file(img_dir, func=FilterFun.get_filter_about_file_size(1, mode='bt')):
-        img_size = os.path.getsize(each_img_path)
-        print(img_size)
+    for each in FileOperationUtil.re_folder(img_dir):
+        print(each)
+
+

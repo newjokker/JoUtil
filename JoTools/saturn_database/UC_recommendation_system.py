@@ -17,13 +17,7 @@ xml_dir = r""
 # 权重文件路径
 weight_path = r""
 
-# todo 解析 pkl
-
-# todo 统计各个标签的个数
-
-# todo 获取每个标签的权重
-
-# todo 计算每张图片的推荐指数
+# todo 读取 json 分析结果的 json，获得 推荐指数
 
 
 

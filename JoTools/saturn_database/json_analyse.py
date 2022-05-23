@@ -24,6 +24,11 @@ from JoTools.utils.JsonUtil import JsonUtil
 
 # todo 检测 json 是否有问题的，出一份报告，比如 box 出到画面外
 
+# todo 分析各个标签的迫切指数
+
+# todo 根据指定条件进行分析，比如指定分析某几个标签之类的
+
+
 class JsonAnalyse(object):
     """用作 json 分析的一个类"""
 
@@ -35,12 +40,15 @@ class JsonAnalyse(object):
         self.shape_type_counter = Counter()
         self.tag_count_distribute = Counter()
         self.has_label = Counter()
+        self.recommend_index = Counter()
         # 中心点所在 block 位置
         self.block_xsize = 100
         self.block_ysize = 100
         self.loc_mat = np.zeros((self.block_xsize, self.block_ysize), dtype=np.int32)
         self.interval_count = 100000
         self.area_mat = np.zeros((self.interval_count), dtype=np.int32)
+        # 指定分析其中的几个标签
+        self.assign_analysis_tag_list = set()
 
     def get_tag_info_from_json_info(self, json_info):
         """从 json_info 中获取基础统计信息"""
@@ -48,8 +56,12 @@ class JsonAnalyse(object):
         tag_type_list = []      # 每种标注类型的个数，斜框，矩形
         #
         for each_obj in json_info.objects:
-            shape_type = each_obj.shape_type
             label = each_obj.label
+            # 去掉不需要统计的标签
+            if not (self.assign_analysis_tag_list is None or len(self.assign_analysis_tag_list) == 0 or label in self.assign_analysis_tag_list):
+                continue
+            #
+            shape_type = each_obj.shape_type
             tag_list.append(label)
             tag_type_list.append(shape_type)
         # 是否标注
@@ -66,9 +78,13 @@ class JsonAnalyse(object):
 
     def get_size_info_from_json_info(self, json_info):
         """从 json_info 中获取标签大小统计信息"""
-        res = []
         W, H = json_info.W, json_info.H
         for each_obj in json_info.objects:
+            # 去掉不需要统计的标签
+            label = each_obj.label
+            if not (self.assign_analysis_tag_list is None or len(self.assign_analysis_tag_list) == 0 or label in self.assign_analysis_tag_list):
+                continue
+
             if each_obj.shape_type == "rectangle":
                 (x1, y1), (x2, y2) = each_obj.points
                 w = x2 - x1
@@ -90,6 +106,22 @@ class JsonAnalyse(object):
                 print(json_info.json_path)
                 print(e)
                 print('-'*20)
+
+    def get_impendency_index(self, weight_dict):
+        """计算迫切指数， 根据权重计算出来"""
+
+        if len(self.tag_counter) == 0:
+            self.analyse()
+
+        tag_count = 0
+        for each_tag in self.tag_counter:
+            tag_count += self.tag_counter[each_tag]
+        #
+        for each_tag in self.tag_counter:
+            if each_tag in weight_dict:
+                self.recommend_index[each_tag] = (self.tag_counter[each_tag] / tag_count) * weight_dict[each_tag]
+            else:
+                self.recommend_index[each_tag] = (self.tag_counter[each_tag] / tag_count) * 1
 
     def analyse(self, print_res=False):
         # init
@@ -115,7 +147,7 @@ class JsonAnalyse(object):
             # PrintUtil.print(self.tag_count_distribute)
             print(f'json count : {self.uc_index}')
 
-    def save_analyse_res_to_json(self, save_dir):
+    def save_analyse_res(self, save_dir):
         """将检测结果输出为 json 文件"""
 
         self._save_json(save_dir)
@@ -127,7 +159,8 @@ class JsonAnalyse(object):
         # json
         json_path = os.path.join(save_dir, "base.json")
         data = {'tag_counter': self.tag_counter, 'shape_type_counter':self.shape_type_counter,
-                'tag_count_distribute':self.tag_count_distribute, 'has_label':self.has_label}
+                'tag_count_distribute':self.tag_count_distribute, 'has_label':self.has_label,
+                'recommend_index':self.recommend_index}
         JsonUtil.save_data_to_json_file(data, json_path)
 
     def _save_hetmap_loc_mat(self, save_dir):
@@ -192,23 +225,13 @@ if __name__ == "__main__":
     save_res_dir = r"C:\Users\14271\Desktop\analyse_res"
 
     a = JsonAnalyse(pklDir)
+
+    a.assign_analysis_tag_list = {'hat', 'person', 'long', 'short'}
+
     a.analyse(print_res=True)
-    a.save_analyse_res_to_json(save_res_dir)
 
+    a.get_impendency_index(weight_dict={})
 
-
-
-    # todo 分析每个标签的个数
-
-    # todo 分析各个标签的迫切指数
-
-    # todo 每张图标注框的个数的分布，画图
-
-    # todo 分析每天入库数据个数
-
-    # todo 分析图像的长宽分布
-
-    # todo 目标的大小分布，目标的中心点分布 (这个在普通分析中不去做，在指定分析中去完善，需要重新遍历一次)
-
+    a.save_analyse_res(save_res_dir)
 
 

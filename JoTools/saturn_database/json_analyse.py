@@ -19,6 +19,7 @@ from JoTools.utils.PickleUtil import PickleUtil
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.JsonUtil import JsonUtil
+from JoTools.utils.DecoratorUtil import DecoratorUtil
 
 # todo 将检测结果使用一个结构进行存储
 
@@ -123,6 +124,7 @@ class JsonAnalyse(object):
             else:
                 self.recommend_index[each_tag] = (self.tag_counter[each_tag] / tag_count) * 1
 
+    @DecoratorUtil.time_this
     def analyse(self, print_res=False):
         # init
         self.uc_index = 0
@@ -147,6 +149,7 @@ class JsonAnalyse(object):
             # PrintUtil.print(self.tag_count_distribute)
             print(f'json count : {self.uc_index}')
 
+    @DecoratorUtil.time_this
     def save_analyse_res(self, save_dir):
         """将检测结果输出为 json 文件"""
 
@@ -196,6 +199,7 @@ class JsonAnalyse(object):
         plt.savefig(save_path, quality=100)
         plt.close()
         # delete some data
+        del self.tag_count_distribute[0]
         for each_key in copy.deepcopy(self.tag_count_distribute):
             if each_key > max_count:
                 del self.tag_count_distribute[each_key]
@@ -212,8 +216,6 @@ class JsonAnalyse(object):
 
 
 
-
-
 if __name__ == "__main__":
 
 
@@ -226,7 +228,7 @@ if __name__ == "__main__":
 
     a = JsonAnalyse(pklDir)
 
-    a.assign_analysis_tag_list = {'hat', 'person', 'long', 'short'}
+    # a.assign_analysis_tag_list = {'hat', 'person', 'long', 'short'}
 
     a.analyse(print_res=True)
 

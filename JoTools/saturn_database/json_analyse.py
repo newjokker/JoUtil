@@ -21,13 +21,10 @@ from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.DecoratorUtil import DecoratorUtil
 
-# todo 将检测结果使用一个结构进行存储
 
-# todo 检测 json 是否有问题的，出一份报告，比如 box 出到画面外
 
-# todo 分析各个标签的迫切指数
+# todo 原图像尺寸大小分布情况，图像尺寸分布图
 
-# todo 根据指定条件进行分析，比如指定分析某几个标签之类的
 
 
 class JsonAnalyse(object):

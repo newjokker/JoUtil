@@ -8,6 +8,8 @@ import time
 import cv2
 import numpy as np
 
+# refer:https://baijiahao.baidu.com/s?id=1722728002073366376&wfr=spider&for=pc , redis 安装教程
+
 
 class RedisUtil(object):
 
@@ -46,7 +48,7 @@ class RedisUtil(object):
 
 if __name__ == "__main__":
 
-    a = RedisUtil("192.168.3.185", "6379")
+    a = RedisUtil("192.168.3.221", "6379")
 
     a.set('name', 'jokker')
 

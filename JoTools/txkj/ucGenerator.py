@@ -25,10 +25,17 @@ import uuid
 class UCGenerator(object):
     """与redis深度绑定"""
 
+    # todo UC 标志日期的前三位表示，自土星成立之日起到现在的天数，转为 24 + 10 进制（或许不美观，还是直接用一搏那个方式比较好）
+    # todo 后面直接是 34 ** 5 张图片, 45,435,424 左右
+
+
     def __init__(self, host, port):
         # fixme 用于存储历史 UC，
         self._host = host
         self._port = port
+
+
+
 
     def get_uc(self, md5):
         uc = None

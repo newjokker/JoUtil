@@ -24,7 +24,7 @@ if __name__ == "__main__":
     else:
         # xml_dir = r"C:\Users\14271\Desktop\save_res"
         # xml_dir = r"C:\Users\14271\Desktop\docker-0.0.1\save_res"
-        xml_dir = r"F:\输电基础前置数据\Annotations1"
+        xml_dir = r"C:\Users\14271\Desktop\大裤衩背心训练数据\train_data\Annotations"
         res = OperateDeteRes.get_class_count(xml_dir, print_count=True)
 
         print(res.keys())

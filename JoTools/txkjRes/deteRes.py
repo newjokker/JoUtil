@@ -1552,7 +1552,7 @@ class DeteRes(ResBase, ABC):
                 x2 = max(x2, each_x2)
                 y1 = min(y1, each_y1)
                 y2 = max(y2, each_y2)
-            re_dete_res.add_obj(x1=x1, y1=y1, x2=x2, y2=y2, tag=dete_res[0].tag)
+            re_dete_res.add_obj(x1=int(x1), y1=int(y1), x2=int(x2), y2=int(y2), tag=dete_res[0].tag)
             return re_dete_res
 
         dete_res_finally = self.deep_copy()

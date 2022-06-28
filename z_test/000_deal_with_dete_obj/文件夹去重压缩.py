@@ -9,12 +9,12 @@ from JoTools.utils.CompressFolderUtil import CompressFolderUtil
 
 if __name__ == "__main__":
 
-    folderPath = r"C:\Users\14271\Desktop\del\FCOS"
-    saveFolder = r"C:\Users\14271\Desktop\compress_dir"
-    new_folder = r"C:\Users\14271\Desktop\compress_new_dir"
+    # fixme 没有后缀的文件好像处理的不对，重点看一下
 
-    # CompressFolderUtil.compress_folder(folderPath, saveFolder)
-    #
-    # CompressFolderUtil.uncompress_folder(saveFolder, new_folder, endswitch=['.jpg', '.cpp'], ignore_empty_folder=True)
-    CompressFolderUtil.uncompress_folder(saveFolder, new_folder, ignore_empty_folder=True)
+
+    folderPath = r"C:\Users\14271\Desktop\del\test_no_suffix"
+    saveFolder = r"C:\Users\14271\Desktop\compress_dir"
+
+    # CompressFolderUtil.compress_folder(folderPath, saveFolder, is_clip=False)
+    CompressFolderUtil.uncompress_folder(saveFolder, folderPath, ignore_empty_folder=True, is_clip=False)
 

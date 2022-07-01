@@ -5,6 +5,7 @@ import os
 import cv2
 import random
 import collections
+from collections import Counter
 import numpy as np
 import prettytable
 from .txkjRes.deteRes import DeteRes
@@ -178,6 +179,9 @@ class DeteAcc(object):
     @staticmethod
     def cal_acc_rec(check_res, tag_list=None):
         """根据结果得到正确率和召回率"""
+
+        # todo 返回总体的召回率和精确率，而不是某一个标签的
+
         res = {}
         extra_dict, miss_dict, correct_dict, mistake_dict = {}, {}, {}, {}
         # 获得字典
@@ -318,6 +322,90 @@ class DeteAcc(object):
         print(tb)
         print(mistake_tb)
         return return_res
+
+    @staticmethod
+    def compare_customer_and_standard_mul_classify(standard, customized):
+        """对比一张多标签的标准结果和测试结果"""
+        dete_res_s = DeteRes(xml_path=standard)
+        dete_res_c = DeteRes(xml_path=customized)
+
+        standard_tags = set()
+        customized_tags = set()
+        for each_obj in dete_res_s:
+            standard_tags.add(each_obj.tag)
+
+        for each_obj in dete_res_c:
+            customized_tags.add(each_obj.tag)
+
+        miss_list = []
+        extra_list = []
+        correct_list = []
+
+        for each_tag in standard_tags:
+            if each_tag in customized_tags:
+                correct_list.append(each_tag)
+            else:
+                miss_list.append(each_tag)
+
+        for each_tag in customized_tags:
+            if each_tag not in standard_tags:
+                extra_list.append(each_tag)
+
+        check_dict = {'correct': correct_list, 'extra': extra_list, 'miss': miss_list}
+        return check_dict
+
+    @staticmethod
+    def cal_model_acc_mul_classify(standard_dir, customized_dir):
+        check_res = {'correct':[], 'miss':[], 'extra':[]}
+        for each_xml_path in FileOperationUtil.re_all_file(standard_dir, endswitch=['.xml']):
+            xml_name = os.path.split(each_xml_path)[1]
+            customized_xml_path = os.path.join(customized_dir, xml_name)
+            if os.path.exists(customized_xml_path):
+                each_check_res = DeteAcc.compare_customer_and_standard_mul_classify(each_xml_path, customized_xml_path)
+                for each in each_check_res:
+                    check_res[each].extend(each_check_res[each])
+
+        check_res['correct'] = Counter(check_res['correct'])
+        check_res['miss'] = Counter(check_res['miss'])
+        check_res['extra'] = Counter(check_res['extra'])
+
+        return check_res
+
+    @staticmethod
+    def cal_acc_rec_mul_classify(check_res, tag_list):
+        """计算多标签的精确率和召回率"""
+        res = {}
+
+        correct = check_res['correct']
+        miss = check_res['miss']
+        extra = check_res['extra']
+
+        for each_tag in tag_list:
+            if (correct[each_tag] + extra[each_tag]) == 0:
+                res[f'acc_{each_tag}'] = -1
+            else:
+                res[f'acc_{each_tag}'] = correct[each_tag] / (correct[each_tag] + extra[each_tag])
+
+            if (correct[each_tag] + miss[each_tag]) == 0:
+                res[f'rec_{each_tag}'] = -1
+            else:
+                res[f'rec_{each_tag}'] = correct[each_tag] / (correct[each_tag] + miss[each_tag])
+
+        correct_sum = sum(correct.values())
+        miss_sum = sum(miss.values())
+        extra_sum = sum(extra.values())
+
+        if (correct_sum + extra_sum) == 0:
+            res['acc_all'] = -1
+        else:
+            res['acc_all'] = correct_sum / (correct_sum + extra_sum)
+
+        if (correct_sum + miss_sum) == 0:
+            res['res_all'] = -1
+        else:
+            res['res_all'] = correct_sum / (correct_sum + miss_sum)
+
+        return res
 
 
 class OperateDeteRes(object):

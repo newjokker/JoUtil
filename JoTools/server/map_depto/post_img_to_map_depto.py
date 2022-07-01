@@ -6,8 +6,9 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 import requests
 import json
 
-img_dir = r"C:\Users\14271\Desktop\draw_res"
+img_dir = r"C:\Users\14271\Desktop\del\test_data"
 url = 'http://192.168.3.221:11123/save'
+# url = 'http://172.17.0.3:11123/save'
 save_txt_path = r"./res.txt"
 
 with open(save_txt_path, 'w') as txt_file:

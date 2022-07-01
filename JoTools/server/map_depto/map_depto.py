@@ -54,6 +54,7 @@ def parse_args():
     parser.add_argument('--port', dest='port', type=int, default=3232)
     parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
     parser.add_argument('--img_dir', dest='img_dir', type=str)
+    parser.add_argument('--ip', dest='ip', type=str, default='192.168.3.221')
     #
     args = parser.parse_args()
     return args
@@ -88,7 +89,7 @@ if __name__ == '__main__':
     img_dir = args.img_dir
     host = args.host
     port = args.port
-    ip = get_ip()
+    ip = args.ip
 
     print_config()
 

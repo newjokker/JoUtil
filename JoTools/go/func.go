@@ -56,10 +56,9 @@ func AnalysisFile(s []string){
 }
 
 //export PrintRes
-func PrintRes(analysis_dir string){
+func PrintRes(analysis_dir *C.char){
     var s []string
-    //var analysis_dir = "./"
-    s, _ = GetAllFile(analysis_dir, s)
+    s, _ = GetAllFile(C.GoString(analysis_dir), s)
     AnalysisFile(s)
 }
 

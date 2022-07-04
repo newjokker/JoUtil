@@ -4,10 +4,12 @@
 import ctypes
 import time
 
+# refer: https://codeantenna.com/a/46nPwiHOva
 
-so = ctypes.cdll.LoadLibrary('./test.so')
-fib = so.AnalysisFile
-result = fib()
+so = ctypes.cdll.LoadLibrary('./_py_go.so')
+fib = so.PrintRes
+result = fib(b"../")
+print(result)
 
 
 

@@ -56,10 +56,11 @@ func AnalysisFile(s []string){
 }
 
 //export PrintRes
-func PrintRes(analysis_dir *C.char){
+func PrintRes(analysis_dir *C.char) (*C.char){
     var s []string
     s, _ = GetAllFile(C.GoString(analysis_dir), s)
     AnalysisFile(s)
+    return C.CString("hello word")
 }
 
 func main() {

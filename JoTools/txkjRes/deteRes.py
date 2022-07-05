@@ -775,13 +775,15 @@ class DeteRes(ResBase, ABC):
             img = assign_img
             img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         else:
-            if self.img is not None:
+            if isinstance(self.img_ndarry, np.ndarray):
+                img = self.img_ndarry
+            elif self.img is not None:
                 img = np.array(self.img)
                 img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             elif self.img_path:
                 img = cv2.imdecode(np.fromfile(self.img_path, dtype=np.uint8), 1)
             else:
-                raise ValueError('need self.img or self.img_path')
+                raise ValueError('need self.img or self.img_path or self.img_ndarry')
         #
         for each_res in self._alarms:
             #

@@ -27,7 +27,7 @@ RUN chmod 777 /home/txkj ./ -R
 
 CMD ["/home/txkj/scripts/start_server.sh"]
 
-
+# docker run  -p 11145:11145 -v /home/ldq/docker_file/map_depot/data:/usr/data  -e img_dir=/usr/data -e port=11145 -e ip=192.168.3.221 -it map_depot:v0.0.9 /bin/bash
 
 
 

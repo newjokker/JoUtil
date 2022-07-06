@@ -11,6 +11,7 @@ import (
 	"time"
     "flag"
     "sync"
+    "runtime"
 )
 
 //ecport DownLoadImg
@@ -38,6 +39,8 @@ func DownLoadImg(save_dir string, url string) error {
         fmt.Printf("Save to file failed! %v", err)
         return err
     }
+    //test wait
+    time.Sleep(time.Duration(100) * time.Microsecond)
     return nil
 }
 
@@ -70,6 +73,8 @@ func main() {
     var wg sync.WaitGroup
     var count int
 
+    runtime.GOMAXPROCS(runtime.NumCPU())
+
     flag.Parse()
     start_time := time.Now()
 
@@ -94,11 +99,12 @@ func main() {
             break
         }
         i ++
+
         fmt.Printf("%d : %s\n", i, string(url))
 
         go func(url string) {
             DownLoadImg(*save_dir, string(url))
-            wg.Done()
+            defer wg.Done()
         }(string(url))
     }
     wg.Wait()

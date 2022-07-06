@@ -1,10 +1,9 @@
-package main
+package function
+
 import (
         "fmt"
         "io/ioutil"
         "path"
-        "time"
-        "flag"
         "C"
 )
 
@@ -55,18 +54,18 @@ func AnalysisFile(s []string){
     fmt.Printf("%-20s %d\n", "file_numb_sum", file_sum)
 }
 
-func main() {
-        var s []string
-        // flag
-        var analysis_dir = flag.String("ad", "./", "string类型参数")
-        flag.Parse()
-        // input
-        // fmt.Println("input analysis dir : ")
-        // fmt.Scanln(&analysis_dir)
-        start_time := time.Now()
-        s, _ = GetAllFile(*analysis_dir, s)
-        AnalysisFile(s)
-        // get execute time
-        elapsed_time := time.Since(start_time)
-        fmt.Println("fun use time : ", elapsed_time)
-}
+// func main() {
+//         var s []string
+//         // flag
+//         var analysis_dir = flag.String("ad", "./", "string类型参数")
+//         flag.Parse()
+//         // input
+//         // fmt.Println("input analysis dir : ")
+//         // fmt.Scanln(&analysis_dir)
+//         start_time := time.Now()
+//         s, _ = GetAllFile(*analysis_dir, s)
+//         AnalysisFile(s)
+//         // get execute time
+//         elapsed_time := time.Since(start_time)
+//         fmt.Println("fun use time : ", elapsed_time)
+// }

@@ -23,6 +23,7 @@ from multiprocessing import Pool
 from functools import partial
 from .txkj.imageAugmentation import ImageAugmentation
 
+
 # todo 重写 OperateDeteRes 中的函数，很多函数功能的实现已经移植到 DeteRes 类中了，使用调用里面的方法比较好
 
 
@@ -644,7 +645,9 @@ class OperateDeteRes(object):
 
     # ------------------------------------------------------------------------------------------------------------------
 
+    # @DecoratorUtil.time_this
     @staticmethod
+    @DecoratorUtil.time_this
     def get_class_count(xml_folder, print_count=False, filter_func=None):
         """查看 voc xml 的标签"""
         xml_info, name_dict = [], {}
@@ -654,8 +657,8 @@ class OperateDeteRes(object):
         #
         for xml_index, each_xml_path in enumerate(xml_list):
             try:
-                # each_xml_info = parse_xml(each_xml_path)
-                each_xml_info = parse_xml_as_txt(each_xml_path)
+                each_xml_info = parse_xml(each_xml_path)
+                # each_xml_info = parse_xml_as_txt(each_xml_path)
                 xml_info.append(each_xml_info)
                 for each_name in each_xml_info['object']:
                     if each_name['name'] not in name_dict:

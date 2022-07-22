@@ -51,10 +51,10 @@ def save_img_to_map_depot():
 
 def parse_args():
     parser = argparse.ArgumentParser(description='map depto')
-    parser.add_argument('--port', dest='port', type=int, default=3232)
+    parser.add_argument('--port', dest='port', type=int, default=8000)
     parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
-    parser.add_argument('--img_dir', dest='img_dir', type=str)
-    parser.add_argument('--ip', dest='ip', type=str, default='192.168.3.221')
+    parser.add_argument('--img_dir', dest='img_dir', default=r"C:\Users\14271\Desktop\del\mapdepot\imgs", type=str)
+    parser.add_argument('--ip', dest='ip', type=str, default='192.168.4.175')
     #
     args = parser.parse_args()
     return args

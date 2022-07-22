@@ -24,7 +24,3 @@ TxtUtil.write_table_to_txt(uc_table, r"C:\Users\14271\Desktop\del\mapdepot\uc.tx
 
 
 
-
-
-
-

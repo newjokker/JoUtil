@@ -1388,7 +1388,11 @@ class DeteRes(ResBase, ABC):
         os.makedirs(xml_save_dir, exist_ok=True)
         os.makedirs(img_save_dir, exist_ok=True)
         #
-        self.save_to_xml(xml_save_path, new_alarms)
+
+        a = self.deep_copy()
+        a.height = assign_range[3] - assign_range[1]
+        a.width = assign_range[2] - assign_range[0]
+        a.save_to_xml(xml_save_path, new_alarms)
 
         # # 保存 jpg
         crop = self.img.crop(assign_range)

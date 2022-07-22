@@ -27,7 +27,7 @@ from JoTools.utils.ScrapyUtil import ScrapyUtil
         # 如果有其他版本的 cuda，注释相关的代码
         # 添加下面两行预计
         # export PATH="/usr/local/cuda-10.1/bin:$PATH"
-        # export LD_LIBRARY_PATH="/usr/lcoal/cuda-10.1/lib64:$LD_LIBRARY_PATH"
+        # export LD_LIBRARY_PATH="/usr/local/cuda-10.1/lib64:$LD_LIBRARY_PATH"
         # 保存关闭后source文件使配置生效：
         # source ~/.bashrc
 

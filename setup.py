@@ -23,7 +23,7 @@ setup(
               'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'flask'
               ],          # 定义依赖哪些模块
 
-    # 打包的python文件夹
+    # 打包的python文件夹AZ
     packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes',
               'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war',
               ],

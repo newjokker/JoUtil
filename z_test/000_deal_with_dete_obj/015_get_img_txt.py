@@ -7,6 +7,7 @@ import sys
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.TxtUtil import TxtUtil
 from JoTools.utils.PrintUtil import PrintUtil
+from JoTools.utils.DecoratorUtil import DecoratorUtil
 
 
 def get_img_txt(img_dir, txt_path):

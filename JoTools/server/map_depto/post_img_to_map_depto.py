@@ -8,7 +8,7 @@ import json
 
 
 # img_dir_list = list(FileOperationUtil.re_all_folder(r"\\192.168.3.80\算法-数据交互\输电调试图 debug del 20220710\输电缺陷按类forDebug", recurse=False))
-img_dir_list = [r"\\192.168.3.80\算法-数据交互\变电测试图片_zgr_del_220725"]
+img_dir_list = [r"C:\Users\14271\Desktop\del\del_test"]
 
 
 for img_dir in img_dir_list:

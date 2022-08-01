@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='JoUtil',                                                                          # 打包起来的包的文件名
-    version='1.0.10',                                                                        # 版本
+    version='1.0.11',                                                                        # 版本
     description='a tools for TXKJ algo',                                                    # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
@@ -22,7 +22,6 @@ setup(
               'progressbar', 'requests', 'imageio', 'pyexiv2', 'cv2', 'exifread', 'whatimage', 'pyheif',
               'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'flask'
               ],          # 定义依赖哪些模块
-
     # 打包的python文件夹AZ
     packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes',
               'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war',
@@ -38,9 +37,11 @@ setup(
     )
 
 # ----------------------------------------------------------------------------------------------------------------------
+# refer : https://zhuanlan.zhihu.com/p/276461821
 # 打包的命令
 # 切换到 setup.py 文件所在文件夹
-# python setup.py bdist_wheel
+# python setup.py bdist_wheel, 构建分法 build-distribution wheel 文件？
+# python setup.py sdist ，打包为 zip 文件
 
 # 注意
 # 需要将用到的包全部写到 packages 参数后
@@ -62,5 +63,8 @@ setup(
 # 试着在网页上登录上
 # 还是报错的话尝试更新一下 twine
 
+# ----------------------------------------------------------------------------------------------------------------------
+# pip freeze > requirements.txt，环境导出
+# pip install -r requirements.txt，环境安装
 # ----------------------------------------------------------------------------------------------------------------------
 

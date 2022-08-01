@@ -657,8 +657,8 @@ class OperateDeteRes(object):
         #
         for xml_index, each_xml_path in enumerate(xml_list):
             try:
-                each_xml_info = parse_xml(each_xml_path)
-                # each_xml_info = parse_xml_as_txt(each_xml_path)
+                # each_xml_info = parse_xml(each_xml_path)
+                each_xml_info = parse_xml_as_txt(each_xml_path)
                 xml_info.append(each_xml_info)
                 for each_name in each_xml_info['object']:
                     if each_name['name'] not in name_dict:

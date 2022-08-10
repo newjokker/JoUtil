@@ -18,10 +18,15 @@ monkey.patch_all()
 app=Flask(__name__)
 
 
-@app.route("/image/<image_name>")
-def get_frame(image_name):
+# todo 一次性后台起多个，这样就不用一个个启动了
+
+# todo windows 上 nginx 的使用
+
+
+@app.route("/image/<uc_suffix>")
+def get_image(uc_suffix):
     # 图片上传保存的路径
-    img_path = os.path.join(img_dir, image_name[:3], image_name)
+    img_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix)
     print(img_path)
     if os.path.exists(img_path):
         with open(img_path, 'rb') as f:
@@ -30,6 +35,19 @@ def get_frame(image_name):
             return resp
     else:
         print(f"* no such img path : {img_path}")
+
+@app.route("/json/<uc_suffix>")
+def get_json(uc_suffix):
+    # 图片上传保存的路径
+    json_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix)
+    print(json_path)
+    if os.path.exists(json_path):
+        with open(json_path, 'rb') as f:
+            image = f.read()
+            resp = Response(image, mimetype="image/png")
+            return resp
+    else:
+        print(f"* no such json path : {json_path}")
 
 
 def parse_args():

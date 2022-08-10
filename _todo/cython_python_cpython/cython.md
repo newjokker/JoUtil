@@ -43,7 +43,7 @@ setup(
 )
 ```
 
-* python setup.py --inplace , ignore build-lib and put compiled extensions into the source directory alongside your pure Python modules
+* python setup.py build_ext --inplace , ignore build-lib and put compiled extensions into the source directory alongside your pure Python modules
 
 ```python
 # main.py

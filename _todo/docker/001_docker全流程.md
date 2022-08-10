@@ -91,6 +91,8 @@
 
 * docker load 
 
+* docker run --rm , --rm 就是退出之后删除容器
+
 
 ### 组合命令
 

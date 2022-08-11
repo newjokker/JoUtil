@@ -1,9 +1,9 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-
+import requests
 from JoTools.txkj.ucDatasetUtil import UCDatasetUtil
-
+from JoTools.utils.JsonUtil import JsonUtil
 
 
 # CPP 代码的编写
@@ -25,4 +25,29 @@ save_dir = r"C:\Users\14271\Desktop\del\save_img"
 
 a = UCDatasetUtil(r"C:\Users\14271\Desktop\del\test.json", "192.168.3.111", 11101)
 
-a.save_img_xml_json(save_dir=save_dir, need_img=True, need_json=False, need_xml=True)
+# a.save_img_xml_json(save_dir=save_dir, need_img=True, need_json=False, need_xml=True)
+
+# a.check_ucdataset()
+
+# a.delete_ucdataset("del_测试2")
+
+a.upload_ucdataset(r"C:\Users\14271\Desktop\test.json", "hehe")
+
+# r = requests.get("http://192.168.3.111:11101/uc/check")
+# print(r.text)
+#
+# res = JsonUtil.load_data_from_json_str(r.text)
+#
+# for each in res["official"]:
+#     print("official : ",  each)
+#
+# for each in res["customer"]:
+#     print("customer : ", each)
+
+
+
+
+
+
+
+

@@ -14,6 +14,7 @@ from JoTools.utils.HashlibUtil import HashLibUtil
 from gevent import monkey
 from gevent.pywsgi import WSGIServer
 from JoTools.txkj.jsonInfo import JsonInfo
+from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
 monkey.patch_all()
@@ -25,9 +26,11 @@ app=Flask(__name__)
 
 # todo windows 上 nginx 的使用
 
+# todo ucd 名字中不能有特殊字符，比如斜杠之类的
+
 
 @app.route("/file/<uc_suffix>")
-def get_xml(uc_suffix):
+def get_uc_file(uc_suffix):
     # 图片上传保存的路径
     if uc_suffix.endswith(".jpg"):
         img_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix)
@@ -63,13 +66,48 @@ def get_xml(uc_suffix):
         else:
             print(f"* no such json path : {json_path}")
 
-@app.route("/uc/check")
+@app.route("/ucd/check")
 def check_ucdataset():
     """打印所有的 ucdataset，官方的或者非官方的"""
+    ucd_dict = {"official":[], "customer":[]}
 
-    pass
+    # official
+    for each_ucd in FileOperationUtil.re_all_file(ucd_official_dir, endswitch=['.json']):
+        # 官方 ucd 可以分为不同文件夹
+        each_ucd_name = each_ucd[len(ucd_official_dir)+1:][:-5]
+        ucd_dict["official"].append(each_ucd_name)
 
+    # customer
+    for each_ucd in FileOperationUtil.re_all_file(ucd_customer_dir, endswitch=['.json']):
+        each_ucd_name = each_ucd[len(ucd_customer_dir)+1:][:-5]
+        ucd_dict["customer"].append(each_ucd_name)
+    return jsonify(ucd_dict)
 
+@app.route("/ucd/delete/<ucd_name>", methods=["DELETE"])
+def delete_ucdataset(ucd_name):
+    """打印所有的 ucdataset，官方的或者非官方的"""
+
+    ucd_path = os.path.join(ucd_customer_dir, ucd_name)
+    print(ucd_path)
+
+    if os.path.exists(ucd_path):
+        os.remove(ucd_path)
+        return jsonify("ok", 200)
+    else:
+        return jsonify("ucd path not exists", 500)
+
+@app.route("/ucd/upload", methods=["POST"])
+def upload_ucdataset():
+    """打印所有的 ucdataset，官方的或者非官方的"""
+    if "ucd_name" in request.form:
+        ucd_name = request.form["ucd_name"]
+    else:
+        return jsonify("ucd_name not exists", 500)
+
+    file = request.files['json_file']
+    save_ucd_path = os.path.join(ucd_customer_dir, ucd_name + '.json')
+    file.save(save_ucd_path)
+    return jsonify("ok", 200)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='map depto')
@@ -104,6 +142,8 @@ if __name__ == '__main__':
     #
     args = parse_args()
     img_dir = r"\\192.168.3.80\数据\root_dir\json_img"
+    ucd_official_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset"
+    ucd_customer_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset_customer"
     tmp_dir = args.tmp_dir
     host = args.host
     port = args.port

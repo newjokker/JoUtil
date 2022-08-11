@@ -8,6 +8,7 @@ import requests
 from .ucDatasetOpt import UcDataset, UcDatasetOpt
 from .jsonInfo import JsonInfo
 from ..utils.FileOperationUtil import FileOperationUtil
+from ..utils.JsonUtil import JsonUtil
 
 
 
@@ -102,16 +103,33 @@ class UCDatasetUtil():
 
     def check_ucdataset(self):
         """查看已有的数据集"""
-        # todo 分为官方数据集和私人数据集分开显示
+        r = requests.get(f"http://{self.ip}:{self.port}/ucd/check")
+        res = JsonUtil.load_data_from_json_str(r.text)
+
+        for each in res["official"]:
+            print("official : ", each)
+
+        for each in res["customer"]:
+            print("customer : ", each)
 
     def search_ucdataset(self):
         """根据关键字对uc_dataset 进行查询"""
 
-    def update_ucdataset(self):
+    def upload_ucdataset(self, json_path, assign_ucd_name=None):
         """上传自己的数据集"""
+        data = {"json_file": open(json_path, "rb")}
+        if assign_ucd_name is None:
+            ucd_name =  FileOperationUtil.bang_path(json_path)[1]
+        else:
+            ucd_name = assign_ucd_name
 
-    def delete_ucdataset(self):
+        r = requests.post(f"http://{self.ip}:{self.port}/ucd/upload", files=data, data={"ucd_name": ucd_name})
+        print(r)
+
+    def delete_ucdataset(self, ucd_name):
         """删除私人数据集"""
+        r = requests.delete(f"http://{self.ip}:{self.port}/ucd/delete/{ucd_name}.json")
+        print(r.text)
 
     def load_ucdataset(self):
         """下载数据集"""

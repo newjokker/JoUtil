@@ -18,7 +18,7 @@ from JoTools.utils.JsonUtil import JsonUtil
 
 # todo 测试代码标准化，完善一个测试数据集合，专门用于测试，先不要求测试图片和训练图片分开
 
-# todo 手头数据生成 非官方的 数据集
+# todo 现在容易卡主应该是因为 把推送图片服务 和 其他任务放在一起的缘故,将他们分为两个 服务试试
 
 
 save_dir = r"C:\Users\14271\Desktop\del\save_img"
@@ -28,22 +28,10 @@ a = UCDatasetUtil(r"C:\Users\14271\Desktop\del\test.json", "192.168.3.111", 1110
 # a.save_img_xml_json(save_dir=save_dir, need_img=True, need_json=False, need_xml=True)
 
 # a.check_ucdataset()
-
-# a.delete_ucdataset("del_测试2")
-
-a.upload_ucdataset(r"C:\Users\14271\Desktop\test.json", "hehe")
-
-# r = requests.get("http://192.168.3.111:11101/uc/check")
-# print(r.text)
 #
-# res = JsonUtil.load_data_from_json_str(r.text)
+# a.delete_ucdataset(r"test\nihao91")
 #
-# for each in res["official"]:
-#     print("official : ",  each)
-#
-# for each in res["customer"]:
-#     print("customer : ", each)
-
+# a.upload_ucdataset(r"C:\Users\14271\Desktop\test.json", r"test\nihao91")
 
 
 

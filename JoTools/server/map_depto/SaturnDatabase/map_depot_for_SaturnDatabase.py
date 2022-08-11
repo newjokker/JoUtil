@@ -26,8 +26,6 @@ app=Flask(__name__)
 
 # todo windows 上 nginx 的使用
 
-# todo ucd 名字中不能有特殊字符，比如斜杠之类的
-
 
 @app.route("/file/<uc_suffix>")
 def get_uc_file(uc_suffix):
@@ -66,6 +64,28 @@ def get_uc_file(uc_suffix):
         else:
             print(f"* no such json path : {json_path}")
 
+@app.route("/ucd/<ucd_name>")
+def get_ucd_file(ucd_name):
+    # 下载 ucDataset 文件
+    # 检查官方ucd 中有没有，如果没有再去检查非官方的 ucd 是否有
+
+    ucd_official_path = os.path.join(ucd_official_dir, ucd_name + ".json")
+    ucd_customer_path = os.path.join(ucd_customer_dir, ucd_name + ".json")
+
+    if os.path.exists(ucd_official_path):
+        with open(ucd_official_path, 'rb') as f:
+            ucd_file = f.read()
+            resp = Response(ucd_file, mimetype="application/x-javascript")
+            return resp
+
+    elif os.path.exists(ucd_customer_path):
+        with open(ucd_customer_path, 'rb') as f:
+            ucd_file = f.read()
+            resp = Response(ucd_file, mimetype="application/x-javascript")
+            return resp
+    else:
+        return jsonify({"error": f"ucd_name : {ucd_name} not exists"}, 500)
+
 @app.route("/ucd/check")
 def check_ucdataset():
     """打印所有的 ucdataset，官方的或者非官方的"""
@@ -86,7 +106,6 @@ def check_ucdataset():
 @app.route("/ucd/delete/<ucd_name>", methods=["DELETE"])
 def delete_ucdataset(ucd_name):
     """打印所有的 ucdataset，官方的或者非官方的"""
-
     ucd_path = os.path.join(ucd_customer_dir, ucd_name)
     print(ucd_path)
 
@@ -106,8 +125,19 @@ def upload_ucdataset():
 
     file = request.files['json_file']
     save_ucd_path = os.path.join(ucd_customer_dir, ucd_name + '.json')
-    file.save(save_ucd_path)
-    return jsonify("ok", 200)
+
+    if os.path.exists(save_ucd_path):
+        file.close()
+        return jsonify("ucd_path exists, change a new name", 500)
+    else:
+        save_ucd_folder = os.path.split(save_ucd_path)[0]
+        os.makedirs(save_ucd_folder, exist_ok=True)
+        print(f"* save ucd path : {save_ucd_path}")
+        file.save(save_ucd_path)
+        file.close()
+        return jsonify("ok", 200)
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 def parse_args():
     parser = argparse.ArgumentParser(description='map depto')
@@ -129,7 +159,6 @@ def print_config():
     print(f'tmp_dir : {tmp_dir}')
     print("-"*30)
 
-
 def serv_start():
     global host, port
     http_server = WSGIServer((host, port), app)
@@ -138,8 +167,6 @@ def serv_start():
 
 if __name__ == '__main__':
 
-
-    #
     args = parse_args()
     img_dir = r"\\192.168.3.80\数据\root_dir\json_img"
     ucd_official_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset"

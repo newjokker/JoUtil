@@ -13,6 +13,9 @@ from flask import Flask, Response, request, jsonify
 from JoTools.utils.HashlibUtil import HashLibUtil
 from gevent import monkey
 from gevent.pywsgi import WSGIServer
+from JoTools.txkj.jsonInfo import JsonInfo
+
+
 monkey.patch_all()
 
 app=Flask(__name__)
@@ -31,7 +34,8 @@ def get_image(uc_suffix):
     if os.path.exists(img_path):
         with open(img_path, 'rb') as f:
             image = f.read()
-            resp = Response(image, mimetype="image/png")
+            # refer : https://tool.oschina.net/commons/_contenttype.dea
+            resp = Response(image, mimetype="image/jpeg")
             return resp
     else:
         print(f"* no such img path : {img_path}")
@@ -43,8 +47,25 @@ def get_json(uc_suffix):
     print(json_path)
     if os.path.exists(json_path):
         with open(json_path, 'rb') as f:
-            image = f.read()
-            resp = Response(image, mimetype="image/png")
+            json_file = f.read()
+            resp = Response(json_file, mimetype="application/x-javascript")
+            return resp
+    else:
+        print(f"* no such json path : {json_path}")
+
+@app.route("/xml/<uc_suffix>")
+def get_xml(uc_suffix):
+    # 图片上传保存的路径
+    json_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix[:-4] + ".json")
+    if os.path.exists(json_path):
+        json_info = JsonInfo(json_path=json_path)
+        save_xml_path = os.path.join(tmp_dir, uc_suffix)
+        json_info.save_to_xml(xml_path=save_xml_path)
+        print(save_xml_path)
+        with open(save_xml_path, 'rb') as f:
+            xml_file = f.read()
+            resp = Response(xml_file, mimetype="text/xml")
+            # os.remove(save_xml_path)
             return resp
     else:
         print(f"* no such json path : {json_path}")
@@ -55,7 +76,8 @@ def parse_args():
     parser.add_argument('--port', dest='port', type=int, default=3232)
     parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
     parser.add_argument('--img_dir', dest='img_dir', type=str)
-    parser.add_argument('--ip', dest='ip', type=str, default='192.168.3.221')
+    parser.add_argument('--tmp_dir', dest='tmp_dir', type=str, default=r"/tmp")
+    parser.add_argument('--ip', dest='ip', type=str)
     #
     args = parser.parse_args()
     return args
@@ -65,6 +87,8 @@ def print_config():
     print(f'host : {host}')
     print(f'port : {port}')
     print(f'ip : {ip}')
+    print(f'img_dir : {img_dir}')
+    print(f'tmp_dir : {tmp_dir}')
     print("-"*30)
 
 
@@ -80,6 +104,7 @@ if __name__ == '__main__':
     #
     args = parse_args()
     img_dir = r"\\192.168.3.80\数据\root_dir\json_img"
+    tmp_dir = args.tmp_dir
     host = args.host
     port = args.port
     ip = args.ip

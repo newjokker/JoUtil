@@ -65,9 +65,9 @@ class UCDatasetUtil():
 
         need_file_list = []
         for each_uc in uc_list:
-            img_url = f"http://{self.ip}:{self.port}/image/{each_uc}.jpg"
-            json_url = f"http://{self.ip}:{self.port}/json/{each_uc}.json"
-            xml_url = f"http://{self.ip}:{self.port}/xml/{each_uc}.xml"
+            img_url = f"http://{self.ip}:{self.port}/file/{each_uc}.jpg"
+            json_url = f"http://{self.ip}:{self.port}/file/{each_uc}.json"
+            xml_url = f"http://{self.ip}:{self.port}/file/{each_uc}.xml"
 
             save_json_path = os.path.join(save_json_dir, f"{each_uc}.json")
             save_img_path = os.path.join(save_img_dir, f"{each_uc}.jpg")

@@ -26,49 +26,49 @@ app=Flask(__name__)
 # todo windows 上 nginx 的使用
 
 
-@app.route("/image/<uc_suffix>")
-def get_image(uc_suffix):
-    # 图片上传保存的路径
-    img_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix)
-    print(img_path)
-    if os.path.exists(img_path):
-        with open(img_path, 'rb') as f:
-            image = f.read()
-            # refer : https://tool.oschina.net/commons/_contenttype.dea
-            resp = Response(image, mimetype="image/jpeg")
-            return resp
-    else:
-        print(f"* no such img path : {img_path}")
-
-@app.route("/json/<uc_suffix>")
-def get_json(uc_suffix):
-    # 图片上传保存的路径
-    json_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix)
-    print(json_path)
-    if os.path.exists(json_path):
-        with open(json_path, 'rb') as f:
-            json_file = f.read()
-            resp = Response(json_file, mimetype="application/x-javascript")
-            return resp
-    else:
-        print(f"* no such json path : {json_path}")
-
-@app.route("/xml/<uc_suffix>")
+@app.route("/file/<uc_suffix>")
 def get_xml(uc_suffix):
     # 图片上传保存的路径
-    json_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix[:-4] + ".json")
-    if os.path.exists(json_path):
-        json_info = JsonInfo(json_path=json_path)
-        save_xml_path = os.path.join(tmp_dir, uc_suffix)
-        json_info.save_to_xml(xml_path=save_xml_path)
-        print(save_xml_path)
-        with open(save_xml_path, 'rb') as f:
-            xml_file = f.read()
-            resp = Response(xml_file, mimetype="text/xml")
-            # os.remove(save_xml_path)
-            return resp
-    else:
-        print(f"* no such json path : {json_path}")
+    if uc_suffix.endswith(".jpg"):
+        img_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix)
+        print(img_path)
+        if os.path.exists(img_path):
+            with open(img_path, 'rb') as f:
+                image = f.read()
+                resp = Response(image, mimetype="image/png")
+                return resp
+        else:
+            print(f"* no such img path : {img_path}")
+    elif uc_suffix.endswith(".xml"):
+        xml_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix[:-4] + ".json")
+        if os.path.exists(xml_path):
+            json_info = JsonInfo(json_path=xml_path)
+            save_xml_path = os.path.join(tmp_dir, uc_suffix)
+            json_info.save_to_xml(xml_path=save_xml_path)
+            print(save_xml_path)
+            with open(save_xml_path, 'rb') as f:
+                xml_file = f.read()
+                resp = Response(xml_file, mimetype="text/xml")
+                return resp
+        else:
+            print(f"* no such json path : {xml_path}")
+    elif uc_suffix.endswith(".json"):
+        json_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix)
+        print(json_path)
+        if os.path.exists(json_path):
+            with open(json_path, 'rb') as f:
+                json_file = f.read()
+                resp = Response(json_file, mimetype="application/x-javascript")
+                return resp
+        else:
+            print(f"* no such json path : {json_path}")
+
+@app.route("/uc/check")
+def check_ucdataset():
+    """打印所有的 ucdataset，官方的或者非官方的"""
+
+    pass
+
 
 
 def parse_args():

@@ -31,7 +31,7 @@ a = UCDatasetUtil(r"C:\Users\14271\Desktop\del\test.json", "192.168.3.111", 1110
 #
 # a.delete_ucdataset(r"test\nihao91")
 #
-# a.upload_ucdataset(r"C:\Users\14271\Desktop\test.json", r"test\nihao91")
+a.upload_ucdataset(r"C:\Users\14271\Desktop\test_ucd.json", r"windows_te2st")
 
 
 

@@ -63,6 +63,7 @@ def get_uc_file(uc_suffix):
                 return resp
         else:
             print(f"* no such json path : {json_path}")
+            return jsonify({"status": "error, no such file"}), 500
 
 @app.route("/ucd/<ucd_name>")
 def get_ucd_file(ucd_name):
@@ -84,7 +85,7 @@ def get_ucd_file(ucd_name):
             resp = Response(ucd_file, mimetype="application/x-javascript")
             return resp
     else:
-        return jsonify({"error": f"ucd_name : {ucd_name} not exists"}, 500)
+        return jsonify({"error": f"ucd_name : {ucd_name} not exists"}), 500
 
 @app.route("/ucd/check")
 def check_ucdataset():
@@ -111,9 +112,9 @@ def delete_ucdataset(ucd_name):
 
     if os.path.exists(ucd_path):
         os.remove(ucd_path)
-        return jsonify("ok", 200)
+        return jsonify("ok"), 200
     else:
-        return jsonify("ucd path not exists", 500)
+        return jsonify("ucd path not exists"), 500
 
 @app.route("/ucd/upload", methods=["POST"])
 def upload_ucdataset():
@@ -121,21 +122,21 @@ def upload_ucdataset():
     if "ucd_name" in request.form:
         ucd_name = request.form["ucd_name"]
     else:
-        return jsonify("ucd_name not exists", 500)
+        return jsonify("ucd_name not exists"), 500
 
     file = request.files['json_file']
     save_ucd_path = os.path.join(ucd_customer_dir, ucd_name + '.json')
 
     if os.path.exists(save_ucd_path):
         file.close()
-        return jsonify("ucd_path exists, change a new name", 500)
+        return jsonify("ucd_path exists, change a new name"), 500
     else:
         save_ucd_folder = os.path.split(save_ucd_path)[0]
         os.makedirs(save_ucd_folder, exist_ok=True)
         print(f"* save ucd path : {save_ucd_path}")
         file.save(save_ucd_path)
         file.close()
-        return jsonify("ok", 200)
+        return jsonify("ok"), 200
 
 # ----------------------------------------------------------------------------------------------------------------------
 

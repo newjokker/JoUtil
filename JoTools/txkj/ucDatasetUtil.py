@@ -12,24 +12,6 @@ from ..utils.JsonUtil import JsonUtil
 
 
 
-# todo 使用 CPP 写代码，模仿 git 能方便使用数据，和数据集
-
-# todo 处理找不到图片的情况
-
-"""
-uc dataset
--
-ucd check 
-ucd search key # 是否需要提供，客户自己去查询应该也行
-ucd load save_path ucdataset name
-ucd update ucdataset path, 名字可能会重复，需要完善
-----
-uc
--
-uc load json_path save_dir 110 ， 第一个是 img 第二个是 xml 第三个是 json ， 1 是下载，0 或者不写就是不下载 
-"""
-
-
 class UCDatasetUtil():
 
     def __init__(self, json_path:str, ip:str, port:int):
@@ -136,6 +118,32 @@ class UCDatasetUtil():
         # 官方数据集和私人数据集是分开放的
         # 官方数据集是有日期的，私人数据集不强制需要日期
         # 官方数据集只能数据管理员操作，私人数据集可以大家一起操作（1）删除（2）上传（3）下载
+
+    # ----------------------------------------------
+    @staticmethod
+    def is_uc(img_name):
+
+        if len(img_name) != 7:
+            return False
+
+        if not str(img_name[0]).isupper():
+            return False
+
+        if not str(img_name[1:3]).islower():
+            return False
+
+        return True
+
+    @staticmethod
+    def from_img_dir(img_dir, save_path):
+        a = UcDataset()
+        uc_set = set()
+        for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=[".jpg", ".JPG", ".png", ".PNG"]):
+            img_name = FileOperationUtil.bang_path(each_img_path)[1]
+            if UCDatasetUtil.is_uc(img_name):
+                uc_set.add(img_name)
+        a.uc_list = list(uc_set)
+        a.save_to_file(save_path)
 
 
 

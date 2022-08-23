@@ -33,7 +33,8 @@ a = UCDatasetUtil(r"C:\Users\14271\Desktop\del\test.json", "192.168.3.111", 1110
 #
 # a.upload_ucdataset(r"C:\Users\14271\Desktop\test_ucd.json", r"windows_te2st")
 
-a.from_img_dir(r"D:\data\001_fzc_优化相关资料\dataset_fzc\000_train_data_step_1\JPEGImages", r"D:\data\001_fzc_优化相关资料\dataset_fzc\000_train_data_step_1\fzc_train.json")
+# a.from_img_dir(r"/home/suanfa-1/jtm/ST_projects/trained_pros/yolov5_new/train_data/yolo/train/images",
+#                r"/home/suanfa-1/jtm/ST_projects/trained_pros/yolov5_new/train_data/yolo/train/prebase_yolo5_0_5_0_train.json")
 
 
 

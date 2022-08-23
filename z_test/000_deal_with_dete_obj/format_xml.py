@@ -6,7 +6,7 @@ import argparse
 from JoTools.txkjRes.deteRes import DeteRes,DeteObj
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
-xml_dir = r"/home/ldq/train_csra/Annotations"
+xml_dir = r"D:\data\001_fzc_优化相关资料\dataset_fzc\000_0_标准测试集\Annotations"
 
 index = 0
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):

@@ -4,6 +4,7 @@
 
 from JoTools.utils.ScrapyUtil import ScrapyUtil
 
+# Linux下PyTorch、CUDA Toolkit 及显卡驱动版本对应关系 refer : https://blog.csdn.net/weixin_42069606/article/details/105198845
 
 # todo torch | cuda | drive | python 之间的关系
     # 检测模型代码能否运行取决于 （1）python 版本 （2）torch 版本

@@ -24,5 +24,10 @@ if __name__ == "__main__":
     else:
         # xml_dir = r"C:\Users\14271\Desktop\save_res"
         # xml_dir = r"C:\Users\14271\Desktop\docker-0.0.1\save_res"
-        xml_dir = r"C:\Users\14271\Desktop\xml_tmp"
+        # xml_dir = r"C:\Users\14271\Desktop\result_xml"
+        xml_dir = r"C:\Users\14271\Desktop\xml_recommend\Annonations_random"
         res = OperateDeteRes.get_class_count(xml_dir, print_count=True)
+
+
+        print(len(list(res.keys())))
+

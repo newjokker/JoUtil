@@ -87,6 +87,27 @@ def get_ucd_file(ucd_name):
     else:
         return jsonify({"error": f"ucd_name : {ucd_name} not exists"}), 500
 
+@app.route("/ucd_app/<ucd_version>")
+def get_ucd_app(ucd_version):
+
+    if ucd_version == "latest":
+        ucd_app_path_list = list(FileOperationUtil.re_all_file(ucd_app_dir, endswitch=[".zip"]))
+        ucd_app_path = ucd_app_path_list[-1]
+    else:
+        ucd_app_path = os.path.join(ucd_app_dir, ucd_version + ".zip")
+
+    if os.path.exists(ucd_app_path):
+        with open(ucd_app_path, 'rb') as f:
+            ucd_file = f.read()
+            resp = Response(ucd_file, mimetype="application/x-javascript")
+            return resp, 200
+    else:
+        ucd_version_list = []
+        for each_zip_path in FileOperationUtil.re_all_file(ucd_app_dir, endswitch=[".zip"]):
+            ucd_version_list.append(each_zip_path[len(ucd_app_dir)+1: -4])
+        version_str = ",".join(ucd_version_list)
+        return jsonify({"error": f"version should in : [{version_str}]"}), 500
+
 @app.route("/ucd/check")
 def check_ucdataset():
     """打印所有的 ucdataset，官方的或者非官方的"""
@@ -172,6 +193,7 @@ if __name__ == '__main__':
     img_dir = r"\\192.168.3.80\数据\root_dir\json_img"
     ucd_official_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset"
     ucd_customer_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset_customer"
+    ucd_app_dir = r"\\192.168.3.80\数据\root_dir\ucd"
     tmp_dir = args.tmp_dir
     host = args.host
     port = args.port

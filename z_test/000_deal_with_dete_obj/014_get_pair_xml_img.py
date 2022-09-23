@@ -9,9 +9,9 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 # 找到成对的 xml 和 img
 
-xml_dir = r"C:\Users\14271\Desktop\res_xml"
-img_dir = r"F:\输电基础前置数据\二批次\JPEGImages2"
-save_dir = r"C:\Users\14271\Desktop\res_check"
+xml_dir = r"C:\Users\14271\Desktop\jyzps_new_xml"
+img_dir = r"C:\Users\14271\Desktop\jyzps_new_xml"
+save_dir = r"C:\Users\14271\Desktop\res"
 
 
 move_img_list = []

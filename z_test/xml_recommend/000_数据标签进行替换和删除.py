@@ -8,7 +8,7 @@ from JoTools.operateDeteRes import OperateDeteRes
 
 # --------------------------------------------
 
-xml_dir = r"C:\Users\14271\Desktop\xml_recommend\Annonations"
+xml_dir = r"C:\Users\14271\Desktop\xml_recommend\test_data\Annonations"
 
 # fzc, nc, (LXJT_set, YJXJ_sub, XCXJCT_sub, ), (fhjyz, bljyz, tcjyz), (ring, ringL)
 update_dict = {"LXJT_set": "xj", "YJXJ_sub": "xj", "XCXJCT_sub": "xj", "fhjyz":"jyz", "bljyz":"jyz", "tcjyz":"jyz", "ring":"ring", "ringL":"ringL"}

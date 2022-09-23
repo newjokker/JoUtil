@@ -28,6 +28,5 @@ if __name__ == "__main__":
         xml_dir = r"C:\Users\14271\Desktop\xml_recommend\Annonations_random"
         res = OperateDeteRes.get_class_count(xml_dir, print_count=True)
 
-
         print(len(list(res.keys())))
 

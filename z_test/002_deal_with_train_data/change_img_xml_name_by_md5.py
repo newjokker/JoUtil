@@ -9,9 +9,9 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
-img_dir = r"E:\多标签分类\jyz_test\train_ps\JPEGImages"
-xml_dir = r"E:\多标签分类\jyz_test\train_ps\Annotations"
-save_dir = r"E:\多标签分类\jyz_test\train_ps_rename_by_md5"
+img_dir = r"\\192.168.3.80\算法-数据交互\aqm_0_0_8版本数据_入库_del_2022_930\img"
+xml_dir = r"\\192.168.3.80\算法-数据交互\aqm_0_0_8版本数据_入库_del_2022_930\xml"
+save_dir = r"\\192.168.3.80\算法-数据交互\aqm_0_0_8版本数据_入库_del_2022_930"
 
 
 save_img_dir = os.path.join(save_dir, 'JPEGImages')

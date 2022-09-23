@@ -11,7 +11,7 @@ from JoTools.operateDeteRes import OperateDeteRes
 
 #  每个标签不放回地从 extra 找 1000/5 张图片，要求图片中对应的对象数目最多
 # ----------------------------------------------------------------------------------------------------------------------
-xml_dete_dir = r"C:\Users\14271\Desktop\xml_recommend\Annonations_extra"                # 预测出来的 xml 文件夹
+xml_dete_dir = r"C:\Users\14271\Desktop\xml_recommend\base_dete_extra"                # 预测出来的 xml 文件夹
 xml_stand_dir = r"C:\Users\14271\Desktop\xml_recommend\Annonations_extra"               # 标准的 xml 文件夹
 save_dir = r"C:\Users\14271\Desktop\xml_recommend\Annonations_tag_num_first"            # 保存需要的标准 xml 的文件夹
 tag_list = ["fzc", "nc", "xj", "jyz", "ring"]                                           # 需要进行寻找和排序的标签

@@ -5,7 +5,7 @@
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.TxtUtil import TxtUtil
 
-ucd_path = r"C:\Users\14271\Desktop\input.json"
+ucd_path = r"\\192.168.3.80\数据\root_dir\uc_dataset_customer\ldq\jb3gg.json"
 save_txt_path = r"C:\Users\14271\Desktop\input.txt"
 
 

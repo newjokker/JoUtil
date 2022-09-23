@@ -36,9 +36,9 @@ if __name__ == "__main__":
 
     else:
 
-        img_dir = r"C:\Users\14271\Desktop\del\test_data"
-        crop_dir = r"C:\Users\14271\Desktop\del\crop_res"
-        save_dir = r"C:\Users\14271\Desktop\del\res_xml"
+        img_dir = r"C:\Users\14271\Desktop\jyzps"
+        crop_dir = r"C:\Users\14271\Desktop\jyzps_new"
+        save_dir = r"C:\Users\14271\Desktop\jyzps_new_xml"
 
         OperateDeteRes.get_xml_from_crop_img(region_img_dir=img_dir, crop_dir=crop_dir, save_xml_dir=save_dir)
         OperateDeteRes.get_class_count(save_dir, print_count=True)

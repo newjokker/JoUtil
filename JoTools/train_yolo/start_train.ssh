@@ -1,0 +1,38 @@
+#!/bin/bash
+
+
+# test
+export DEVICE=0
+export MODEL_TYPE=yolov5s
+export BATCH_SIZE=100
+export LABEL_LIST=Fnormal,fzc_broken
+
+mkdir -p /usr/yolo_train/xml_dir/train
+mkdir -p /usr/yolo_train/xml_dir/val
+mkdir -p /usr/yolo_train/txt_dir/train
+mkdir -p /usr/yolo_train/txt_dir/val
+
+train_ucd_name=docker_train\\fzc_train
+val_ucd_name=docker_train\\fzc_val
+
+# load ucd
+ucd load ${train_ucd_name} /usr/yolo_train/train_ucd.json
+ucd load ${val_ucd_name} /usr/yolo_train/val_ucd.json
+
+# parse xml from ucd
+ucd parse_xml /usr/yolo_train/train_ucd.json /usr/yolo_train/xml_dir/train
+ucd parse_xml /usr/yolo_train/val_ucd.json /usr/yolo_train/xml_dir/val
+
+# get txt from xml
+python3 voc_to_yolo_txt.py --xml_dir /usr/yolo_train/xml_dir/train    --txt_dir /usr/yolo_train/txt_dir/train   --label_list ${LABEL_LIST}
+python3 voc_to_yolo_txt.py --xml_dir /usr/yolo_train/xml_dir/val      --txt_dir /usr/yolo_train/txt_dir/val     --label_list ${LABEL_LIST}
+
+# get yaml
+python3 get_yaml.py --yaml_path /usr/yolo_train/train.yaml --label_list ${LABEL_LIST}
+
+
+# train model
+python train.py --data /usr/yolo_train/train.yaml --cfg "./models/${MODEL_TYPE}.yaml" --weights "./${MODEL_TYPE}.pt" --batch-size ${BATCH_SIZE}  --device ${DEVICE}
+
+
+

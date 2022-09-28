@@ -92,9 +92,13 @@ if __name__ == "__main__":
     label_list = [(x, y) for x in range(assign_block_x) for y in range(assign_block_y)]
 
     # a.draw_blocks([(0,0), (0,1), (1,1), (1,0)], augment_parameter=[5,5,5,5])
-    a.draw_blocks([(0,0), (0,1), (1,1), (1,0)])
+    # a.draw_blocks([(0,0), (0,1), (1,1), (1,0)])
 
-    # a.draw_blocks(label_list)
+    a.draw_blocks([(0,0), (0,1), (1,1), (1,0)], augment_parameter=[0.2,0.2,0.2,0.2])
+
+    # for i in range(assign_block_x):
+    #     for j in range(assign_block_y):
+    #         print(a.get_block_range(i, j, do_augment=[5,5,5,5], is_relative=False))
 
 
 

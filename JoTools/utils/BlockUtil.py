@@ -87,18 +87,18 @@ if __name__ == "__main__":
     assign_block_x = 5
     assign_block_y = 5
 
-    a = BlockUtil(200, 200, assign_block_x, assign_block_y)
+    a = BlockUtil(20, 20, assign_block_x, assign_block_y)
 
     label_list = [(x, y) for x in range(assign_block_x) for y in range(assign_block_y)]
 
     # a.draw_blocks([(0,0), (0,1), (1,1), (1,0)], augment_parameter=[5,5,5,5])
     # a.draw_blocks([(0,0), (0,1), (1,1), (1,0)])
 
-    a.draw_blocks([(0,0), (0,1), (1,1), (1,0)], augment_parameter=[0.2,0.2,0.2,0.2])
+    a.draw_blocks(label_list, augment_parameter=[0.2,0.2,0.2,0.2])
 
-    # for i in range(assign_block_x):
-    #     for j in range(assign_block_y):
-    #         print(a.get_block_range(i, j, do_augment=[5,5,5,5], is_relative=False))
+    for i in range(assign_block_x):
+        for j in range(assign_block_y):
+            print(a.get_block_range(i, j, do_augment=[5,5,5,5], is_relative=False))
 
 
 

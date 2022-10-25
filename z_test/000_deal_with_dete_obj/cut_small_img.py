@@ -49,11 +49,11 @@ if __name__ == "__main__":
         OperateDeteRes.crop_imgs(args.img_dir, args.xml_dir, args.save_dir, split_by_tag=args.split_by_tag, augment_parameter=augment_parameter,
                                  exclude_tag_list=exclude_tag_list, include_tag_list=include_tag_list)
     else:
-        img_dir = r"C:\Users\14271\Desktop\jyzps"
+        img_dir = r"C:\Users\14271\Desktop\宜兴安全帽\inputImg"
         # xml_dir = r"E:\多标签分类\jyz_test\Annotations"
-        xml_dir = r"C:\Users\14271\Desktop\jyzps"
+        xml_dir = r"C:\Users\14271\Desktop\merge"
         # xml_dir = r"E:\多标签分类\jyz_test\an_test"
-        save_dir = r"C:\Users\14271\Desktop\jyzps_new"
+        save_dir = r"C:\Users\14271\Desktop\宜兴安全帽\crop"
         OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, save_augment=True,)
         # OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.15, 0.15, 0.15, 0.15], save_augment=True, include_tag_list=["bljyz", "tcjyz"])
 

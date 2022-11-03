@@ -503,8 +503,15 @@ class OperateDeteRes(object):
         # 小截图信息获取
         for each_xml_path in FileOperationUtil.re_all_file(crop_dir, lambda x: str(x).endswith('.jpg')):
             each_img_dir, img_name, _ = FileOperationUtil.bang_path(each_xml_path)
-            region_img_name = img_name.split('-+-')[0]
-            img_name = img_name.split('-+-')[-1]
+
+            if img_name.count('-+-') == 1:
+                region_img_name = img_name.split('-+-')[0]
+                img_name = img_name.split('-+-')[-1]
+            elif img_name.count('-+-') > 1:
+                region_img_name = "-+-".join(img_name.split('-+-')[:-1])
+                img_name = img_name.split('-+-')[-1]
+            else:
+                raise ValueError("img_name need -+- : ", img_name)
             # 现在的标签
             each_tag = each_img_dir[len(crop_dir) + 1:]
             # 构造新的 deteObj 实例
@@ -519,10 +526,12 @@ class OperateDeteRes(object):
 
         # 将小图信息合并为大图
         for each_img_name in dete_res_dict:
+            # todo 这边指定只能使用 .jpg 文件
             region_img_path = os.path.join(region_img_dir, "{0}.jpg".format(each_img_name))
 
             # 去除找不到文件
             if not os.path.exists(region_img_path):
+                print("找不到图片路径 : ", region_img_path)
                 continue
 
             # 保存文件

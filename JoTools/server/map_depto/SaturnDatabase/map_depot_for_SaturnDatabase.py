@@ -4,7 +4,10 @@
 # 给所有的入库图片创建一个图床
 
 import os
+import shutil
+
 import cv2
+import random
 import numpy as np
 import socket
 import requests
@@ -33,6 +36,24 @@ def get_uc_file(uc_suffix):
     if uc_suffix.endswith(".jpg"):
         img_path = os.path.join(img_dir, uc_suffix[:3], uc_suffix)
         print(img_path)
+
+        # 查看当前文件夹中是否有
+        find_cache = False
+        for each_dir in cache_dir_list:
+            cache_img_path = os.path.join(each_dir, uc_suffix[:3], uc_suffix)
+            if os.path.exists(cache_img_path):
+                img_path = cache_img_path
+                find_cache = True
+
+        # 没找到缓存直接复制一份并提供上传
+        if (find_cache is False) and (use_cache_dir is True):
+            random_save_dir = random.choice(cache_dir_list)
+            save_cache_img_dir = os.path.join(random_save_dir, uc_suffix[:3])
+            os.makedirs(save_cache_img_dir, exist_ok=True)
+            save_cache_img_path = os.path.join(save_cache_img_dir, uc_suffix)
+            shutil.copy(img_path, save_cache_img_path)
+            img_path = save_cache_img_path
+
         if os.path.exists(img_path):
             with open(img_path, 'rb') as f:
                 image = f.read()
@@ -166,7 +187,8 @@ def parse_args():
     parser.add_argument('--port', dest='port', type=int, default=3232)
     parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
     parser.add_argument('--img_dir', dest='img_dir', type=str)
-    parser.add_argument('--tmp_dir', dest='tmp_dir', type=str, default=r"/tmp")
+    parser.add_argument('--tmp_dir', dest='tmp_dir', type=str, default=r"./tmp")
+    parser.add_argument('--use_cache', dest='use_cache', type=str, default="False")
     parser.add_argument('--ip', dest='ip', type=str)
     #
     args = parser.parse_args()
@@ -174,11 +196,12 @@ def parse_args():
 
 def print_config():
     print("-"*30)
-    print(f'host : {host}')
-    print(f'port : {port}')
-    print(f'ip : {ip}')
-    print(f'img_dir : {img_dir}')
-    print(f'tmp_dir : {tmp_dir}')
+    print(f'host        : {host}')
+    print(f'port        : {port}')
+    print(f'ip          : {ip}')
+    print(f'img_dir     : {img_dir}')
+    print(f'tmp_dir     : {tmp_dir}')
+    print(f'use_cache :   {use_cache_dir}')
     print("-"*30)
 
 def serv_start():
@@ -194,6 +217,15 @@ if __name__ == '__main__':
     ucd_official_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset"
     ucd_customer_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset_customer"
     ucd_app_dir = r"\\192.168.3.80\数据\root_dir\ucd"
+    # -----------------------------------------------------------------------------
+    # 缓存文件夹列表，就是说随机缓存在下面几个文件夹下面
+    cache_dir_tmp_list = [r"D:\json_img", r"F:\json_img", r"H:\json_img"]
+    cache_dir_list = list()
+    for eachDir in cache_dir_tmp_list:
+        if os.path.exists(eachDir):
+            cache_dir_list.append(eachDir)
+    use_cache_dir = eval(args.use_cache)
+    # -----------------------------------------------------------------------------
     tmp_dir = args.tmp_dir
     host = args.host
     port = args.port

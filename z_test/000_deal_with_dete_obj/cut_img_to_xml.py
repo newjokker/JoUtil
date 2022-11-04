@@ -36,9 +36,9 @@ if __name__ == "__main__":
 
     else:
 
-        img_dir = r"C:\Users\14271\Desktop\jyzps"
-        crop_dir = r"C:\Users\14271\Desktop\jyzps_new"
-        save_dir = r"C:\Users\14271\Desktop\jyzps_new_xml"
+        img_dir = r"/home/suanfa-1/jtm/ST_data/ParallelEnhance_model/2022-wh6-8-10yue/part1_crop_in_prebase/crop_res/JPEGImages"
+        crop_dir = r"/home/suanfa-1/ldq/wuhan_crop/crop_whcode2label"
+        save_dir = r"/home/suanfa-1/ldq/wuhan_crop/res_xml"
 
         OperateDeteRes.get_xml_from_crop_img(region_img_dir=img_dir, crop_dir=crop_dir, save_xml_dir=save_dir)
         OperateDeteRes.get_class_count(save_dir, print_count=True)

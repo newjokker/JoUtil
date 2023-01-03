@@ -6,6 +6,9 @@ import cv2
 import copy
 import time
 import random
+from PIL.Image import Image
+import matplotlib.pyplot as plt
+import numpy
 from flask import jsonify
 import numpy as np
 from abc import ABC
@@ -827,6 +830,25 @@ class DeteRes(ResBase, ABC):
         if save_path is not None:
             cv2.imencode('.jpg', img)[1].tofile(save_path)
         return img
+
+    def show_dete_res(self, color_dict, assign_img=None):
+
+        if isinstance(assign_img, np.ndarray):
+            bg = assign_img
+        else:
+            bg = np.array(np.ones([int(self.height), int(self.width), 3]), dtype=np.int8) * 255
+
+        for obj in self._alarms:
+            if obj.tag in color_dict:
+                each_color = color_dict[obj.tag]
+            else:
+                each_color = [125,125,125]
+
+            cv2.rectangle(bg, (obj.x1, obj.y1), (obj.x2, obj.y2), color=each_color, thickness=3)
+
+        plt.imshow(bg)
+        plt.show()
+
 
     def do_func(self, assign_func):
         """对所有元素进行指定操作"""

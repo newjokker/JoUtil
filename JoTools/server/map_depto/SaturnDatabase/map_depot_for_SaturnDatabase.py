@@ -219,7 +219,7 @@ if __name__ == '__main__':
     ucd_app_dir = r"\\192.168.3.80\数据\root_dir\ucd"
     # -----------------------------------------------------------------------------
     # 缓存文件夹列表，就是说随机缓存在下面几个文件夹下面
-    cache_dir_tmp_list = [r"D:\json_img", r"F:\json_img", r"H:\json_img"]
+    cache_dir_tmp_list = [r"D:\json_img", r"F:\json_img", r"H:\json_img", r"E:\json_img"]
     cache_dir_list = list()
     for eachDir in cache_dir_tmp_list:
         if os.path.exists(eachDir):

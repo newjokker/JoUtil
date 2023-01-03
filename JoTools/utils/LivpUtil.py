@@ -54,9 +54,9 @@ class LivpUtil():
 
 if __name__ == "__main__":
 
-    livp_dir = r"C:\Users\14271\Desktop\del\livp\img"
-    temp_folder = r"C:\Users\14271\Desktop\del\livp\tmp"
-    save_folder = r"C:\Users\14271\Desktop\del\livp\res"
+    livp_dir = r"D:\AppData\baiduwangpan\20221015_宜兴出差"
+    temp_folder = r"C:\Users\14271\Desktop\del"
+    save_folder = r"D:\AppData\baiduwangpan\20221015_宜兴出差"
 
 
     for each_name in os.listdir(livp_dir):

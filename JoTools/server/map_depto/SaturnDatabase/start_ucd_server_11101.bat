@@ -13,3 +13,6 @@ call C:\ProgramData\Anaconda3\Scripts\activate.bat
 
 python C:\Users\lingdequan\Desktop\map_depot\map_depot_for_SaturnDatabase.py --port 11101 --use_cache True
 
+:: 暂停，否者报错就会是个黑框一散而过
+pause
+

@@ -9,8 +9,8 @@ from saturn_lib.yolov5Detection import YOLOV5Detection
 
 
 model_path_list = [
-    r"/home/ldq/txkj_lib/yolo_data/alltgtSD_yolo5_65L_V8_21epoch.pt",
-    r"/home/ldq/txkj_lib/yolo_data/alltgtSD_yolo5_65L_V8_50epoch.pt",
+    #r"/home/ldq/txkj_lib/yolo_data/alltgtSD_yolo5_65L_V8_21epoch.pt",
+    #r"/home/ldq/txkj_lib/yolo_data/alltgtSD_yolo5_65L_V8_50epoch.pt",
     r"/home/ldq/txkj_lib/yolo_data/alltgtSD_yolo5_65L_V8_84epoch.pt",
     r"/home/ldq/txkj_lib/yolo_data/alltgtSD_yolo5_65L_V8_92epoch.pt",
 ]
@@ -50,7 +50,7 @@ for each_k in keys:
 
     for each_model in model_list[1:]:
         if isinstance(each_res, torch.Tensor) and "tracked" not in each_k:
-            if "conv.weight" in each_k and ".m" not in each_k:
+            if "model.24" in each_k:
                 each_res += each_model["model"].state_dict()[each_k]
                 each_res /= model_num
                 res[each_k] = each_res

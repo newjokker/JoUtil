@@ -1069,6 +1069,33 @@ class DeteRes(ResBase, ABC):
         # filter by area
         return self.filter_by_area(threshold, update=update)
 
+    def filter_by_same_tag_choose_big(self, iou_th=0.9, assign_tag=None, update=True):
+        # 相同标签，一个检测框包含另外一个检测框就删除被包含的检测框
+        dete_res_temp = self.deep_copy(copy_img=False)
+        dete_res_temp.reset_alarms()
+
+        count_res = self.count_tags()
+        delete_obj_set = set()
+        for each_tag in count_res.keys():
+            if (assign_tag is None) or (each_tag in assign_tag):
+                each_dete_res = self.filter_by_tags(need_tag=[each_tag], update=False)
+                for each_obj_1 in each_dete_res:
+                    for each_obj_2 in each_dete_res:
+                        if each_obj_2 != each_obj_1:
+                            iou_1 = ResTools.cal_iou_1(each_obj_1, each_obj_2)
+                            if iou_1 > iou_th:
+                                delete_obj_set.add(each_obj_1.get_name_str())
+
+        #
+        for each_obj in self.alarms:
+            if each_obj.get_name_str() not in delete_obj_set:
+                dete_res_temp.add_obj_2(each_obj)
+
+        if update:
+            self._alarms = dete_res_temp.alarms
+
+        return dete_res_temp
+
     def filter_by_attr(self, attr_name, attr_value, update=True):
         """根据属性名进行筛选"""
         new_dete_res = self.deep_copy(copy_img=False)

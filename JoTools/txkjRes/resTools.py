@@ -63,7 +63,7 @@ class ResTools(object):
 
     @staticmethod
     def cal_iou_1(dete_obj_1, dete_obj_2, ignore_tag=True):
-        """计算两个矩形框的相交面积，占其中一个矩形框面积的比例 ， """
+        """计算两个矩形框的相交面积，占dete_obj_1矩形框面积的比例 ， """
         if dete_obj_1.tag != dete_obj_2.tag and ignore_tag is False:
             return 0
 

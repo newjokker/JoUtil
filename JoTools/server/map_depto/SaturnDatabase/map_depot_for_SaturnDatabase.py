@@ -108,14 +108,51 @@ def get_ucd_file(ucd_name):
     else:
         return jsonify({"error": f"ucd_name : {ucd_name} not exists"}), 500
 
+def get_version_list():
+    version_list = []
+    version_dict = {}
+
+    for each_so_path in FileOperationUtil.re_all_file(ucd_app_dir, endswitch=[".so"]):
+        so_name = FileOperationUtil.bang_path(each_so_path)[1]
+        version = so_name[15:]
+        version_index_list = version[1:].split(".")
+        version_index  = int(version_index_list[0]) * 1000000 + int(version_index_list[1]) * 1000 + int(version_index_list[2])
+        version_dict[version_index] = version
+
+    index_list = sorted(version_dict.keys())
+    for each_index in index_list:
+        version_str = version_dict[each_index]
+        so_path = os.path.join(ucd_app_dir, "libsaturntools_{0}.so".format(version_str))
+        no_so_path = os.path.join(ucd_app_dir, "ucd_" + version_str)
+
+        # 当 so 文件和对应的文件都存在的时候，才算一个版本
+        if os.path.exists(so_path) and os.path.exists(no_so_path):
+            version_list.append(version_dict[each_index])
+
+    return version_list
+
+@app.route("/ucd/ucd_version_list")
+def get_ucd_version_list():
+    """返回所有的在线版本"""
+    version_list = get_version_list()
+    return jsonify({"ucd_version_info":version_list})
+
 @app.route("/ucd_app/<ucd_version>")
 def get_ucd_app(ucd_version):
+    # /ucd_app/so_v1.5.4 就是下载 so 文件，否则就是下载 执行文件
 
-    if ucd_version == "latest":
-        ucd_app_path_list = list(FileOperationUtil.re_all_file(ucd_app_dir, endswitch=[".zip"]))
-        ucd_app_path = ucd_app_path_list[-1]
+    if str(ucd_version).startswith("so_"):
+        is_so = True
+        ucd_version = ucd_version[3:]
     else:
-        ucd_app_path = os.path.join(ucd_app_dir, ucd_version + ".zip")
+        is_so = False
+
+    if is_so:
+        ucd_app_path = os.path.join(ucd_app_dir, "libsaturntools_{0}.so".format(ucd_version))
+    else:
+        ucd_app_path = os.path.join(ucd_app_dir, "ucd_" + ucd_version)
+
+    print(ucd_app_path)
 
     if os.path.exists(ucd_app_path):
         with open(ucd_app_path, 'rb') as f:
@@ -123,10 +160,7 @@ def get_ucd_app(ucd_version):
             resp = Response(ucd_file, mimetype="application/x-javascript")
             return resp, 200
     else:
-        ucd_version_list = []
-        for each_zip_path in FileOperationUtil.re_all_file(ucd_app_dir, endswitch=[".zip"]):
-            ucd_version_list.append(each_zip_path[len(ucd_app_dir)+1: -4])
-        version_str = ",".join(ucd_version_list)
+        version_str = ",".join(get_version_list())
         return jsonify({"error": f"version should in : [{version_str}]"}), 500
 
 @app.route("/ucd/check")

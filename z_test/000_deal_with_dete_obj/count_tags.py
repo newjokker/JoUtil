@@ -22,10 +22,8 @@ if __name__ == "__main__":
         PrintUtil.print(args)
         OperateDeteRes.get_class_count(args.xml_dir, print_count=True)
     else:
-        # xml_dir = r"C:\Users\14271\Desktop\save_res"
-        # xml_dir = r"C:\Users\14271\Desktop\docker-0.0.1\save_res"
-        # xml_dir = r"C:\Users\14271\Desktop\result_xml"
-        xml_dir = r"C:\Users\14271\Desktop\xml_recommend\Annonations_random"
+        # xml_dir = r"C:\Users\14271\Desktop\配网比赛\xml"
+        xml_dir = r"C:\Users\14271\Desktop\配网比赛\xml_res"
         res = OperateDeteRes.get_class_count(xml_dir, print_count=True)
 
         print(len(list(res.keys())))

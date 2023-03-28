@@ -18,9 +18,10 @@ from .deteObj import DeteObj
 from .deteAngleObj import DeteAngleObj
 from ..txkjRes.resTools import ResTools
 from ..utils.JsonUtil import JsonUtil
-from ..txkjRes.deteXml import parse_xml, save_to_xml, save_to_xml_wh_format
+from ..txkjRes.deteXml import parse_xml, save_to_xml, save_to_xml_wh_format,parse_xml_as_txt
 from ..utils.FileOperationUtil import FileOperationUtil
 from ..utils.DecoratorUtil import DecoratorUtil
+
 
 """
 '__abstractmethods__',
@@ -184,6 +185,7 @@ class DeteRes(ResBase, ABC):
     def _parse_xml_info(self):
         """解析 xml 中存储的检测结果"""
         xml_info = parse_xml(self.xml_path)
+        # xml_info = parse_xml_as_txt(self.xml_path)
         #
         if 'size' in xml_info:
             if 'height' in xml_info['size']:
@@ -1084,8 +1086,15 @@ class DeteRes(ResBase, ABC):
                         if each_obj_2 != each_obj_1:
                             iou_1 = ResTools.cal_iou_1(each_obj_1, each_obj_2)
                             if iou_1 > iou_th:
-                                delete_obj_set.add(each_obj_1.get_name_str())
-
+                                if each_obj_1.get_area() < each_obj_2.get_area():
+                                    delete_obj_set.add(each_obj_1.get_name_str())
+                                elif each_obj_1.get_area() == each_obj_2.get_area():
+                                    if hash(each_obj_1.get_name_str()) > hash(each_obj_2.get_name_str()):
+                                        delete_obj_set.add(each_obj_2.get_name_str())
+                                    else:
+                                        delete_obj_set.add(each_obj_1.get_name_str())
+                                else:
+                                    delete_obj_set.add(each_obj_2.get_name_str())
         #
         for each_obj in self.alarms:
             if each_obj.get_name_str() not in delete_obj_set:

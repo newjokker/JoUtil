@@ -6,7 +6,8 @@ import argparse
 from JoTools.txkjRes.deteRes import DeteRes,DeteObj
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
-xml_dir = r"C:\Users\14271\Desktop\正确佩戴安全帽"
+xml_dir = r"C:\Users\14271\Desktop\配网比赛\xml"
+save_dir = r"C:\Users\14271\Desktop\配网比赛\xml_res"
 
 index = 0
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):

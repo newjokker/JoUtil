@@ -213,7 +213,8 @@ def parse_xml_as_txt(xml_path):
             elif each_line.startswith('<width>'):
                 xml_info['size']['width'] = float(parse_assign_line(each_line, 'width'))
             elif each_line.startswith('<depth>'):
-                xml_info['size']['depth'] = float(parse_assign_line(each_line, 'depth'))
+                # xml_info['size']['depth'] = float(parse_assign_line(each_line, 'depth'))
+                xml_info['size']['depth'] = 3
             elif each_line.startswith('<path>'):
                 xml_info['path'] = parse_assign_line(each_line, 'path')
             elif each_line.startswith('<segmented>'):

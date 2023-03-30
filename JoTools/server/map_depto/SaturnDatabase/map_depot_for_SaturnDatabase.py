@@ -17,6 +17,7 @@ from JoTools.utils.HashlibUtil import HashLibUtil
 from gevent import monkey
 from gevent.pywsgi import WSGIServer
 from JoTools.txkj.jsonInfo import JsonInfo
+from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
@@ -178,6 +179,39 @@ def check_ucdataset():
     for each_ucd in FileOperationUtil.re_all_file(ucd_customer_dir, endswitch=['.json']):
         each_ucd_name = each_ucd[len(ucd_customer_dir)+1:][:-5]
         ucd_dict["customer"].append(each_ucd_name)
+    return jsonify(ucd_dict)
+
+def assign_uc_in_ucd_json(ucd_path, assign_uc):
+
+    print("* check : ", ucd_path, ", ", assign_uc)
+    each_ucd_info = JsonUtil.load_data_from_json_file(ucd_path)
+
+    for each_uc in each_ucd_info["uc_list"]:
+        if each_uc == assign_uc:
+            return True
+    return False
+
+@app.route("/ucd/check_assign_uc/<assign_uc>")
+def check_ucdataset_with_assign_uc(assign_uc):
+    """打印所有的 ucdataset，官方的或者非官方的"""
+    ucd_dict = {"official":[], "customer":[]}
+
+    # official
+    for each_ucd in FileOperationUtil.re_all_file(ucd_official_dir, endswitch=['.json'], recurse=False):
+        # 官方 ucd 可以分为不同文件夹
+
+        print(each_ucd)
+
+        if assign_uc_in_ucd_json(each_ucd, assign_uc):
+            each_ucd_name = each_ucd[len(ucd_official_dir)+1:][:-5]
+            ucd_dict["official"].append(each_ucd_name)
+
+    # # customer
+    # for each_ucd in FileOperationUtil.re_all_file(ucd_customer_dir, endswitch=['.json']):
+    #     if assign_uc_in_ucd_json(each_ucd, assign_uc):
+    #         each_ucd_name = each_ucd[len(ucd_customer_dir)+1:][:-5]
+    #         ucd_dict["customer"].append(each_ucd_name)
+
     return jsonify(ucd_dict)
 
 @app.route("/ucd/delete/<ucd_name>", methods=["DELETE"])

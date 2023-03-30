@@ -78,12 +78,12 @@ class FileOperationUtil(object):
                         _, end_str = os.path.splitext(tmp_file_path)
                         if end_str not in endswitch:
                             continue
+
+                    if func is None:
+                        yield tmp_file_path
                     else:
-                        if func is None:
+                        if func(tmp_file_path):
                             yield tmp_file_path
-                        else:
-                            if func(tmp_file_path):
-                                yield tmp_file_path
         else:
             # 递归，不返回列表
             for i, j, k in os.walk(file_path):

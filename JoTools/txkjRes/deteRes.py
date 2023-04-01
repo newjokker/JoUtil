@@ -392,6 +392,21 @@ class DeteRes(ResBase, ABC):
         # todo 会生成两个文件 （1）classes.txt 存放类别信息 （2）文件名.txt 存放标注信息，tag mx my w h , mx my 为中心点坐标
         pass
 
+    def save_to_yolo_txt(self, txt_path):
+        # 没有结果生成空的 txt
+        if not (self.width > 0 and self.height > 0):
+            raise ValueError("need self.width and self.height")
+
+        with open(txt_path, "w") as txt_file:
+            for obj in self._alarms:
+                w_r = (obj.x2 - obj.x1)/self.width
+                h_r = (obj.y2 - obj.y1)/self.height
+                cx = (obj.x1 + (obj.x2 - obj.x1) * 0.5) / self.width
+                cy = (obj.y1 + (obj.y2 - obj.y1) * 0.5) / self.height
+                label = obj.tag
+                txt_file.write("{0} {1} {2} {3} {4}".format(label, cx, cy, w_r, h_r))
+                txt_file.write("\n")
+
     # @DecoratorUtil.time_this
     def crop_dete_obj(self, save_dir, augment_parameter=None, method=None, exclude_tag_list=None, split_by_tag=False, include_tag_list=None, assign_img_name=None, save_augment=False):
         """将指定的类型的结果进行保存，可以只保存指定的类型，命名使用标准化的名字 fine_name + tag + index, 可指定是否对结果进行重采样，或做特定的转换，只要传入转换函数

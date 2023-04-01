@@ -9,6 +9,7 @@ from JoTools.utils.FileOperationUtil import FileOperationUtil
 xml_dir = r"C:\Users\14271\Desktop\result_xml"
 res_dir = r"C:\Users\14271\Desktop\txt_dir"
 
+
 index = 0
 for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=[".xml"]):
     index += 1

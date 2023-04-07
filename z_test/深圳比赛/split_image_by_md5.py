@@ -2,6 +2,8 @@
 # -*- author: jokker -*-
 
 import os
+import shutil
+
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.utils.HashlibUtil import HashLibUtil
 
@@ -19,8 +21,8 @@ if __name__ == "__main__":
 
 
     # -----------------------------------------------------
-    img_dir = r"C:\Users\14271\Desktop\del\del"
-    save_dir = r"C:\Users\14271\Desktop\img_split"
+    img_dir = r"C:\Users\14271\Desktop\img_split\img_all"
+    save_dir = r"C:\Users\14271\Desktop\img_split\split"
     # -----------------------------------------------------
 
 
@@ -28,20 +30,17 @@ if __name__ == "__main__":
     save_path_1 = os.path.join(save_dir, "1")
     save_path_2 = os.path.join(save_dir, "2")
 
+    save_path_dict = {"0": save_path_0, "1":save_path_1, "2":save_path_2}
+
     os.makedirs(save_path_0, exist_ok=True)
     os.makedirs(save_path_1, exist_ok=True)
     os.makedirs(save_path_2, exist_ok=True)
 
 
     img_map = {"0":[], "1":[], "2":[]}
-    for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=[".jpg", ".JPG", ".png", ".PNG"]):
-        each_name = FileOperationUtil.bang_path(each_img_path)[1]
-        # FIXME 这边比 ubuntu 运行的版本少了 decode 看看分出来的结果是不是一样的
+    for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=[".jpg", ".JPG", ".png", ".PNG", ".jpeg"]):
+        each_name = os.path.split(each_img_path)[1]
         md5_str = HashLibUtil.get_str_md5(each_name)
         index = get_index_from_md5(md5_str)
-        img_map[str(index)].append(each_img_path)
-
-    FileOperationUtil.move_file_to_folder(img_map["0"], save_path_0, is_clicp=True)
-    FileOperationUtil.move_file_to_folder(img_map["1"], save_path_1, is_clicp=True)
-    FileOperationUtil.move_file_to_folder(img_map["2"], save_path_2, is_clicp=True)
-
+        each_save_path = os.path.join(save_path_dict[str(index)], each_name + ".jpg")
+        shutil.move(each_img_path, each_save_path)

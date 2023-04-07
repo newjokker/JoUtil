@@ -15,7 +15,11 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=[".xml"]):
     index += 1
     print(index, each_xml_path)
     dete_res = DeteRes(each_xml_path)
-    each_txt_path = os.path.join(res_dir, FileOperationUtil.bang_path(each_xml_path)[1] + ".txt")
+    each_txt_path = os.path.join(res_dir, FileOperationUtil.bang_path(each_xml_path)[1] + ".TXT")
+
+    if(dete_res.width == -1) or (dete_res.height == -1):
+        dete_res.width = 100
+        dete_res.height = 100
     dete_res.save_to_yolo_txt(each_txt_path)
 
 

@@ -113,9 +113,10 @@ def get_version_list():
     version_list = []
     version_dict = {}
 
-    for each_so_path in FileOperationUtil.re_all_file(ucd_app_dir, endswitch=[".so"]):
-        so_name = FileOperationUtil.bang_path(each_so_path)[1]
-        version = so_name[15:]
+    for each_so_path in FileOperationUtil.re_all_file(ucd_app_dir):
+        so_name = os.path.split(each_so_path)[1]
+        print(so_name)
+        version = so_name[4:]
         version_index_list = version[1:].split(".")
         version_index  = int(version_index_list[0]) * 1000000 + int(version_index_list[1]) * 1000 + int(version_index_list[2])
         version_dict[version_index] = version
@@ -123,11 +124,11 @@ def get_version_list():
     index_list = sorted(version_dict.keys())
     for each_index in index_list:
         version_str = version_dict[each_index]
-        so_path = os.path.join(ucd_app_dir, "libsaturntools_{0}.so".format(version_str))
+        # so_path = os.path.join(ucd_app_dir, "libsaturntools_{0}.so".format(version_str))
         no_so_path = os.path.join(ucd_app_dir, "ucd_" + version_str)
 
         # 当 so 文件和对应的文件都存在的时候，才算一个版本
-        if os.path.exists(so_path) and os.path.exists(no_so_path):
+        if os.path.exists(no_so_path):
             version_list.append(version_dict[each_index])
 
     return version_list

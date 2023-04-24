@@ -143,16 +143,18 @@ def get_ucd_version_list():
 def get_ucd_app(ucd_version):
     # /ucd_app/so_v1.5.4 就是下载 so 文件，否则就是下载 执行文件
 
-    if str(ucd_version).startswith("so_"):
-        is_so = True
-        ucd_version = ucd_version[3:]
-    else:
-        is_so = False
+    # if str(ucd_version).startswith("so_"):
+    #     is_so = True
+    #     ucd_version = ucd_version[3:]
+    # else:
+    #     is_so = False
+    #
+    # if is_so:
+    #     ucd_app_path = os.path.join(ucd_app_dir, "libsaturntools_{0}.so".format(ucd_version))
+    # else:
+    #     pass
 
-    if is_so:
-        ucd_app_path = os.path.join(ucd_app_dir, "libsaturntools_{0}.so".format(ucd_version))
-    else:
-        ucd_app_path = os.path.join(ucd_app_dir, "ucd_" + ucd_version)
+    ucd_app_path = os.path.join(ucd_app_dir, "ucd_" + ucd_version)
 
     print(ucd_app_path)
 

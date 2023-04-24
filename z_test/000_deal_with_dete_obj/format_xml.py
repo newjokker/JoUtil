@@ -1,23 +1,27 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
-
+import os.path
+import shutil
 import sys
 import argparse
-from JoTools.txkjRes.deteRes import DeteRes,DeteObj
+import os
 from JoTools.utils.FileOperationUtil import FileOperationUtil
+from JoTools.utils.HashlibUtil import HashLibUtil
 
-xml_dir = r"C:\Users\14271\Desktop\配网比赛\xml"
-save_dir = r"C:\Users\14271\Desktop\配网比赛\xml_res"
+
+xml_dir = r"C:\Users\14271\Desktop\del\save_img\img"
+save_dir = r"C:\Users\14271\Desktop\del\save_img\rename"
 
 index = 0
-for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.xml']):
-
-    a = DeteRes(each_xml_path)
-    a.angle_obj_to_obj()
-    a.save_to_xml(each_xml_path)
-
+for each_img_path in FileOperationUtil.re_all_file(xml_dir, endswitch=['.jpg', '.JPG', '.png', '.PNG']):
     index += 1
-    print(index, each_xml_path)
+    print(index, each_img_path)
+    md5 = HashLibUtil.get_file_md5(each_img_path)
+    suffix = FileOperationUtil.bang_path(each_img_path)[2]
+    save_path = os.path.join(save_dir, md5 +  suffix)
+    shutil.move(each_img_path, save_path)
+
+
 
 
 

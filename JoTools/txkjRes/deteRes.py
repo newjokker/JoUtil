@@ -817,7 +817,7 @@ class DeteRes(ResBase, ABC):
                 color_dict[each_res.tag] = each_color
 
             tl = line_thickness or int(round(0.001 * max(img.shape[0:2])))      # line thickness
-            tf = max(tl - 2, 1)                                                 # font thickness
+            tf = max(tl - 2, 2)                                                 # font thickness
             #
             s_size = cv2.getTextSize(str('{:.0%}'.format(float(each_res.conf))), 0, fontScale=float(tl) / 3, thickness=tf)[0]
             t_size = cv2.getTextSize(each_res.tag, 0, fontScale=float(tl) / 3, thickness=tf)[0]

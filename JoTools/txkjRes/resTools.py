@@ -74,6 +74,20 @@ class ResTools(object):
         return cover_index
 
     @staticmethod
+    def cal_iou_2(obj_1, obj_2):
+        # FIXME 未测试
+        # box1, box2: 两个矩形的坐标，格式为[x1, y1, x2, y2]
+        x1 = max(obj_1.x1, obj_2.x1)
+        y1 = max(obj_1.y1, obj_2.y1)
+        x2 = min(obj_1.x2, obj_2.x2)
+        y2 = min(obj_1.y2, obj_2.y2)
+        inter_area = max(0, x2 - x1 + 1) * max(0, y2 - y1 + 1)
+        box1_area = (obj_1.x2 - obj_1.x1 + 1) * (obj_1.y2 - obj_1.y1 + 1)
+        box2_area = (obj_2.x2 - obj_2.x1 + 1) * (obj_2.y2 - obj_2.y1 + 1)
+        iou = inter_area / float(box1_area + box2_area - inter_area)
+        return iou
+
+    @staticmethod
     def polygon_iou(poly_points_list_1, poly_points_list_2):
         """计算任意两个凸多边形之间的 IOU"""
         #
@@ -129,6 +143,26 @@ class ResTools(object):
         else:
             return False
 
+    @staticmethod
+    def point_in_polygon(point, polygon):
+        # FIXME 未测试
+        # point: 要判断的点的坐标，格式为[x, y]
+        # polygon: 多边形的顶点坐标，格式为[[x1, y1], [x2, y2], ... [xn, yn]]
+        x, y = point
+        inside = False
+        n = len(polygon)
+        p1x, p1y = polygon[0]
+        for i in range(1, n + 1):
+            p2x, p2y = polygon[i % n]
+            if y > min(p1y, p2y):
+                if y <= max(p1y, p2y):
+                    if x <= max(p1x, p2x):
+                        if p1y != p2y:
+                            xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                        if p1x == p2x or x <= xinters:
+                            inside = not inside
+            p1x, p1y = p2x, p2y
+        return inside
 
 
 

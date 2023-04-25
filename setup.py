@@ -13,17 +13,17 @@ from setuptools import setup, find_packages
 setup(
 
     name='JoUtil',                                                                          # 打包起来的包的文件名
-    version='1.1.4',                                                                        # 版本
+    version='1.2.1',                                                                        # 版本
     description='a tools for TXKJ algo',                                                    # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
     url='https://github.com/newjokker/JoUtil.git',
     requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash', 'prettytable', 'progress',
               'progressbar', 'requests', 'imageio', 'pyexiv2', 'cv2', 'exifread', 'whatimage', 'pyheif',
-              'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'flask'
+              'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'flask', 'shapely'
               ],          # 定义依赖哪些模块
     # 打包的python文件夹AZ
-    packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes',
+    packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes', 'JoTools/ml',
               'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war',
               ],
     # packages=find_packages('JoTools'),          # 包含所有 JoTools 中的包

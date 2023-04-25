@@ -115,7 +115,7 @@ class DeteAcc(object):
 
         # 保存图片
         if save_img:
-            dete_res_standard.img_path = assign_img_path
+            dete_res_standard.imgPath = assign_img_path
             dete_res_standard.draw_dete_res(save_path, color_dict=self.color_dict)
         # 保存 xml
         if save_xml:

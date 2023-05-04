@@ -11,6 +11,7 @@ from .segmentObj import SegmentObj
 import numpy as np
 from skimage.measure import find_contours
 from PIL import Image
+import random
 
 # todo 指定输出 mask 的格式，如何将每个 mask obj 对应到 label 上去, 因为寻找外轮廓的时候 是从值小点的到值大的这么个顺序找的，所以只要记录下
 # todo mask 试一下不要写为 bool 类型的，而是写为 int 类型的，最多 255 对象，每个对象一个值，这样说不定找边缘的时候就能分开了
@@ -251,6 +252,33 @@ class SegmentRes(object):
 
         if not self.img:
             raise ValueError("self.img_path self.img self.img_data all empty")
+
+    def draw_segment_res(self, save_path):
+
+        mask = self.mask
+
+        print(mask.shape)
+        print(self.image_data.shape)
+
+        overlay = self.image_data
+        overlay[mask>0, :] = [random.randint(1, 255), random.randint(1, 255), random.randint(1, 255)]
+
+        # print(overlay.shape)
+
+        # self.image_data = cv2.addWeighted(self.image_data, 1, overlay, 0.5, 0)
+
+        # mask = mask.astype(np.int)
+        # mask = mask * 255
+        # mask = mask.astype(np.uint8)
+        #
+        #
+        # # 找到轮廓
+        # contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #
+        # # 画出轮廓
+        # cv2.drawContours(self.image_data, contours, -1, (0, 0, 255), 1)
+        #
+        cv2.imwrite(save_path, overlay)
 
 
 class SegmentOpt():

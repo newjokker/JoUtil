@@ -37,7 +37,9 @@ class HashLibUtil(object):
     @staticmethod
     def get_str_md5(assign_str):
         md5 = hashlib.md5()
-        md5.update(assign_str.encode('utf-8'))
+        # md5.update(assign_str.encode('utf-8'))
+        # 不要在里面 encode 有些数据类型会报错
+        md5.update(assign_str)
         return md5.hexdigest()
 
     @staticmethod

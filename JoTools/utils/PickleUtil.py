@@ -4,12 +4,14 @@
 import pickle
 import uuid
 import os
+import base64
 from tempfile import NamedTemporaryFile
+import hashlib
 
 try:
     from cryptography.fernet import Fernet
 except ImportError:
-    print("import cryptography error : PickleUtil")
+    print('\x1b[1;31m' + 'import cryptography error : PickleUtil' + '\033[0m')
 
 
 class PickleUtil(object):
@@ -25,7 +27,14 @@ class PickleUtil(object):
             pickle.dump(data, pickle_file)
 
     @staticmethod
-    def encrypt_pickle(pkl_path, save_path, assign_key=b'OoxJ5trGpWprm9GAZqP0iHo6xdjEqMapOe3EDZ-r3QU='):
+    def _get_key(key_str):
+        key = key_str.encode()
+        return base64.urlsafe_b64encode(hashlib.sha256(key).digest())
+
+    @staticmethod
+    def encrypt_pickle(pkl_path, save_path, assign_key='jokker'):
+
+        assign_key = PickleUtil._get_key(assign_key)
         cipher = Fernet(assign_key)
 
         # 加密 pickle 文件
@@ -38,12 +47,17 @@ class PickleUtil(object):
         return assign_key
 
     @staticmethod
-    def decrypt_pickle(pkl_path, assign_key=b'OoxJ5trGpWprm9GAZqP0iHo6xdjEqMapOe3EDZ-r3QU='):
+    def decrypt_pickle(pkl_path, assign_key='jokker'):
+        assign_key = PickleUtil._get_key(assign_key)
         cipher = Fernet(assign_key)
 
         # 解密加密的 pickle 文件
-        with open(pkl_path, 'rb') as f:
-            decrypted_data = cipher.decrypt(f.read())
+        try:
+            with open(pkl_path, 'rb') as f:
+                decrypted_data = cipher.decrypt(f.read())
+        except Exception as e:
+            print('\x1b[1;31m' + 'InvalidToken, 密码错误' + '\033[0m')
+            return None
 
         # 使用临时文件存贮中间文件
         with NamedTemporaryFile(mode='w+b') as f:
@@ -66,9 +80,9 @@ if __name__ == '__main__':
 
     PickleUtil.save_data_to_pickle_file(a, pickle_path)
 
-    PickleUtil.encrypt_pickle(pickle_path, pickle_path)
+    PickleUtil.encrypt_pickle(pickle_path, pickle_path, "default_key")
 
-    res = PickleUtil.decrypt_pickle(pickle_path)
+    res = PickleUtil.decrypt_pickle(pickle_path, "default_key")
 
     res.print_as_fzc_format()
 

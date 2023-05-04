@@ -4,6 +4,8 @@
 import pickle
 import uuid
 import os
+from tempfile import NamedTemporaryFile
+
 try:
     from cryptography.fernet import Fernet
 except ImportError:
@@ -33,58 +35,42 @@ class PickleUtil(object):
         # 保存加密的文件
         with open(save_path, 'wb') as f:
             f.write(encrypted_data)
-
         return assign_key
 
     @staticmethod
-    def decrypt(pkl_path, save_path=None, assign_key=b'OoxJ5trGpWprm9GAZqP0iHo6xdjEqMapOe3EDZ-r3QU='):
+    def decrypt_pickle(pkl_path, assign_key=b'OoxJ5trGpWprm9GAZqP0iHo6xdjEqMapOe3EDZ-r3QU='):
         cipher = Fernet(assign_key)
-        file_dir, file_name = os.path.split(pkl_path)
+
         # 解密加密的 pickle 文件
         with open(pkl_path, 'rb') as f:
             decrypted_data = cipher.decrypt(f.read())
 
-        # 保存解密后的数据为新文件
-        if save_path:
-            locked_file_path = save_path
-        else:
-            locked_file_path = os.path.join(file_dir, "locked_" + str(uuid.uuid1()) + file_name)
-
-        with open(locked_file_path, 'wb') as f:
+        # 使用临时文件存贮中间文件
+        with NamedTemporaryFile(mode='w+b') as f:
             f.write(decrypted_data)
-
-        # 反序列化解密后的数据
-        with open(locked_file_path, 'rb') as f:
+            f.seek(0)
             data = pickle.load(f)
-
-        # 删除缓存文件
-        if os.path.exists(locked_file_path) and (locked_file_path is None):
-            os.remove(locked_file_path)
 
         return data
 
+
 if __name__ == '__main__':
 
-    # from JoTools.txkjRes.deteRes import DeteRes
-    #
-    # a = DeteRes(r"C:\Users\14271\Desktop\del\gt_xml\005305_jpg.rf.4bfbcf630358ee01c2a6a2c1da620f63.xml")
-    #
-    # a.print_as_fzc_format()
-    #
+    from JoTools.txkjRes.deteRes import DeteRes
+
+    a = DeteRes(r"C:\Users\14271\Desktop\del\gt_xml\005305_jpg.rf.4bfbcf630358ee01c2a6a2c1da620f63.xml")
+
+    a.print_as_fzc_format()
+
     pickle_path = r'C:\Users\14271\Desktop\a.pkl'
-    pickle_path_new = r'C:\Users\14271\Desktop\b.pkl'
 
-    # PickleUtil.save_data_to_pickle_file(a, pickle_path)
-    #
-    # PickleUtil.encrypt_pickle(pickle_path, pickle_path)
-    #
-    # PickleUtil.decrypt(pickle_path, pickle_path_new)
+    PickleUtil.save_data_to_pickle_file(a, pickle_path)
 
-    data = PickleUtil.load_data_from_pickle_file(pickle_path_new)
+    PickleUtil.encrypt_pickle(pickle_path, pickle_path)
 
-    data.print_as_fzc_format()
+    res = PickleUtil.decrypt_pickle(pickle_path)
 
-    print(data.__doc__)
+    res.print_as_fzc_format()
 
 
 

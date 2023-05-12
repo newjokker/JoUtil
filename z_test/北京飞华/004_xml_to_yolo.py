@@ -23,15 +23,6 @@ for each_xml_path in FileOperationUtil.re_all_file(xml_dir, endswitch=[".xml"]):
     dete_res.save_to_yolo_txt(each_txt_path, tag_map)
 
 
-    # dete_res.do_nms(threshold=0.1, ignore_tag=False)
-
-    # # dete_res.filter_by_conf()
-    # #
-    # dete_res.filter_by_tags(remove_tag=["hmj", "qz", "gz", "ydb"], update=True)
-    #
-    # dete_res.reset_alarms()
-    #
-
 
 
 

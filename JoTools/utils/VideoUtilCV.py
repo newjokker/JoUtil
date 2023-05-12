@@ -45,10 +45,12 @@ class VideoUtilCV(object):
                 break
 
             try:
-                each_save_path = os.path.join(save_dir, '{0}_{1}.jpg'.format(vedio_name, str(index).rjust(3, '0')))
+                each_save_path = os.path.join(save_dir, '{0}_{1}.jpg'.format(vedio_name, str(index).rjust(8, '0')))
                 if StrUtil.contain_zh(each_save_path):
                     raise ValueError("save path contain chinese : {0}".format(each_save_path))
                 cv2.imwrite(each_save_path, img[1])  # 将数据写到本地
+                # 或者直接保存到临时文件中去就行
+                yield each_save_path
             except Exception as e:
                 print("error : {0} {1}".format(e, img))
 
@@ -174,14 +176,14 @@ if __name__ == '__main__':
 
     out_path = r"C:\Users\14271\Desktop\test_vedio_all_005.avi"
     img_folder = r"C:\Users\14271\Desktop\all_005"
-    # a.write_vedio(FileOperationUtil.re_all_file(save_folder), out_path, assign_fps=5, assign_size=(640, 480))
+    a.write_vedio(FileOperationUtil.re_all_file(save_folder), out_path, assign_fps=5, assign_size=(640, 480))
 
-    file_list = FileOperationUtil.re_all_file(img_folder)
-
-    # file_list = file_list[::-1]
-
-    VideoUtilCV.write_vedio(file_list, out_path, assign_fps=15)
-
+    # file_list = FileOperationUtil.re_all_file(img_folder)
+    #
+    # # file_list = file_list[::-1]
+    #
+    # VideoUtilCV.write_vedio(file_list, out_path, assign_fps=15)
+    #
 
 
 

@@ -387,12 +387,7 @@ class DeteRes(ResBase, ABC):
         json_dict['object'] = JsonUtil.save_data_to_json_str(json_object)
         return json_dict
 
-    def save_to_txt(self, txt_path):
-        """label img 中会将标注信息转为 txt 进行保存"""
-        # todo 会生成两个文件 （1）classes.txt 存放类别信息 （2）文件名.txt 存放标注信息，tag mx my w h , mx my 为中心点坐标
-        pass
-
-    def save_to_yolo_txt(self, txt_path):
+    def save_to_yolo_txt(self, txt_path, tag_dict):
         # 没有结果生成空的 txt
         if not (self.width > 0 and self.height > 0):
             raise ValueError("need self.width and self.height")
@@ -403,7 +398,7 @@ class DeteRes(ResBase, ABC):
                 h_r = (obj.y2 - obj.y1)/self.height
                 cx = (obj.x1 + (obj.x2 - obj.x1) * 0.5) / self.width
                 cy = (obj.y1 + (obj.y2 - obj.y1) * 0.5) / self.height
-                label = obj.tag
+                label = str(tag_dict[obj.tag])
                 txt_file.write("{0} {1} {2} {3} {4}".format(label, cx, cy, w_r, h_r))
                 txt_file.write("\n")
 
@@ -1451,7 +1446,7 @@ class DeteRes(ResBase, ABC):
 
         # 保存 xml
         if save_name is None:
-            loc_str = "[{0}_{1}_{2}_{3}]".format(assign_range[0], assign_range[1], assign_range[2], assign_range[3])
+            loc_str = "[{0},{1},{2},{3},{4},{5},{6}]".format(assign_range[0], assign_range[1], assign_range[2], assign_range[3], "bbox", -1, -1)
             save_name = os.path.split(self.xml_path)[1].strip('.xml')+ '-+-' + loc_str
 
         xml_save_dir = os.path.join(save_dir, 'Annotations')
@@ -1522,6 +1517,30 @@ class DeteRes(ResBase, ABC):
                     obj3 = ResTools.fuse_objs(obj1,obj2,tag3)
                     self.add_obj_2(obj3)
         self.filter_by_tags(remove_tag = ['deleteObj'])
+
+    def get_bounding_box(self):
+        """获取外接矩形"""
+        x1, y1 = max(self.width, 10000000000000000000), max(self.height, 10000000000000000000)
+        x2, y2 = -1, -1
+
+        if len(self._alarms) == 0:
+            raise ValueError("* need at leat one dete_obj")
+
+        for obj in self._alarms:
+            if x1 >= obj.x1:
+                x1 = obj.x1
+
+            if y1 >= obj.y1:
+                y1 = obj.y1
+
+            if x2 <= obj.x2:
+                x2 = obj.x2
+
+            if y2 <= obj.y2:
+                y2 = obj.y2
+
+        dete_obj = DeteObj(x1=x1, y1=y1, x2=x2, y2=y2, tag="bounding_box", conf=1)
+        return dete_obj
 
     def filter_tag1_by_tag2_with_nms(self,tag1,tag2,threshold=0.5):
         tag1_list = self.filter_by_tags(remove_tag = tag1)

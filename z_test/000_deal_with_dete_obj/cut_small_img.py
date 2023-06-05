@@ -49,11 +49,9 @@ if __name__ == "__main__":
         OperateDeteRes.crop_imgs(args.img_dir, args.xml_dir, args.save_dir, split_by_tag=args.split_by_tag, augment_parameter=augment_parameter,
                                  exclude_tag_list=exclude_tag_list, include_tag_list=include_tag_list)
     else:
-        img_dir = r"/home/suanfa-1/jtm/ST_data/ParallelEnhance_model/2022-wh6-8-10yue/part1_crop_in_prebase/crop_res/JPEGImages"
-        # xml_dir = r"E:\多标签分类\jyz_test\Annotations"
-        xml_dir = r"/home/suanfa-1/ldq/wuhan_crop/res_xml"
-        # xml_dir = r"E:\多标签分类\jyz_test\an_test"
-        save_dir = r"/home/suanfa-1/ldq/wuhan_crop/crop_test"
+        img_dir = r"C:\Users\14271\Desktop\img_dir_dete"
+        xml_dir = r"C:\Users\14271\Desktop\img_dir_dete"
+        save_dir = r"C:\Users\14271\Desktop\crop_gzf"
         OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, save_augment=True,)
         # OperateDeteRes.crop_imgs(img_dir, xml_dir, save_dir, split_by_tag=True, augment_parameter=[0.15, 0.15, 0.15, 0.15], save_augment=True, include_tag_list=["bljyz", "tcjyz"])
 

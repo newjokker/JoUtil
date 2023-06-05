@@ -6,11 +6,11 @@ import shutil
 from JoTools.utils.VideoUtilCV import VideoUtilCV
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
-vedio_dir = r"C:\Users\14271\Desktop\北京飞华\004_demo_使用的视频\001_原始视频"
-save_dir = r"C:\Users\14271\Desktop\temp\demo"
+vedio_dir = r"F:\0530\0522终端采集设备视频收集\电池欠压换表（丰台六里桥）\new"
+save_dir = r"C:\Users\14271\Desktop\temp"
 
 
-for each_vedio_path in FileOperationUtil.re_all_file(vedio_dir, endswitch=[".mp4"]):
+for each_vedio_path in FileOperationUtil.re_all_file(vedio_dir, endswitch=[".mp4", ".MOV", ".AVI"]):
 
     print("* ", each_vedio_path)
     dir_name, file_name = os.path.split(each_vedio_path)
@@ -23,7 +23,7 @@ for each_vedio_path in FileOperationUtil.re_all_file(vedio_dir, endswitch=[".mp4
     else:
         os.makedirs(save_folder)
 
-    for each in VideoUtilCV.get_img_from_vedio(each_vedio_path, save_folder, sep=1, start_index=0):
+    for each in VideoUtilCV.get_img_from_vedio(each_vedio_path, save_folder, sep=10, start_index=0):
         print(each)
 
 

@@ -5,7 +5,7 @@ from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
-xml_dir = r"C:\Users\14271\Desktop\北京飞华\del\demo_xml"
+xml_dir = r"C:\Users\14271\Desktop\北京飞华\010_鞋子视频检测\001_视频截图_用于测试\add\img_xml"
 
 # save_dir = r"C:\Users\14271\Desktop\img_xml\people"
 

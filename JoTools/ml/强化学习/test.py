@@ -1,41 +1,95 @@
-import gym
 import numpy as np
+import pandas as pd
+import time
 
-env = gym.make('FrozenLake-v1')
+np.random.seed(2)#随机种子
 
-# 设置超参数
-alpha = 0.1  # 学习率
-gamma = 0.99  # 折扣率
-epsilon = 0.1  # ε-greedy算法中的ε
-q_table = np.zeros([env.observation_space.n, env.action_space.n])  # 初始化Q表
+N_STATES = 6 #状态个数
+ACTIONS = ['left','right']#可选择的动作
+EPSLION = 0.9 #greedy  随机选择的几率，增加不确定性，利于发现更好的路
+ALPHA = 0.1 #学习率
+LAMBDA = 0.9 #对于奖励的衰减率
+MAX_EPISODES = 13 #学习的回合数
+FRESH_TIME = 0.01#每步的刷新时间
 
-# 训练模型
-for i_episode in range(1000):
-    state = env.reset()[0]
-    for t in range(100):
-        env.render()
-        if np.random.uniform(0, 1) < epsilon:
-            action = env.action_space.sample()
+def build_q_table(n_states, actions):#创建q表，初始全零，空白小本本
+    table = pd.DataFrame(
+        np.zeros((n_states,len(actions))),
+        columns= actions
+    )
+    print(table)
+    return table
+
+
+def choose_action(state,q_table):#每一步选择怎么走（动作）
+    state_actions = q_table.iloc[state,:]
+    if (np.random.uniform()>EPSLION) or (state_actions.all() == 0): #如果是随机选择或者是最初始的状态
+        action_name = np.random.choice(ACTIONS)
+    else:
+        action_name = state_actions.idxmax()#选择最大的
+    return action_name
+
+
+
+def get_env_feedback(S,A):#环境的反馈
+    if A=='right':
+        if S==N_STATES-1:#最终状态
+            S_ = 'terminal'
+            R = 1
         else:
-            action = np.argmax(q_table[state, :])
-        next_state, reward, done, info = env.step(action)
-        q_table[state, action] = (1 - alpha) * q_table[state, action] + alpha * (
-                reward + gamma * np.max(q_table[next_state, :]))
-        state = next_state
-        if done:
-            print("Episode finished after {} timesteps".format(t + 1))
-            break
+            S_ = S+1
+            R = 0
+    else:
+        R=0
+        if S==0:
+            S_ = S
+        else:
+            S_ = S-1
+    return S_,R
 
-# 测试模型
-total_reward = 0
-state = env.reset()
-while True:
-    env.render()
-    action = np.argmax(q_table[state, :])
-    state, reward, done, info = env.step(action)
-    total_reward += reward
-    if done:
-        print("Total reward:", total_reward)
-        break
 
-env.close()
+def update_env(S, episode , step_counter):#环境的更新，初学者可以不看
+
+    env_list = ['-']*(N_STATES-1)+['T']
+    if S == 'terminal':
+        interaction = 'episode %s: total_steps = %s' %(episode+1,step_counter)
+        print('\r{}'.format(interaction),end="")
+        time.sleep(2)
+        print('\r                          ',end="")
+    else:
+        env_list[S] = 'o'
+        interaction = ''.join(env_list)
+        print('\r{}'.format(interaction), end="")
+        time.sleep(FRESH_TIME)
+
+
+def rl():#主循环
+    q_table = build_q_table(N_STATES,ACTIONS)#创建表
+
+    for episode in range(MAX_EPISODES):#每个回合
+        step_counter = 0
+        S = 0#初始化
+        is_terminal = False
+        update_env(S,episode,step_counter)
+        while not is_terminal:#一直循环找路
+
+            A = choose_action(S,q_table)#选择动作
+            S_,R = get_env_feedback(S,A)#下一个状态和回报
+            q_predict = q_table.loc[S,A] #估计值-Q表中的
+            if S_ != 'terminal':
+                q_target = R+LAMBDA*q_table.iloc[S_,:].max()#实际值
+            else:
+                q_target = R#到终点了
+                is_terminal = True
+
+            q_table.loc[S,A]+=ALPHA*(q_target-q_predict)#更新小本本
+            S = S_
+            print(q_table)
+            update_env(S,episode,step_counter+1)
+            step_counter+=1
+    return q_table
+
+if __name__ == '__main__':
+    q_table = rl()
+    print('\r\nQ_TALBE:\n')
+    print(q_table)

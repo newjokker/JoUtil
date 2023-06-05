@@ -38,7 +38,7 @@ class PostUtil():
     def post_feihua(post_url='http://192.168.3.221:5001/dete', each_img_path="", model_name="gzf"):
         """北京飞华项目"""
         headers = {'Content-Type': 'text/plain'}
-        img_base_64 = img_to_base64(each_img_path)
+        img_base_64 = PostUtil.img_to_base64(each_img_path)
         payload = {
             "image": img_base_64,
             "uuid": "abad6a3f-8a98-41ad-8c59-0960def9e03d",
@@ -59,7 +59,7 @@ class PostUtil():
         return dete_res
 
     @staticmethod
-    def post_v0(post_url='http://192.168.3.221:' + str(port) + '//' + 'dete', img_path="", model_list="nc,kkx"):
+    def post_v0(post_url='http://192.168.3.221:11223/dete', img_path="", model_list="nc,kkx"):
         files = {'image': open(img_path, 'rb')}
         data = {'image_name': "test_name", "model_list": ",".join(model_list)}
         res = requests.post(url=post_url, json=data, files=files)

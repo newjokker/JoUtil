@@ -839,7 +839,7 @@ class DeteRes(ResBase, ABC):
                 # cv2.fillPoly(img, [pts], color=[0,0,255])
 
         # 保存图片，解决保存中文乱码问题
-        if save_path is not None:
+        if save_path is not None and save_path != "":
             cv2.imencode('.jpg', img)[1].tofile(save_path)
         return img
 
@@ -1129,6 +1129,29 @@ class DeteRes(ResBase, ABC):
             return self
         else:
             return new_dete_res
+
+    def keep_only_by_conf(self, update=True, method="max"):
+        # 只保留置信度最大的那个 obj
+        if len(self._alarms) <= 0:
+            raise ValueError("obj <= 0")
+        else:
+            temp = self.deep_copy(copy_img=False)
+            if method == "max":
+                temp.sort_by_func(lambda x:x.conf, reverse=True)
+            else:
+                temp.sort_by_func(lambda x:x.conf, reverse=False)
+            temp.reset_alarms([temp.alarms[0]])
+            if update:
+                self._alarms = temp.alarms
+                return self
+            else:
+                return temp
+
+    def keep_only_by_conf_max(self, update=True):
+        return self.keep_only_by_conf(update, method="max")
+
+    def keep_only_by_conf_min(self, update=True):
+        return self.keep_only_by_conf(update, method="min")
 
     # ----------------------------------------------- useful -----------------------------------------------------------
 

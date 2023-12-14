@@ -48,14 +48,14 @@ if __name__ == "__main__":
 
 
     vedio_to_img(r"G:\北京飞华\飞华_0616_12\10", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_10")
-    vedio_to_img(r"G:\北京飞华\飞华_0616_12\11", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_11")
-    vedio_to_img(r"G:\北京飞华\飞华_0616_12\12", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_12")
-    vedio_to_img(r"G:\北京飞华\飞华_0616_12\13", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_13")
-    vedio_to_img(r"G:\北京飞华\飞华_0616_12\14", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_14")
-    vedio_to_img(r"G:\北京飞华\飞华_0616_12\15", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_15")
-
-    vedio_to_img(r"G:\北京飞华\飞华_0616_02\09", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_02_09")
-    vedio_to_img(r"G:\北京飞华\飞华_0616_02\10", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_02_10")
+    # vedio_to_img(r"G:\北京飞华\飞华_0616_12\11", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_11")
+    # vedio_to_img(r"G:\北京飞华\飞华_0616_12\12", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_12")
+    # vedio_to_img(r"G:\北京飞华\飞华_0616_12\13", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_13")
+    # vedio_to_img(r"G:\北京飞华\飞华_0616_12\14", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_14")
+    # vedio_to_img(r"G:\北京飞华\飞华_0616_12\15", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_12_15")
+    #
+    # vedio_to_img(r"G:\北京飞华\飞华_0616_02\09", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_02_09")
+    # vedio_to_img(r"G:\北京飞华\飞华_0616_02\10", r"C:\Users\14271\Desktop\temp\pic_feihua_0616_02_10")
 
 
 

@@ -35,6 +35,7 @@ class JsonUtil(object):
 
 
 if __name__ == "__main__":
+
     a = {'name': 'jokker',
          'age': 45,
          'pice': 523,

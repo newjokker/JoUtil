@@ -35,7 +35,7 @@ for name in ["16", "17"]:
             #     os.makedirs(save_folder)
 
             index = 0
-            for each in VideoUtilCV.get_img_from_vedio(each_vedio_path, save_dir, sep=3, start_index=0):
+            for each in VideoUtilCV.get_img_from_vedio(each_vedio_path, save_dir, sep=1, start_index=0):
                 index += 1
                 print(each)
                 if(index > 200):

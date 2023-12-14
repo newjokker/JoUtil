@@ -39,6 +39,17 @@ class FileOperationUtil(object):
     """文件操作类"""
 
     @staticmethod
+    def find_path(folder:str, name:str, suffix_list:list):
+        res = []
+        for each_file in os.listdir(folder):
+            each_path = os.path.join(folder, each_file)
+            if os.path.isfile(each_path):
+                for each_suffix in suffix_list:
+                    if each_file == name + each_suffix:
+                        res.append(os.path.join(folder, each_file))
+        return res
+
+    @staticmethod
     def delete_folder(dir_path):
         """删除一个路径下的所有文件"""
         # todo 这个一般都是最后一步，所以如何解决删除文件报错的问题，可能是文件被程序在占用
@@ -304,7 +315,7 @@ if __name__ == "__main__":
     # for each in FileOperationUtil.re_all_file(img_dir, recurse=True):
     #     print(each)
 
-    for each in FileOperationUtil.re_all_folder(img_dir, recurse=False):
+    for each in FileOperationUtil.find_path(r"C:\Users\14271\Desktop\del", "Esg000a", [".jpg", ".json"]):
         print(each)
 
 

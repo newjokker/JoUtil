@@ -269,27 +269,27 @@ if __name__ == "__main__":
         deteResCable += a
         deteResCable.save_to_xml(os.path.join(save_dir, os.path.split(each_xml_path)[1]))
 
-        # if len(deteResCable) > 0:
-        #     deteResCable.img_path = each_img_path
-        #     save_draw_path = os.path.join(save_draw_region, os.path.split(each_xml_path)[1][:-4] + ".jpg")
-        #     draw_img = deteResCable.draw_dete_res(save_draw_path, color_dict={"black":[0,0,0], "blue":[255,0,0], "green":[0,255,0], "red":[0,0,255], "yellow":[0,255,255],
-        #                                                                       "cable_cor_dx_3_line":[0,255,0],
-        #                                                                       "cable_cor_dx_box":[0,255,0],
-        #                                                                       "cable_cor_dx_lt_3_line":[0,255,0],
-        #                                                                       "cable_cor_dx_plaque":[0,255,0],
-        #                                                                       "cable_cor_dx_rrbb_eq_4":[0,255,0],
-        #                                                                       "cable_cor_dx_rrbb_gt_4":[0,255,0],
-        #                                                                       "cable_cor_sx_yyggrr_eq_6":[0,255,0],
-        #                                                                       "cable_cor_sx_yyggrr_gt_6":[0,255,0],
-        #                                                                       "cable_err_dx_3_line":[0,0,255],
-        #                                                                       "cable_err_dx_miss_all":[0,0,255],
-        #                                                                       "cable_unkoow_error":[0,0,255],
-        #                                                                       })
-        #     deteResCable.img_ndarry = draw_img
-        #     deteResCable.filter_by_tags(remove_tag=["red", "blue", "yellow", "black", "green"])
-        #     # deteResCable.filter_by_tags(need_tag=["cable_unkoow", "cable_err_dx_miss_all", "cable_err_dx_3_line", "cable_cor_sx_yyggrr_gt_6", "cable_cor_sx_yyggrr_eq_6"])
-        #     deteResCable.crop_dete_obj(save_draw_crop, split_by_tag=True)
-        #
+        if len(deteResCable) > 0:
+            deteResCable.img_path = each_img_path
+            save_draw_path = os.path.join(save_draw_region, os.path.split(each_xml_path)[1][:-4] + ".jpg")
+            draw_img = deteResCable.draw_dete_res(save_draw_path, color_dict={"black":[0,0,0], "blue":[255,0,0], "green":[0,255,0], "red":[0,0,255], "yellow":[0,255,255],
+                                                                              "cable_cor_dx_3_line":[0,255,0],
+                                                                              "cable_cor_dx_box":[0,255,0],
+                                                                              "cable_cor_dx_lt_3_line":[0,255,0],
+                                                                              "cable_cor_dx_plaque":[0,255,0],
+                                                                              "cable_cor_dx_rrbb_eq_4":[0,255,0],
+                                                                              "cable_cor_dx_rrbb_gt_4":[0,255,0],
+                                                                              "cable_cor_sx_yyggrr_eq_6":[0,255,0],
+                                                                              "cable_cor_sx_yyggrr_gt_6":[0,255,0],
+                                                                              "cable_err_dx_3_line":[0,0,255],
+                                                                              "cable_err_dx_miss_all":[0,0,255],
+                                                                              "cable_unkoow_error":[0,0,255],
+                                                                              })
+            deteResCable.img_ndarry = draw_img
+            deteResCable.filter_by_tags(remove_tag=["red", "blue", "yellow", "black", "green"])
+            # deteResCable.filter_by_tags(need_tag=["cable_unkoow", "cable_err_dx_miss_all", "cable_err_dx_3_line", "cable_cor_sx_yyggrr_gt_6", "cable_cor_sx_yyggrr_eq_6"])
+            deteResCable.crop_dete_obj(save_draw_crop, split_by_tag=True)
+
 
 
 

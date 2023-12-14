@@ -211,7 +211,7 @@ class DeteRes(ResBase, ABC):
             if 'bndbox' in each_obj:
                 bndbox = each_obj['bndbox']
                 if not bndbox:break
-                x_min, x_max, y_min, y_max = int(bndbox['xmin']), int(bndbox['xmax']), int(bndbox['ymin']), int(bndbox['ymax'])
+                x_min, x_max, y_min, y_max = int(float(bndbox['xmin'])), int(float(bndbox['xmax'])), int(float(bndbox['ymin'])), int(float(bndbox['ymax']))
                 if 'prob' not in each_obj: each_obj['prob'] = -1
                 if 'id' not in each_obj: each_obj['id'] = -1
                 if 'des' not in each_obj: each_obj['des'] = ''

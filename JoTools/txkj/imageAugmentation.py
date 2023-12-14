@@ -174,8 +174,8 @@ class ImageAugmentation(object):
                 self.rgb_to_gray(each_img, prob=self.prob)
                 self.change_img_channel_order(each_img, order = [[2, 0, 1], [1, 2, 0]], prob=self.prob)
                 self.add_gasuss_noise(each_img, prob=self.prob)
-                self.rotation(each_img, rotation_list = [90, 180, 270], prob=self.prob)
-                self.flip(each_img, prob=self.prob)
+                #self.rotation(each_img, rotation_list = [90, 180, 270], prob=self.prob)
+                #self.flip(each_img, prob=self.prob)
         elif self.mode == 1:
             img_list = self.img_list.copy()
             img_list = self.deal_img(img_list, self.change_img_light)

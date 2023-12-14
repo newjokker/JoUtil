@@ -12,12 +12,12 @@ from JoTools.utils.VideoUtilCV import VideoUtilCV
 from saturn_lib.vggClassify import VggClassify
 
 
-img_dir = r"/home/ldq/POC/001_开始测试模型/test_ldq"
+img_dir = r"/home/ldq/POC/001_开始测试模型/test_img_dir"
 
 # ---------------------------------------------------------------------------------------------------------
 
-model_path_zyc = r"/home/ldq/POC/001_开始测试模型/models/model_zyc_0704.pt"
-model_path_lz = r"/home/ldq/POC/001_开始测试模型/models/model_lz_0704.pt"
+model_path_zyc = r"/home/ldq/POC/001_开始测试模型/models/base_0707.pt"
+model_path_lz = r"/home/ldq/POC/001_开始测试模型/models/xianxu_0707.pt"
 config_path = r"/home/ldq/POC/001_开始测试模型/models/config.ini"
 
 save_dir = img_dir + "_dete_POC"
@@ -253,11 +253,11 @@ def get_cable_type(dete_res_cable, has_box=False, drop_sililar_obj=False):
 
 # ---------------------------------------------------------------------------------------------------------
 # load model
-model_zyc = YOLOV57Detection(section="model_zyc", gpu_id=0, cfg_path=config_path, model_path=model_path_zyc)
+model_zyc = YOLOV57Detection(section="base", gpu_id=0, cfg_path=config_path, model_path=model_path_zyc)
 model_zyc.model_restore()
 
 # load model
-model_lz = YOLOV57Detection(section="model_lz", gpu_id=0, cfg_path=config_path, model_path=model_path_lz)
+model_lz = YOLOV57Detection(section="xianxu", gpu_id=0, cfg_path=config_path, model_path=model_path_lz)
 model_lz.model_restore()
 # ---------------------------------------------------------------------------------------------------------
 
@@ -299,7 +299,10 @@ for each_img_path in img_list:
 
     a = res
     a.do_nms(0.1, ignore_tag=False)
+
+    # 漏铜信息
     deteResCable = a.filter_by_tags(need_tag=["cable"], update=False)
+    deteResPatina = a.filter_by_tags(need_tag=["patina"], update=False)
 
     hasBox = a.has_tag("box")
     a.filter_by_tags(need_tag=["red", "blue", "yellow", "black", "green"], update=True)
@@ -310,7 +313,16 @@ for each_img_path in img_list:
         each_cabel_obj.tag = "cable_" + each_cable_type
 
     deteResCable += a
-    # deteResCable.filter_by_tags(remove_tag=["red", "blue", "yellow", "black", "green"])
+    deteResCable += deteResPatina
+
+    deteResCable.update_tags({
+        "cable_err_dx_miss_all":"031_jx_gy_xxysbhg",
+        "cable_unkoow_error":"031_jx_gy_xxysbhg",
+        "cable_err_dx_3_line":"031_jx_gy_xxysbhg",
+        "patina":"031_jx_gy_lt",
+    })
+
+    deteResCable.filter_by_tags(need_tag=["031_jx_gy_lt", "031_jx_gy_xxysbhg"])
     deteResCable.save_to_xml(os.path.join(save_dir, os.path.split(each_img_path)[1][:-4] + ".xml"))
     deteResCable.print_as_fzc_format()
     print("-" * 100)

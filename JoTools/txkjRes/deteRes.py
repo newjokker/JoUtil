@@ -127,7 +127,7 @@ class DeteRes(ResBase, ABC):
         """是否包含元素"""
 
         if not(isinstance(item, DeteAngleObj) or isinstance(item, DeteObj)):
-             raise TypeError("item should 被 DeteAngleObj or DeteObj")
+             raise TypeError("item should be DeteAngleObj or DeteObj")
 
         for each_dete_obj in self._alarms:
             if item == each_dete_obj:

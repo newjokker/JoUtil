@@ -2,8 +2,7 @@
 # -*- author: jokker -*-
 
 from PIL import Image
-from JoTools.operateDeteRes import OperateDeteRes
-from JoTools.txkjRes.deteRes import DeteRes, DeteObj, DeteAngleObj
+from JoTools.txkjRes.operateDeteRes import OperateDeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 

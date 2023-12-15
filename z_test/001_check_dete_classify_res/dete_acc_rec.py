@@ -3,8 +3,7 @@
 
 import sys
 import argparse
-from JoTools.operateDeteRes import OperateDeteRes, DeteAcc
-from JoTools.txkjRes.deteRes import DeteRes
+from JoTools.txkjRes.operateDeteRes import DeteAcc
 from JoTools.utils.PrintUtil import PrintUtil
 
 

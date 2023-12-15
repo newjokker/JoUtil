@@ -3,12 +3,10 @@
 
 from aip import AipFace
 import base64
-import cv2
 import time
 import os
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 from JoTools.txkjRes.deteRes import DeteRes
-from JoTools.operateDeteRes import OperateDeteRes
 
 """ 你的 APPID AK SK """
 

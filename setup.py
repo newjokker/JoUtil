@@ -1,32 +1,22 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-"""
-* pip install opencv-python : 安装 cv2
-* conda install shapely : 安装 shapely, pip 安装比较容易报错
-"""
-
-
-
 from setuptools import setup, find_packages
 
 setup(
 
     name='JoUtil',                                                                          # 打包起来的包的文件名
-    version='1.4.2',                                                                        # 版本
-    description='a tools for TXKJ algo',                                                    # 描述
+    version='1.4.3',                                                                        # 版本
+    description='a tools for Saturn dete algo',                                             # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
     url='https://github.com/newjokker/JoUtil.git',
-    # requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash', 'prettytable', 'progress',
-    #           'progressbar', 'requests', 'imageio', 'pyexiv2', 'cv2', 'exifread', 'whatimage', 'pyheif',
-    #           'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'flask', 'shapely'
-    #           ],          # 定义依赖哪些模块
-    install_requires=[
-            "opencv-python",
-            "shapely",
-            "prettytable",
-        ],
+
+    install_requires=['numpy', 'pillow', 'pandas', 'easydict', 'matplotlib', 'imagehash', 'prettytable', 'progress',
+              'progressbar', 'requests', 'imageio', 'pyexiv2', 'opencv-python', 'exifread', 'whatimage', 'pyheif',
+              'pymysql', 'pytesseract', 'beautifulsoup4', 'Crypto', 'flask', 'shapely'
+              ],          # 定义依赖哪些模块, https://pypi.tuna.tsinghua.edu.cn/simple
+
     # 打包的python文件夹AZ
     packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes', 'JoTools/ml',
               'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war',

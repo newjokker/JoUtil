@@ -2,10 +2,6 @@
 # -*- author: jokker -*-
 
 
-import sys
-import argparse
-from JoTools.operateDeteRes import OperateDeteRes, DeteAcc
-from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.PrintUtil import PrintUtil
 
 dete_res_standard = r"C:\Users\14271\Desktop\new_gt"

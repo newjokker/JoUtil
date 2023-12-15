@@ -2,7 +2,7 @@
 # -*- author: jokker -*-
 
 from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.operateDeteRes import OperateDeteRes
+from JoTools.txkjRes.operateDeteRes import OperateDeteRes
 from JoTools.utils.JsonUtil import JsonUtil
 import prettytable
 

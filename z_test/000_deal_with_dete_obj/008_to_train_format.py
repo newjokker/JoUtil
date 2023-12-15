@@ -3,12 +3,8 @@
 
 
 import os
+from JoTools.txkjRes.deteRes import DeteRes
 from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.operateDeteRes import OperateDeteRes
-from JoTools.txkjRes.deteRes import DeteRes,DeteObj
-from JoTools.utils.FileOperationUtil import FileOperationUtil
-from JoTools.utils.RandomUtil import RandomUtil
-
 
 img_dir = r"E:\多标签分类\jyz_test\train_ps\JPEGImages"
 xml_dir = r"E:\多标签分类\jyz_test\train_ps\Annotations_temp"

@@ -2,10 +2,7 @@
 # -*- author: jokker -*-
 
 
-from JoTools.operateDeteRes import DeteAcc
-from collections import Counter
-
-
+from JoTools.txkjRes.operateDeteRes import DeteAcc
 
 standard_dir = r"C:\Users\14271\Desktop\del\gt_xml"
 customized_dir = r"C:\Users\14271\Desktop\res"

@@ -2,7 +2,7 @@
 # -*- author: jokker -*-
 
 
-from JoTools.operateDeteRes import OperateDeteRes
+from JoTools.txkjRes.operateDeteRes import OperateDeteRes
 
 
 xml_dir = r"\\192.168.3.80\算法-数据交互\杆塔缺螺栓-横担螺栓定位标注\new_tag"

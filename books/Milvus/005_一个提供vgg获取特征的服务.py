@@ -79,10 +79,12 @@ def get_feature():
 
     try:
         img_url, img_bs64, img_path = "", "", ""
-        if "img_url" in request.form:
-            img_url = request.form["img_url"]
-        elif "img_bs64" in request.form:
-            img_bs64 = request.form["img_bs64"]
+        json_info = request.get_json()
+
+        if "img_url" in json_info:
+            img_url = json_info["img_url"]
+        elif "img_bs64" in json_info:
+            img_bs64 = json_info["img_bs64"]
         else:
             return jsonify({"status":"error, need img_url or img_bs64"})
 
@@ -125,7 +127,7 @@ def parse_args():
     parser.add_argument('--port', dest='port', type=int, default=50011)
     parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
     parser.add_argument('--tmp_dir', dest='tmp_dir', type=str, default="./")
-    parser.add_argument('--gpu_id', dest='gpu_id', type=int, default=0)
+    # parser.add_argument('--gpu_id', dest='gpu_id', type=int, default=0)
     parser.add_argument('--weight_path', dest='weight_path', type=str, default=r"/home/docker/docker_server_cleanlab/vgg19_bn-c79401a0.pth")
     #
     args = parser.parse_args()
@@ -139,7 +141,6 @@ if __name__ == "__main__":
     port            = args.port
     host            = args.host
     tmp_dir         = args.tmp_dir
-    gpu_id          = args.gpu_id
     weights_path    = args.weight_path
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

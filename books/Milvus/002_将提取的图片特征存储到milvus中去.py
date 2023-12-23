@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
     # --------------------------------------------------------
     COLLECTION_NAME = "uc_milvus"
-    # txt_dir = r"./feature_txt"
-    txt_dir = r"C:\Users\14271\Desktop\feature_txt"
+    txt_dir = r"./feature_txt"
+    # txt_dir = r"C:\Users\14271\Desktop\feature_txt"
     # --------------------------------------------------------
 
 
@@ -46,22 +46,19 @@ if __name__ == "__main__":
     connections.connect("default", host="192.168.3.221", port="19530")
     has = utility.has_collection(COLLECTION_NAME)
 
-    print(has)
-
-    if has:
-        utility.drop_collection(COLLECTION_NAME)
+    # if has:
+    #     utility.drop_collection(COLLECTION_NAME)
+    #     print(f"drop collection {COLLECTION_NAME}")
 
     fields = [
-        FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
-        FieldSchema(name="uc", dtype=DataType.VARCHAR, auto_id=False, max_length=7),
+        FieldSchema(name="uc", dtype=DataType.VARCHAR, is_primary=True, auto_id=False, max_length=7),
         FieldSchema(name="feature", dtype=DataType.FLOAT_VECTOR, dim=512)
     ]
 
-
-    schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is the simplest demo to introduce the APIs")
+    schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
     uc_milvus       = Collection(f"{COLLECTION_NAME}", schema, consistency_level="Strong")
 
-    for each_entities in get_entities(txt_dir):
+    for each_entities in get_entities(txt_dir, 10000):
         start = time.time()
         insert_result   = uc_milvus.insert(each_entities)
         print(f"Number of entities in Milvus: {uc_milvus.num_entities}, use time {time.time() - start}")  # check the num_entites

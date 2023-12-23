@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
 
     COLLECTION_NAME = "uc_milvus"
-    txt_path = r"./feature_txt/Dkd/Dkd0bfh.txt"
+    txt_path = r"C:\Users\14271\Desktop\feature_txt\Dxd\Dxd0b3n.txt"
 
     # vgg = models.vgg19_bn(pretrained=False)
     # weights_path = r"./vgg19_bn-c79401a0.pth"
@@ -57,35 +57,36 @@ if __name__ == "__main__":
     # assign_feature = extract_features(img_path).tolist()
 
     assign_feature = np.loadtxt(txt_path).tolist()
-    connections.connect("default", host="localhost", port="19530")
+    # connections.connect("default", host="localhost", port="19530")
+    connections.connect("default", host="192.168.3.221", port="19530")
 
     index = {
         "index_type": "IVF_FLAT",
-        "metric_type": "L2",
+        # "metric_type": "l2",
         "params": {"nlist": 128},
     }
 
     fields = [
-        FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
-        FieldSchema(name="uc", dtype=DataType.VARCHAR, auto_id=False, max_length=7),
+        # FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
+        FieldSchema(name="uc", dtype=DataType.VARCHAR, is_primary=True,auto_id=False, max_length=7),
         FieldSchema(name="feature", dtype=DataType.FLOAT_VECTOR, dim=512)
     ]
 
-    schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is the simplest demo to introduce the APIs")
+    schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
     uc_milvus       = Collection(COLLECTION_NAME, schema, consistency_level="Strong")
-    uc_milvus.create_index("feature", index)
+    # uc_milvus.create_index("feature", index)
     uc_milvus.load()
 
     search_params = {
-        "metric_type": "l2",
+        # "metric_type": "l2",
         "params": {"nprobe": 10},
     }
 
     #
-    # result = uc_milvus.search(assign_feature, "feature", search_params, limit=3, output_fields=["uc"])
-    result = uc_milvus.search([assign_feature], "feature", search_params, limit=3, output_fields=["uc"])
+    result = uc_milvus.search([assign_feature], "feature", search_params, limit=5, output_fields=["uc"])
 
-    for hits in result:
+    for hits in result[0]:
         print(hits)
+
 
 

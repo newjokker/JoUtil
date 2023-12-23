@@ -24,15 +24,16 @@ index = {
 }
 
 fields = [
-    FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
-    FieldSchema(name="uc", dtype=DataType.VARCHAR, auto_id=False, max_length=7),
+    # FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
+    FieldSchema(name="uc", dtype=DataType.VARCHAR, is_primary=True, auto_id=False, max_length=7),
     FieldSchema(name="feature", dtype=DataType.FLOAT_VECTOR, dim=512)
 ]
 
-schema = CollectionSchema(fields, f"{COLLECTION_NAME} is the simplest demo to introduce the APIs")
+schema = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
 uc_milvus = Collection(COLLECTION_NAME, schema, consistency_level="Strong")
 uc_milvus.create_index("feature", index)
 uc_milvus.load()
+
 
 search_params = {
     "metric_type": "l2",
@@ -53,5 +54,6 @@ print(f"use time : {end_time - start_time}")
 
 
 for each in result:
+    print(each.keys())
     print(each["uc"], " : ", each["feature"][:10])
     # print("-"*100)

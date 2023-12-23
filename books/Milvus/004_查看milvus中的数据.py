@@ -14,7 +14,6 @@ from pymilvus import (
 
 
 COLLECTION_NAME = "uc_milvus"
-# connections.connect("default", host="localhost", port="19530")
 connections.connect("default", host="192.168.3.221", port="19530")
 
 index = {
@@ -24,7 +23,6 @@ index = {
 }
 
 fields = [
-    # FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
     FieldSchema(name="uc", dtype=DataType.VARCHAR, is_primary=True, auto_id=False, max_length=7),
     FieldSchema(name="feature", dtype=DataType.FLOAT_VECTOR, dim=512)
 ]
@@ -41,10 +39,6 @@ search_params = {
 }
 
 start_time = time.time()
-# result = uc_milvus.search('Dqc046k', "uc", search_params, limit=3, output_fields=["feature"])
-
-# FIXME 必须小括号里面套着大括号，不能大括号里面套着小括号
-# result = uc_milvus.query(expr='uc == "Dqc0462k"', output_fields=["feature"])
 result = uc_milvus.query(expr='uc in ["Dxd0bd2", "Czr02d9","11234", "Czr02d2"]', output_fields=["uc", "feature"])
 
 

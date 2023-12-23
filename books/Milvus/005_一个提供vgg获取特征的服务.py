@@ -16,20 +16,20 @@ import requests
 from io import BytesIO
 from JoTools.utils.JsonUtil import JsonUtil
 # import pdb
-from gevent import monkey
-from gevent.pywsgi import WSGIServer
+# from gevent import monkey
+# from gevent.pywsgi import WSGIServer
 from flask import Flask, request, jsonify
 import base64
 import io
 import argparse
+from pymilvus import (
+    connections,
+    utility,
+    FieldSchema, CollectionSchema, DataType,
+    Collection,
+)
 
-""" 运行 vgg19_bn 获取特征向量，并返回 """
-
-# 图片以 url 或者 bs64 的方式发送过去，两种方式都要支持最好
-
-
-#
-monkey.patch_all()
+# monkey.patch_all()
 
 app = Flask(__name__)
 
@@ -71,23 +71,8 @@ def get_img_by_bs64(bs64_string, save_path):
     image = Image.open(io.BytesIO(binary_data))
     image.save(save_path)
 
-@app.route('/get_feature', methods=['post'])
-def get_feature():
-    """获取检测状态"""
-
-    # TODO 支持对指定 uc 的特征的获取，直接去数据库中查询对应的 uc 的 feature 即可
-
+def get_feature_by_uc_or_bs64(img_url="", img_bs64=""):
     try:
-        img_url, img_bs64, img_path = "", "", ""
-        json_info = request.get_json()
-
-        if "img_url" in json_info:
-            img_url = json_info["img_url"]
-        elif "img_bs64" in json_info:
-            img_bs64 = json_info["img_bs64"]
-        else:
-            return jsonify({"status":"error, need img_url or img_bs64"})
-
         img_path = f"./{str(uuid.uuid1())}.jpg"
 
         if img_url:
@@ -97,12 +82,77 @@ def get_feature():
 
         if os.path.exists(img_path):
             feature = extract_features(img_path)
-            return jsonify({"status": "correct", "feature":feature})
+            os.remove(img_path)
+            if feature:
+                return feature
+            else:
+                return "error, extra feature failed"
         else:
-            return jsonify({"status": "error, save img error"})
+            return "error, save img error"
 
     except Exception as e:
-        return jsonify({"status": f"error, {e}"})
+        return f"error, {e}"
+
+@app.route('/get_feature', methods=['post'])
+def get_feature():
+    """获取检测状态"""
+
+    # TODO 支持对指定 uc 的特征的获取，直接去数据库中查询对应的 uc 的 feature 即可
+
+    try:
+        img_url, img_bs64 = "", ""
+        json_info = request.get_json()
+
+        if "img_url" in json_info:
+            img_url = json_info["img_url"]
+        elif "img_bs64" in json_info:
+            img_bs64 = json_info["img_bs64"]
+        else:
+            return jsonify({"status":"error, need img_url or img_bs64"})
+
+        feature = get_feature_by_uc_or_bs64(img_url, img_bs64)
+
+        if isinstance(feature, list):
+            return jsonify({"status": "correct", "feature":feature})
+        else:
+            return jsonify({"status": f"{feature}"})
+    except Exception as e:
+        return jsonify({"status": f"{e}"})
+
+@app.route('/get_similar_uc', methods=['post'])
+def get_similar_uc():
+
+    try:
+        img_url, img_bs64 = "", ""
+        json_info = request.get_json()
+
+        limit = 5
+        if "limit" in json_info:
+            limit = json_info["limit"]
+
+        if "img_url" in json_info:
+            img_url = json_info["img_url"]
+        elif "img_bs64" in json_info:
+            img_bs64 = json_info["img_bs64"]
+        else:
+            return jsonify({"status":"error, need img_url or img_bs64"})
+
+        feature = get_feature_by_uc_or_bs64(img_url, img_bs64)
+
+        if isinstance(feature, list):
+
+            # TODO 查询得到最近似的几个 uc
+            search_params = {"params": {"nprobe": 10},}
+            result = uc_milvus.search([feature], "feature", search_params, limit=limit, output_fields=["uc"])
+            res = []
+            for hits in result[0]:
+                res.append(hits.to_dict())
+
+            return jsonify({"status": "correct", "uc_info": res})
+        else:
+            return jsonify({"status": f"{feature}"})
+    except Exception as e:
+        return jsonify({"status": f"{e}"})
 
 @app.route('/insert_uc_list')
 def insert_uc_list():
@@ -116,11 +166,10 @@ def insert_uc_list():
 
     # TODO 更新查询字典
 
-
-def server_start():
-    global host, port
-    http_server = WSGIServer((host, port), app)
-    http_server.serve_forever()
+# def server_start():
+#     global host, port
+#     http_server = WSGIServer((host, port), app)
+#     http_server.serve_forever()
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
@@ -128,7 +177,7 @@ def parse_args():
     parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
     parser.add_argument('--tmp_dir', dest='tmp_dir', type=str, default="./")
     # parser.add_argument('--gpu_id', dest='gpu_id', type=int, default=0)
-    parser.add_argument('--weight_path', dest='weight_path', type=str, default=r"/home/docker/docker_server_cleanlab/vgg19_bn-c79401a0.pth")
+    parser.add_argument('--weight_path', dest='weight_path', type=str, default=r"./data/vgg19_bn-c79401a0.pth")
     #
     args = parser.parse_args()
     return args
@@ -143,17 +192,33 @@ if __name__ == "__main__":
     tmp_dir         = args.tmp_dir
     weights_path    = args.weight_path
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    vgg = models.vgg19_bn(pretrained=False)
+    print(f"host : {host}")
+    print(f"port : {port}")
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # get vgg model
+    vgg = models.vgg19_bn(pretrained=False)
     vgg.load_state_dict(torch.load(weights_path))
     vgg.to(device)
     vgg.eval()
+    print("* load vgg success")
 
     vgg16_feature_extractor = nn.Sequential(*list(vgg.features.children()))
     avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
-    server_start()
+    # connect milvus
+    COLLECTION_NAME = "uc_milvus"
+    connections.connect("default", host="192.168.3.221", port="19530")
+    fields = [  FieldSchema(name="uc", dtype=DataType.VARCHAR, is_primary=True,auto_id=False, max_length=7),
+                FieldSchema(name="feature", dtype=DataType.FLOAT_VECTOR, dim=512)]
+    schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
+    uc_milvus       = Collection(COLLECTION_NAME, schema, consistency_level="Strong")
+    uc_milvus.load()
+    print("* load milvus success")
+
+    #
+    app.run(debug=True, host="0.0.0.0", port=50011)
 
 
 

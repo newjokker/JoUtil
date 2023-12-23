@@ -1,5 +1,6 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
+import os.path
 
 import requests
 import base64
@@ -26,8 +27,10 @@ if __name__ == "__main__":
 
     # ----------------------------------------
 
-    img_path = r"C:\Users\14271\Desktop\del\122.jpg"
-    url = r"http://192.168.3.221:50011/get_feature"
+    # img_path = r"C:\Users\14271\Desktop\del\122.jpg"
+    img_path = r"C:\Users\14271\Desktop\del\test_data\c010939f69e4aa8519f3b042e02a3fe8.jpg"
+    # url = r"http://192.168.3.221:50011/get_feature"
+    url = r"http://192.168.3.221:50011/get_similar_uc"
     COLLECTION_NAME = "uc_milvus"
 
     # ----------------------------------------
@@ -35,6 +38,10 @@ if __name__ == "__main__":
     img_bs64 = image_to_base64(img_path)
     res = requests.post(url=url, json={'img_bs64': img_bs64})
     res = json.loads(res.text)
+
+    print(res)
+
+    exit()
 
     if res["status"] == "correct":
         feature = res["feature"]

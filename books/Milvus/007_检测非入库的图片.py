@@ -26,53 +26,17 @@ if __name__ == "__main__":
 
 
     # ----------------------------------------
-
-    # img_path = r"C:\Users\14271\Desktop\del\122.jpg"
-    img_path = r"C:\Users\14271\Desktop\del\test_data\c010939f69e4aa8519f3b042e02a3fe8.jpg"
-    # url = r"http://192.168.3.221:50011/get_feature"
+    img_path = r"C:\Users\14271\Desktop\img\Dpb000i.jpg"
     url = r"http://192.168.3.221:50011/get_similar_uc"
     COLLECTION_NAME = "uc_milvus"
-
     # ----------------------------------------
 
     img_bs64 = image_to_base64(img_path)
-    res = requests.post(url=url, json={'img_bs64': img_bs64})
+    res = requests.post(url=url, json={'img_bs64': img_bs64, "limit": 3})
     res = json.loads(res.text)
 
-    print(res)
-
-    exit()
-
     if res["status"] == "correct":
-        feature = res["feature"]
-
-        connections.connect("default", host="192.168.3.221", port="19530")
-
-        index = {
-            "index_type": "IVF_FLAT",
-            # "metric_type": "l2",
-            "params": {"nlist": 128},
-        }
-
-        fields = [
-            FieldSchema(name="uc", dtype=DataType.VARCHAR, is_primary=True,auto_id=False, max_length=7),
-            FieldSchema(name="feature", dtype=DataType.FLOAT_VECTOR, dim=512)
-        ]
-
-        schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
-        uc_milvus       = Collection(COLLECTION_NAME, schema, consistency_level="Strong")
-        uc_milvus.load()
-
-        search_params = {
-            # "metric_type": "l2",
-            "params": {"nprobe": 10},
-        }
-
-        #
-        result = uc_milvus.search([feature], "feature", search_params, limit=5, output_fields=["uc"])
-
-        for hits in result[0]:
-            hits = hits.to_dict()
+        for hits in res["uc_info"]:
             print(hits["entity"]["uc"], " : ", str(hits["distance"]).ljust(20, " ") , f"http://192.168.3.111:11101/file/{hits['id']}.jpg")
 
 

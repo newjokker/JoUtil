@@ -218,7 +218,7 @@ if __name__ == "__main__":
     print("* load milvus success")
 
     #
-    app.run(debug=True, host="0.0.0.0", port=50011)
+    app.run(debug=True, host=host, port=port)
 
 
 

@@ -1,0 +1,30 @@
+from jibei:v0.0.4
+
+RUN mkdir /app
+
+WORKDIR /app
+
+COPY ./server.py /app/server.py
+COPY ./run.sh /app/run.sh
+COPY ./vgg19_bn-c79401a0.pth /app/vgg19_bn-c79401a0.pth
+
+# RUN chmod 777 /app/*
+
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple JoUtil \
+    flask\
+    shapely\
+    pandas\
+    yacs\
+    scikit-image\
+    prettytable\
+    opencv-python\
+    gevent\
+    pymilvus
+
+CMD ["/app/run.sh"]
+
+
+
+
+
+

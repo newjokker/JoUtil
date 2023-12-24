@@ -26,13 +26,14 @@ if __name__ == "__main__":
 
 
     # ----------------------------------------
-    img_path = r"C:\Users\14271\Desktop\img\Dpb000i.jpg"
+    img_path = r"C:\Users\14271\Desktop\del\123.jpg"
     url = r"http://192.168.3.221:50011/get_similar_uc"
     COLLECTION_NAME = "uc_milvus"
     # ----------------------------------------
 
     img_bs64 = image_to_base64(img_path)
-    res = requests.post(url=url, json={'img_bs64': img_bs64, "limit": 3})
+    # res = requests.post(url=url, json={'img_bs64': img_bs64, "limit": 5})
+    res = requests.post(url=url, json={'img_url': r"http://192.168.3.111:11101/file/Eqr0024.jpg", "limit": 5})
     res = json.loads(res.text)
 
     if res["status"] == "correct":

@@ -214,6 +214,7 @@ if __name__ == "__main__":
                 FieldSchema(name="feature", dtype=DataType.FLOAT_VECTOR, dim=512)]
     schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
     uc_milvus       = Collection(COLLECTION_NAME, schema, consistency_level="Strong")
+    uc_milvus.create_index("feature")
     uc_milvus.load()
     print("* load milvus success")
 

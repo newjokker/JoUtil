@@ -37,18 +37,19 @@ if __name__ == "__main__":
 
     # --------------------------------------------------------
     COLLECTION_NAME = "uc_milvus"
+    remove_db_info = True
     txt_dir = r"./feature_txt"
     # txt_dir = r"C:\Users\14271\Desktop\feature_txt"
     # --------------------------------------------------------
 
 
     # connections.connect("default", host="localhost", port="19530")
-    connections.connect("default", host="192.168.3.221", port="19530")
+    connections.connect("default", host="192.168.3.33", port="19530")
     has = utility.has_collection(COLLECTION_NAME)
 
-    # if has:
-    #     utility.drop_collection(COLLECTION_NAME)
-    #     print(f"drop collection {COLLECTION_NAME}")
+    if has and remove_db_info:
+        utility.drop_collection(COLLECTION_NAME)
+        print(f"drop collection {COLLECTION_NAME}")
 
     fields = [
         FieldSchema(name="uc", dtype=DataType.VARCHAR, is_primary=True, auto_id=False, max_length=7),
@@ -62,3 +63,6 @@ if __name__ == "__main__":
         start = time.time()
         insert_result   = uc_milvus.insert(each_entities)
         print(f"Number of entities in Milvus: {uc_milvus.num_entities}, use time {time.time() - start}")  # check the num_entites
+
+    # 创建目录
+    uc_milvus.create_index("feature")

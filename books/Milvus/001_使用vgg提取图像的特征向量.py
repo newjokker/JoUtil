@@ -59,14 +59,14 @@ if __name__ == "__main__":
     # TODO 传入一个 ucd 文件，解析所有的 uc，下载对应的图片，获取 feature 删除图片
 
     # ---------------------------------------------------------
-    # img_dir = r"/home/disk3/ucd_cache/img_cache"
-    img_dir = r"/home/ldq/milvus/all.json"
-    save_dir = r"/home/ldq/milvus/feature_txt"
+    img_dir = r"/home/data/ucd_cache/img_cache"
+    # img_dir = r"/home/ldq/milvus/all.json"
+    save_dir = r"./feature_txt"
     # ---------------------------------------------------------
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
     vgg = models.vgg19_bn(pretrained=False)
-    weights_path = r"/home/docker/docker_server_cleanlab/vgg19_bn-c79401a0.pth"
+    weights_path = r"./vgg19_bn-c79401a0.pth"
     vgg.load_state_dict(torch.load(weights_path))
     vgg.to(device)
     vgg.eval()
@@ -77,10 +77,10 @@ if __name__ == "__main__":
     # pdb.set_trace()
 
     if os.path.isdir(img_dir):
-        print("threr")
-        index = 0
-        for each_img_path in FileOperationUtil.re_all_file(img_dir, endswitch=[".jpg", ".png", ".JPG", ".PNG"]):
-            index += 1
+        img_path_list = list(FileOperationUtil.re_all_file(img_dir, endswitch=[".jpg", ".png", ".JPG", ".PNG"]))
+        random.shuffle(img_path_list)
+
+        for index, each_img_path in enumerate(img_path_list):
             print(index, each_img_path)
             each_uc = FileOperationUtil.bang_path(each_img_path)[1]
             each_save_dir = os.path.join(save_dir, each_uc[:3])

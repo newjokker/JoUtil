@@ -14,7 +14,7 @@ from pymilvus import (
 
 
 COLLECTION_NAME = "uc_milvus"
-connections.connect("default", host="192.168.3.221", port="19530")
+connections.connect("default", host="192.168.3.33", port="19530")
 
 index = {
     "index_type": "IVF_FLAT",

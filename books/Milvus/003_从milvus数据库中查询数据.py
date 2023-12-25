@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     assign_feature = np.loadtxt(txt_path).tolist()
     # connections.connect("default", host="localhost", port="19530")
-    connections.connect("default", host="192.168.3.221", port="19530")
+    connections.connect("default", host="192.168.3.33", port="19530")
 
     index = {
         "index_type": "IVF_FLAT",

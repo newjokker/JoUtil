@@ -20,4 +20,29 @@
 
 * pip install pymilvus 
 
+### 新建，删除索引
+
+```python
+uc_milvus.release()             # 删除索引需要先从内存中释放 collection
+uc_milvus.drop_index()          # 删除索引，
+
+# 只有建立索引的时候 metric_type 是 L2, 搜索的时候才能用 L2 距离
+index = {
+    "index_type"    : "IVF_FLAT",
+    "metric_type"   : "L2",
+    "params"        : {"nlist": 128},
+}
+
+uc_milvus.create_index("feature", index)    # 不能使用不同的参数新建多个索引，
+uc_milvus.load()                            # 将 collection 加载到内存里面
+```
+
+## ucd search_similar 功能
+
+* 指定返回个数
+* 返回结果生成 ucd 格式的 json
+* 
+
+
+
 

@@ -60,11 +60,7 @@ if __name__ == "__main__":
     # connections.connect("default", host="localhost", port="19530")
     connections.connect("default", host="192.168.3.33", port="19530")
 
-    index = {
-        "index_type": "IVF_FLAT",
-        # "metric_type": "l2",
-        "params": {"nlist": 128},
-    }
+
 
     fields = [
         # FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
@@ -74,11 +70,23 @@ if __name__ == "__main__":
 
     schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
     uc_milvus       = Collection(COLLECTION_NAME, schema, consistency_level="Strong")
-    # uc_milvus.create_index("feature", index)
+
+    # # 从内存中释放 collection
+    # uc_milvus.release()             # 删除索引需要先从内存中释放 collection
+    # uc_milvus.drop_index()          # 删除索引，
+
+    # 只有建立索引的时候 metric_type 是 L2, 搜索的时候才能用 L2 距离
+    index = {
+        "index_type": "IVF_FLAT",
+        "metric_type": "L2",
+        "params": {"nlist": 128},
+    }
+
+    uc_milvus.create_index("feature", index)    # 不能使用不同的参数新建多个索引，
     uc_milvus.load()
 
     search_params = {
-        # "metric_type": "l2",
+        "metric_type": "L2",
         "params": {"nprobe": 10},
     }
 

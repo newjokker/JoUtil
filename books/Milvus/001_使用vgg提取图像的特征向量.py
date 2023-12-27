@@ -81,13 +81,13 @@ if __name__ == "__main__":
         random.shuffle(img_path_list)
 
         for index, each_img_path in enumerate(img_path_list):
-            print(index, each_img_path)
             each_uc = FileOperationUtil.bang_path(each_img_path)[1]
             each_save_dir = os.path.join(save_dir, each_uc[:3])
             os.makedirs(each_save_dir, exist_ok=True)
             save_txt_path = os.path.join(each_save_dir, each_uc + ".txt")
 
             if not os.path.exists(save_txt_path):
+                print(index, each_img_path)
                 features = extract_features(each_img_path)
                 if isinstance(features, np.ndarray):
                     np.savetxt(save_txt_path, features)
@@ -99,12 +99,12 @@ if __name__ == "__main__":
 
         for index, each_uc in enumerate(uc_list):
             each_img_path = os.path.join(save_dir, f"./{each_uc}.jpg")
-            print(index, each_img_path)
             each_save_dir = os.path.join(save_dir, each_uc[:3])
             os.makedirs(each_save_dir, exist_ok=True)
             save_txt_path = os.path.join(each_save_dir, each_uc + ".txt")
 
             if not os.path.exists(save_txt_path):
+                print(index, each_img_path)
                 get_img_by_uc(each_uc, each_img_path)
                 features = extract_features(each_img_path)
                 if isinstance(features, np.ndarray):

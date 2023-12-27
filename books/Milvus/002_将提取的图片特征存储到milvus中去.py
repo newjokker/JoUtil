@@ -63,6 +63,3 @@ if __name__ == "__main__":
         start = time.time()
         insert_result   = uc_milvus.insert(each_entities)
         print(f"Number of entities in Milvus: {uc_milvus.num_entities}, use time {time.time() - start}")  # check the num_entites
-
-    # 创建目录
-    uc_milvus.create_index("feature")

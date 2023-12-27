@@ -177,7 +177,7 @@ def parse_args():
     parser.add_argument('--host', dest='host', type=str, default='0.0.0.0')
     parser.add_argument('--tmp_dir', dest='tmp_dir', type=str, default="./")
     # parser.add_argument('--gpu_id', dest='gpu_id', type=int, default=0)
-    parser.add_argument('--weight_path', dest='weight_path', type=str, default=r"./data/vgg19_bn-c79401a0.pth")
+    parser.add_argument('--weight_path', dest='weight_path', type=str, default=r"./vgg19_bn-c79401a0.pth")
     #
     args = parser.parse_args()
     return args
@@ -209,12 +209,15 @@ if __name__ == "__main__":
 
     # connect milvus
     COLLECTION_NAME = "uc_milvus"
-    connections.connect("default", host="192.168.3.221", port="19530")
+    connections.connect("default", host="192.168.3.33", port="19530")
     fields = [  FieldSchema(name="uc", dtype=DataType.VARCHAR, is_primary=True,auto_id=False, max_length=7),
                 FieldSchema(name="feature", dtype=DataType.FLOAT_VECTOR, dim=512)]
+
     schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
     uc_milvus       = Collection(COLLECTION_NAME, schema, consistency_level="Strong")
-    uc_milvus.create_index("feature")
+
+    index = {"index_type": "IVF_FLAT", "metric_type": "L2", "params": {"nlist": 128},}
+    uc_milvus.create_index("feature", index)
     uc_milvus.load()
     print("* load milvus success")
 

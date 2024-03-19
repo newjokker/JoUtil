@@ -5,7 +5,7 @@ import os
 from JoTools.utils.FileOperationUtil import FileOperationUtil
 
 
-txt_dir = r"/home/ldq/milvus/feature_txt"
+txt_dir = r"C:\Users\14271\Desktop\feature_txt_old"
 
 
 for each_txt_path in FileOperationUtil.re_all_file(txt_dir, endswitch=[".txt"]):

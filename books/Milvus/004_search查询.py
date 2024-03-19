@@ -44,7 +44,8 @@ if __name__ == "__main__":
 
 
     COLLECTION_NAME = "uc_milvus"
-    txt_path = r"C:\Users\14271\Desktop\feature_txt\Dxd\Dxd0b3n.txt"
+    COLLECTION_NAME = "uc_milvus_demo"
+    txt_path = r"C:\Users\14271\Desktop\feature_txt_old\Dcq\Dcq00fa.txt"
 
     # vgg = models.vgg19_bn(pretrained=False)
     # weights_path = r"./vgg19_bn-c79401a0.pth"
@@ -58,8 +59,9 @@ if __name__ == "__main__":
 
     assign_feature = np.loadtxt(txt_path).tolist()
     # connections.connect("default", host="localhost", port="19530")
-    connections.connect("default", host="192.168.3.33", port="19530")
-
+    # connections.connect("default", host="192.168.3.33", port="19530")
+    connections.connect("default", uri=r"https://in01-6cc528a107d890d.ali-cn-hangzhou.vectordb.zilliz.com.cn:19530",
+                        user="db_admin", password="Qh3]13E&&}&Cv1^7")
 
 
     fields = [
@@ -71,6 +73,14 @@ if __name__ == "__main__":
     schema          = CollectionSchema(fields, f"{COLLECTION_NAME} is a demo")
     uc_milvus       = Collection(COLLECTION_NAME, schema, consistency_level="Strong")
 
+    index = {
+        "index_type": "IVF_FLAT",
+        "metric_type": "L2",
+        "params": {"nlist": 128},
+    }
+
+    uc_milvus.create_index("feature", index)  # 不能使用不同的参数新建多个索引，
+    uc_milvus.load()
     # 只有建立索引的时候 metric_type 是 L2, 搜索的时候才能用 L2 距离
     index = {
         "index_type": "IVF_FLAT",

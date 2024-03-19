@@ -86,10 +86,10 @@ if __name__ == '__main__':
 
     #
     args = parse_args()
-    img_dir = args.img_dir
-    host = args.host
-    port = args.port
-    ip = args.ip
+    img_dir = args.img_dir      # 存储图片的文件夹
+    host = args.host            # 0.0.0.0
+    port = args.port            # 对外的端口号
+    ip = get_ip()               # 本机的 ip
 
     print_config()
 

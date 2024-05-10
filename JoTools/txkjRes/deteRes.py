@@ -1034,7 +1034,7 @@ class DeteRes(ResBase, ABC):
             each_cover_index = ResTools.polygon_iou_1(each_dete_obj.get_points(), mask)
             if each_cover_index >= cover_index_th and need_in is True:
                 new_dete_res.add_obj_2(each_dete_obj)
-            elif each_cover_index < cover_index_th and need_in is False:
+            elif each_cover_index <= cover_index_th and need_in is False:
                 new_dete_res.add_obj_2(each_dete_obj)
 
         if update:

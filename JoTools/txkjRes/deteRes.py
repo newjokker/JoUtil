@@ -891,6 +891,30 @@ class DeteRes(ResBase, ABC):
                 res.append(each_res)
         self._alarms = res
 
+    def do_nms_fast(self, iou_thres):
+        import torchvision
+
+        if len(self._alarms)==0:
+            return 0
+        prediction=[]
+        dict_tag={}
+        num=0
+        max_wh=4096
+        for i in range(len(self._alarms)):
+            if self._alarms[i].tag not in dict_tag:
+                dict_tag[self._alarms[i].tag]=num
+                num+=1
+            prediction.append([self._alarms[i].x1,self._alarms[i].y1,self._alarms[i].x2,self._alarms[i].y2,self._alarms[i].conf,dict_tag[self._alarms[i].tag]])
+        prediction=np.array(prediction)
+        x=torch.from_numpy(prediction)
+        c = x[:, 5:6] * max_wh # classes
+        boxes, scores = x[:, :4] + c, x[:, 4]  # boxes (offset by class), scores
+        i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS
+        res=[]
+        for idx in i:
+            res.append(self._alarms[idx])
+        self._alarms=res
+
     def do_nms_center_point(self, ignore_tag=False):
         """中心点 nms，一个要素的中心点要是在另一个里面，去掉这个要素"""
         dete_obj_list = copy.deepcopy(self._alarms)

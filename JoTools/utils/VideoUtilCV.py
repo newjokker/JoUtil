@@ -159,31 +159,5 @@ class CompressVideo(object):
 if __name__ == '__main__':
 
 
-    # # for each_vedio_path in FileOperationUtil.re_all_file(r"C:\Users\14271\Desktop\test\vedio"):
-    # for each_vedio_path in FileOperationUtil.re_all_file(r"C:\Users\14271\Desktop\test_vedio"):
-    #     dir_name, file_name = os.path.split(each_vedio_path)
-    #     file_name, suffix = os.path.splitext(file_name)
-    #     save_folder = os.path.join(dir_name, file_name)
-    #
-    #     if os.path.exists(save_folder):
-    #         shutil.rmtree(save_folder)
-    #         os.makedirs(save_folder)
-    #     else:
-    #         os.makedirs(save_folder)
-    #
-    #     VideoUtilCV.get_img_from_vedio(each_vedio_path, save_folder, sep=1, start_index=0)
 
-
-    out_path = r"C:\Users\14271\Desktop\test_vedio_all_005.avi"
-    img_folder = r"C:\Users\14271\Desktop\all_005"
-    a.write_vedio(FileOperationUtil.re_all_file(save_folder), out_path, assign_fps=5, assign_size=(640, 480))
-
-    # file_list = FileOperationUtil.re_all_file(img_folder)
-    #
-    # # file_list = file_list[::-1]
-    #
-    # VideoUtilCV.write_vedio(file_list, out_path, assign_fps=15)
-    #
-
-
-
+    pass

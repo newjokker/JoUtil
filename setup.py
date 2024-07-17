@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='JoUtil',                                                                          # 打包起来的包的文件名
-    version='1.4.4',                                                                        # 版本
+    version='1.4.5',                                                                        # 版本
     description='a tools for Saturn dete algo',                                             # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
@@ -18,7 +18,7 @@ setup(
               ],          # 定义依赖哪些模块, https://pypi.tuna.tsinghua.edu.cn/simple
 
     # 打包的python文件夹AZ
-    packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes', 'JoTools/ml',
+    packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes',
               'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war',
               ],
     # packages=find_packages('JoTools'),          # 包含所有 JoTools 中的包
@@ -45,18 +45,32 @@ setup(
 
 # setuptools 的进一步学习参考：https://www.jianshu.com/p/ea9973091fdf
 
-# ----------------------------------------------------------------------------------------------------------------------
-# 发布到 pypi 上去，refer : https://www.justdopython.com/2020/05/13/Python-pip/
-# python -m twine upload --repository pypi dist/*
-# 或者
-# python -m twine upload --repository pypi dist/JoUtil-0.2.21-py3-none-any.whl
-# 账号：jokker
-# 密码：*u@%Uu.#PU8ty,w
+# ----------------------------------------------------------------------------------------------------------------------i
+# 发布到 pypi 上去，refer : https://blog.csdn.net/Mecaly/article/details/135829634
 
-# 有时候明明上传了，但是提示历史版本为最新的版本，看一下版本号是不是设置错了，或者改一下版本号，twine 会根据版本号决定哪个是最新的版本
-# 报错试一下关闭 VPN 再试一下，一定确保 vpn 关掉了
-# 试着在网页上登录上
-# 还是报错的话尝试更新一下 twine
+# 生成一个文件 .pypirc 内容如下
+"""
+[pypi]
+  username = __token__
+  password = pypi-AgEIcHlwaS5vcmcCJDRjYzBkMTI2LTI4ZDQtNDU4NS1iOWVhLTE2OTJlNzBiM2Y3MwACDlsxLFsiam91dGlsIl1dAAIsWzIsWyIwZWRiNDIwZi03ZGFiLTQzYWQtYTdkYy05NDBmNzcwZTAyYzMiXV0AAAYgfalWTt82bgSIy2eVsONyBpX3_srxwPuYR3iFPOfZtww
+"""
+
+# 拷贝到 $HOME 目录下面，我的windows 的目录是 C:\Users\14271
+# 执行 twine upload .\dist\JoUtil-1.4.4-py3-none-any.whl
+
+# PyPI recovery codes
+# 81a8baec0ca68ae9
+# 989551ea0d8f01c0
+# 9b0249c4aeedf415
+# ee5ce4447fab224d
+# 5abe9efe3a18d69d
+# 4a6a9c17667526a6
+# 334b903e4380ffe1
+# 96f2af64d069c5a0
+
+
+# token
+# pypi-AgEIcHlwaS5vcmcCJDRjYzBkMTI2LTI4ZDQtNDU4NS1iOWVhLTE2OTJlNzBiM2Y3MwACDlsxLFsiam91dGlsIl1dAAIsWzIsWyIwZWRiNDIwZi03ZGFiLTQzYWQtYTdkYy05NDBmNzcwZTAyYzMiXV0AAAYgfalWTt82bgSIy2eVsONyBpX3_srxwPuYR3iFPOfZtww
 
 # ----------------------------------------------------------------------------------------------------------------------
 # pip freeze > requirements.txt，环境导出

@@ -70,8 +70,8 @@ def interpolate_points(points, save_range, color_dict, save_path, method="cubic"
     x, y, values = zip(*points)
     x_flat, y_flat, z_flat = map(np.ravel, [x, y, values])
     # f = interp2d(x, y, value, kind='cubic')
-    # f = interp2d(x_flat, y_flat, z_flat, kind='cubic')
-    f = CubicHermiteSpline(x, y, values, kind='cubic')
+    f = interp2d(x_flat, y_flat, z_flat, kind='cubic')
+    # f = CubicHermiteSpline(x, y, values, kind='cubic')
 
     x_flat = np.linspace(0, save_range[0], 1000)
     y_flat = np.linspace(0, save_range[1], 1000)

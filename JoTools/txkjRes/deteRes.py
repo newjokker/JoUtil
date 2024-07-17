@@ -893,6 +893,7 @@ class DeteRes(ResBase, ABC):
 
     def do_nms_fast(self, iou_thres):
         import torchvision
+        import torch
 
         if len(self._alarms)==0:
             return 0

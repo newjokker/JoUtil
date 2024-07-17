@@ -18,7 +18,7 @@ class RedisUtil(object):
 
     def clear_all(self):
         """删除所有的信息"""
-        for each_key in r.keys():
+        for each_key in self.r.keys():
             self.r.delete(each_key)
 
     def insert_image(self, frame_id, img_path):

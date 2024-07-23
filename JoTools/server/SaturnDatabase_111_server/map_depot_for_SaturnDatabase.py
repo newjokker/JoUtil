@@ -1,24 +1,25 @@
 # -*- coding: utf-8  -*-
 # -*- author: jokker -*-
 
-# 给所有的入库图片创建一个图床
-
 import os
 import shutil
-
+import time
 import cv2
 import random
 import numpy as np
 import socket
 import requests
+import redis
+import json
 import argparse
-from flask import Flask, Response, request, jsonify
+from flask import Flask, Response, request, jsonify, send_file, abort
 from JoTools.utils.HashlibUtil import HashLibUtil
 from gevent import monkey
 from gevent.pywsgi import WSGIServer
 from JoTools.txkj.jsonInfo import JsonInfo
 from JoTools.utils.JsonUtil import JsonUtil
 from JoTools.utils.FileOperationUtil import FileOperationUtil
+# from JoTools.txkj.ucDatasetUtil import UcDataset
 
 
 monkey.patch_all()
@@ -86,6 +87,8 @@ def get_uc_file(uc_suffix):
         else:
             print(f"* no such json path : {json_path}")
             return jsonify({"status": "error, no such file"}), 500
+    else:
+        return jsonify({"status": "error, no such file"}), 500
 
 @app.route("/ucd/<ucd_name>")
 def get_ucd_file(ucd_name):
@@ -96,16 +99,9 @@ def get_ucd_file(ucd_name):
     ucd_customer_path = os.path.join(ucd_customer_dir, ucd_name + ".json")
 
     if os.path.exists(ucd_official_path):
-        with open(ucd_official_path, 'rb') as f:
-            ucd_file = f.read()
-            resp = Response(ucd_file, mimetype="application/x-javascript")
-            return resp
-
+        return send_file(ucd_official_path, as_attachment=True)
     elif os.path.exists(ucd_customer_path):
-        with open(ucd_customer_path, 'rb') as f:
-            ucd_file = f.read()
-            resp = Response(ucd_file, mimetype="application/x-javascript")
-            return resp
+        return send_file(ucd_customer_path, as_attachment=True)
     else:
         return jsonify({"error": f"ucd_name : {ucd_name} not exists"}), 500
 
@@ -141,28 +137,12 @@ def get_ucd_version_list():
 
 @app.route("/ucd_app/<ucd_version>")
 def get_ucd_app(ucd_version):
-    # /ucd_app/so_v1.5.4 就是下载 so 文件，否则就是下载 执行文件
-
-    # if str(ucd_version).startswith("so_"):
-    #     is_so = True
-    #     ucd_version = ucd_version[3:]
-    # else:
-    #     is_so = False
-    #
-    # if is_so:
-    #     ucd_app_path = os.path.join(ucd_app_dir, "libsaturntools_{0}.so".format(ucd_version))
-    # else:
-    #     pass
-
     ucd_app_path = os.path.join(ucd_app_dir, "ucd_" + ucd_version)
 
     print(ucd_app_path)
 
     if os.path.exists(ucd_app_path):
-        with open(ucd_app_path, 'rb') as f:
-            ucd_file = f.read()
-            resp = Response(ucd_file, mimetype="application/x-javascript")
-            return resp, 200
+        return send_file(ucd_app_path, as_attachment=True)
     else:
         version_str = ",".join(get_version_list())
         return jsonify({"error": f"version should in : [{version_str}]"}), 500
@@ -216,6 +196,98 @@ def check_ucdataset_with_assign_uc(assign_uc):
     #         ucd_dict["customer"].append(each_ucd_name)
 
     return jsonify(ucd_dict)
+
+def get_json_file_info(file_path):
+    info = get_json_file_info_from_redis(file_path)
+    if info:
+        return info
+    else:
+        return get_json_file_info_from_file(file_path)
+
+def get_json_file_info_from_file(file_path):
+    file_info = None
+    if os.path.exists(file_path):
+
+        with open(file_path, 'r', encoding="utf-8") as json_file:
+            json_info = json.load(json_file)
+
+        file_info = {
+            "add_time": "",
+            "dataset_name": "",
+            "describe": "",
+            "json_path": "",
+            "label_used": "",
+            "model_name": "",
+            "model_version": "",
+            "update_time": ""
+        }
+
+        for each in file_info:
+            if each in json_info:
+                value = json_info[each]
+                file_info[each] = str(value)
+            else:
+                file_info[each] = "null"
+
+        if file_info["json_path"]:
+            file_info["json_name"] = os.path.split(file_path)[1]
+        else:
+            file_info["json_name"] = ""
+
+        if file_info["update_time"] and file_info["update_time"] != "-1.0":
+            file_info["update_time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(float(file_info["update_time"])))
+
+        if file_info["add_time"] and file_info["add_time"] != "-1.0":
+            file_info["add_time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(float(file_info["add_time"])))
+
+        if "uc_list" in json_info:
+            file_info["uc_count"] = str(len(json_info["uc_list"]))
+        else:
+            file_info["uc_count"] = "0"
+
+        file_info["size"] = f"{os.path.getsize(file_path)/(1024*1024):.2f} M"
+
+    return file_info
+
+def save_json_info_to_redis(json_info, file_path):
+    try:
+        json_info_str = json.dumps(json_info)
+        r.hset("ucd_json_info", file_path, json_info_str)
+    except:
+        pass
+
+def get_json_file_info_from_redis(file_path):
+    """先在 redis 中查询文件缓存是否存在，不存在的话创建缓存文件"""
+    try:
+        info = r.hget("ucd_json_info", file_path)
+        if info is None:
+            json_info = get_json_file_info_from_file(file_path)
+            save_json_info_to_redis(json_info, file_path)
+            return json_info
+        else:
+            json_info = json.loads(info.decode("utf-8"))
+        return json_info
+    except Exception as e:
+        return {}
+
+@app.route("/ucd/check_assign_json/<path:assign_path>")
+def check_ucdataset_with_assign_json(assign_path):
+    """打印所有的 ucdataset，官方的或者非官方的"""
+    assign_path = str(assign_path).strip('"')
+    if not assign_path.endswith(".json"):
+        assign_path += ".json"
+
+    off_path = os.path.join(ucd_official_dir, assign_path)
+    cus_path = os.path.join(ucd_customer_dir, assign_path)
+
+    if os.path.exists(off_path):
+        json_info = get_json_file_info(off_path)
+        return jsonify(json_info)
+    elif os.path.exists(cus_path):
+        json_info = get_json_file_info(cus_path)
+        return jsonify(json_info)
+    else:
+        return jsonify({"error": f"can't find json path : {off_path} and {cus_path}"})
 
 @app.route("/ucd/delete/<ucd_name>", methods=["DELETE"])
 def delete_ucdataset(ucd_name):
@@ -283,11 +355,13 @@ def serv_start():
 
 if __name__ == '__main__':
 
+    r = redis.Redis(host='192.168.3.221', port=6379, db=0)
+
     args = parse_args()
-    img_dir = r"\\192.168.3.80\数据\root_dir\json_img"
-    ucd_official_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset"
-    ucd_customer_dir = r"\\192.168.3.80\数据\root_dir\uc_dataset_customer"
-    ucd_app_dir = r"\\192.168.3.80\数据\root_dir\ucd"
+    img_dir             = r"\\192.168.3.33\data_ucd\root_dir\json_img"
+    ucd_official_dir    = r"\\192.168.3.33\data_ucd\root_dir\uc_dataset"
+    ucd_customer_dir    = r"\\192.168.3.33\data_ucd\root_dir\ucd_customer"
+    ucd_app_dir         = r"\\192.168.3.33\data_ucd\root_dir\ucd"
     # -----------------------------------------------------------------------------
     # 缓存文件夹列表，就是说随机缓存在下面几个文件夹下面
     cache_dir_tmp_list = [r"D:\json_img", r"F:\json_img", r"H:\json_img", r"E:\json_img"]

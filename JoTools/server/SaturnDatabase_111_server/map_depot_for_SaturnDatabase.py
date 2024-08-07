@@ -90,7 +90,7 @@ def get_uc_file(uc_suffix):
     else:
         return jsonify({"status": "error, no such file"}), 500
 
-@app.route("/ucd/<ucd_name>")
+@app.route("/ucd/<path:ucd_name>")
 def get_ucd_file(ucd_name):
     # 下载 ucDataset 文件
     # 检查官方ucd 中有没有，如果没有再去检查非官方的 ucd 是否有

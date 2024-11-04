@@ -5,8 +5,8 @@ from setuptools import setup, find_packages
 
 setup(
 
-    name='JoUtil',                                                                          # 打包起来的包的文件名
-    version='1.4.5',                                                                        # 版本
+    name='SaturnTools',                                                                          # 打包起来的包的文件名
+    version='2.0.2',                                                                        # 版本
     description='a tools for Saturn dete algo',                                             # 描述
     author='jokker',                                                                        # 作者
     author_email='18761609908@163.com',                                                     # 邮箱
@@ -18,13 +18,13 @@ setup(
               ],          # 定义依赖哪些模块, https://pypi.tuna.tsinghua.edu.cn/simple
 
     # 打包的python文件夹AZ
-    packages=['JoTools', 'JoTools/utils', 'JoTools/txkj', 'JoTools/for_csdn', 'JoTools/txkjRes',
-              'JoTools/for_csdn/word_pic', 'JoTools/for_csdn/find_same_img', 'JoTools/for_csdn/the_art_of_war',
-              ],
-    # packages=find_packages('JoTools'),          # 包含所有 JoTools 中的包
+    # packages=['SaturnTools/utils', 'SaturnTools/txkj', 'SaturnTools/txkjRes',
+    #           # 'for_csdn/word_pic', 'for_csdn/find_same_img', 'for_csdn/the_art_of_war',
+    #           ],
+    packages=find_packages(include=['SaturnTools']),
     package_data={
-        'JoTools/for_csdn/word_pic': ['data/*.pkl'],
-        'JoTools/for_csdn/the_art_of_war': ['data/*.txt'],
+        # 'JoTools/for_csdn/word_pic': ['data/*.pkl'],
+        # 'JoTools/for_csdn/the_art_of_war': ['data/*.txt'],
     },
     long_description="""
     * jokker 常用的功能组成的包

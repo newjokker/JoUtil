@@ -22,6 +22,9 @@ src\*.py[cod]
 /JoUtil.egg-info/
 /.pytest_cache
 /venv
+/test_data/
+/dist/
+
 
 /z_test/del
 /z_test/003_eagle

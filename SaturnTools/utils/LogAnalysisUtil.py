@@ -54,6 +54,15 @@ def analyze_log(file_path):
             print(f"{name:<30} 总耗时: {total_time:.15f} 秒, 平均耗时: {average_time:.15f} 秒, 统计个数: {len(data['durations'])} \n")
             # print(f"{name:<30} 总耗时: {total_time} 秒, 平均耗时: {average_time} 秒, 统计个数: {len(data['durations'])} \n")
 
-# 使用示例
-# analyze_log('/home/ldq/Code/SaturnVoiceData/app/test/log.log')
-analyze_log('/home/ldq/Code/SaturnVoiceData/app/test/log_true.log')
+
+if __name__ == "__main__":
+
+    #FIXME: 支持多进程，增加 process id ，一样的 id 放在一起进行解析
+    
+    # TODO: 识别日志之间的嵌套关系，生成日志时间分析图
+
+
+    # 使用示例
+    analyze_log('/home/ldq/Code/SaturnVoiceData/app/test/log.log')
+    # analyze_log('/home/ldq/Code/SaturnTools/test_data/log_true.log')
+
